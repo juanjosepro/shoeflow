@@ -1,0 +1,8 @@
+.container-check {
+  overflow-y: scroll;
+  padding: 8px 0;
+}
+
+.container-check .p-chip .p-chip-text {
+  width: max-content;
+}
