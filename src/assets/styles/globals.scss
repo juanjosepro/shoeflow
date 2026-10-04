@@ -1,0 +1,18 @@
+@use './variables';
+@use './reset';
+@use './base';
+
+@use './prime-components';
+@use './dialogs';
+
+@import url("https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap");
+
+/* ============================================================
+   AVATAR — iniciales con el acento de marca en vez del morado
+   por defecto de PrimeReact
+   ============================================================ */
+.p-avatar {
+  background: var(--clay-light) !important;
+  color: var(--clay) !important;
+  font-weight: 700;
+}

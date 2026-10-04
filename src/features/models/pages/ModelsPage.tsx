@@ -8,7 +8,8 @@ import type { ModelFormData, Model, ModelPayload } from "../types/model";
 import { Button } from "primereact/button";
 
 export const ModelsPage = () => {
-  const { models, loading, addModel, updateModel, toggleModelStatus } = useModels();
+  const { models, loading, addModel, updateModel, toggleModelStatus } =
+    useModels();
 
   const [modalModel, setModalModel] = useState<Model | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -42,10 +43,10 @@ export const ModelsPage = () => {
     setIsToggling(true);
     try {
       await toggleModelStatus(model.id, model.is_active);
-      toast.success(model.is_active ? 'Modelo desactivado' : 'Modelo activado');
+      toast.success(model.is_active ? "Modelo desactivado" : "Modelo activado");
       setIsConfirmOpen(false);
     } catch {
-      toast.error('Error al cambiar el estado del modelo.');
+      toast.error("Error al cambiar el estado del modelo.");
     } finally {
       setIsToggling(false);
     }
@@ -61,14 +62,14 @@ export const ModelsPage = () => {
       };
       if (modalModel) {
         await updateModel(modalModel.id, payload);
-        toast.success('Modelo actualizado');
+        toast.success("Modelo actualizado");
       } else {
         await addModel(payload);
-        toast.success('Modelo creado');
+        toast.success("Modelo creado");
       }
       setIsModalOpen(false);
     } catch {
-      toast.error('Error al guardar el modelo.');
+      toast.error("Error al guardar el modelo.");
     } finally {
       setIsSubmitting(false);
     }
@@ -76,14 +77,26 @@ export const ModelsPage = () => {
 
   if (loading) {
     return (
-      <div className="flex align-items-center justify-content-center" style={{ height: '100vh' }}>
-        <i className="pi pi-spin pi-spinner" style={{ fontSize: '2.5rem' }} />
+      <div
+        className="flex align-items-center justify-content-center"
+        style={{ height: "100vh" }}
+      >
+        <i className="pi pi-spin pi-spinner" style={{ fontSize: "2.5rem" }} />
       </div>
     );
   }
 
   return (
     <>
+      <div className="flex align-items-center justify-content-end pb-4">
+        <Button
+          label="Nuevo"
+          icon="pi pi-plus"
+          className={`sf-btn p-button-sm in_progress`}
+          onClick={() => openCreate()}
+        />
+      </div>
+
       <div className="grid">
         {models.map((brand) => (
           <div className="col-12 sm:col-6 md:col-4 lg:col-3" key={brand.id}>
@@ -98,7 +111,10 @@ export const ModelsPage = () => {
 
       <ModelForm
         visible={isModalOpen}
-        onHide={() => { if (isSubmitting) return; setIsModalOpen(false); }}
+        onHide={() => {
+          if (isSubmitting) return;
+          setIsModalOpen(false);
+        }}
         model={modalModel}
         onSubmit={handleSubmit}
         isLoading={isSubmitting}
@@ -112,20 +128,6 @@ export const ModelsPage = () => {
         description={`El modelo "${confirmModel?.name}" dejará de estar disponible para nuevas inscripciones.`}
         onConfirm={() => handleToggleConfirm()}
         isLoading={isToggling}
-      />
-
-      <Button
-        rounded
-        size="large"
-        severity="success"
-        icon="pi pi-plus"
-        onClick={() => openCreate()}
-        style={{
-          position: "fixed",
-          right: 24,
-          bottom: 24,
-          padding: "1.8rem 1.9rem",
-        }}
       />
     </>
   );

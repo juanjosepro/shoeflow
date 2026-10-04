@@ -1,0 +1,178 @@
+@import url("https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap");
+
+:root {
+  /* Superficies */
+  --paper: #f5f1e8;
+  --paper-2: #efe9db;
+  --line: #ddd5c4;
+
+  /* Texto */
+  --ink: #2b2620;
+  --ink-2: #5b5548;
+  --stone: #8a8272;
+
+  /* Acentos con significado */
+  --clay: #8c4a2f; /* acento principal / acción / retrasado */
+  --clay-light: #f1e2d9;
+  --moss: #5c6b4a; /* completado / en proceso */
+  --moss-light: #e7ece0;
+  --amber: #a9762e; /* pendiente / sin asignar */
+  --amber-light: #f3e8d4;
+
+  /* Tipografía */
+  --font-sans: "Archivo", sans-serif;
+  --font-mono: "IBM Plex Mono", monospace;
+
+  --radius: 6px;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #1c1a16;
+    --paper-2: #252220;
+    --line: #3a342a;
+    --ink: #ede7da;
+    --ink-2: #b8ae9b;
+    --stone: #8a8272;
+    --clay: #d68a5e;
+    --clay-light: #3a2a20;
+    --moss: #9cb07e;
+    --moss-light: #28301f;
+    --amber: #d9a85c;
+    --amber-light: #332a1a;
+  }
+}
+
+:root[data-theme="dark"] {
+  --paper: #1c1a16;
+  --paper-2: #252220;
+  --line: #3a342a;
+  --ink: #ede7da;
+  --ink-2: #b8ae9b;
+  --clay: #d68a5e;
+  --clay-light: #3a2a20;
+  --moss: #9cb07e;
+  --moss-light: #28301f;
+  --amber: #d9a85c;
+  --amber-light: #332a1a;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-sans);
+}
+
+.mono {
+  font-family: var(--font-mono);
+}
+
+/* ---- Overrides puntuales de PrimeReact para que respeten los tokens ---- */
+
+.taller-panelmenu .p-panelmenu-header-link {
+  background: transparent;
+  border: none;
+  color: var(--ink);
+  font-family: var(--font-sans);
+  font-weight: 500;
+  padding: 10px 12px;
+}
+.taller-panelmenu
+  .p-panelmenu-header:not(.p-highlight):hover
+  .p-panelmenu-header-link {
+  background: var(--paper-2);
+}
+.taller-panelmenu .p-panelmenu-content {
+  background: transparent;
+  border: none;
+  padding: 0 0 6px 10px;
+}
+.taller-panelmenu .p-menuitem-link {
+  border-radius: var(--radius);
+  color: var(--ink-2);
+  font-size: 13.5px;
+  padding: 8px 10px;
+}
+.taller-panelmenu .p-menuitem-link:hover {
+  background: var(--paper-2);
+}
+.taller-panelmenu .p-menuitem-link.router-link-active,
+.taller-panelmenu .router-link-exact-active .p-menuitem-link {
+  background: var(--clay-light);
+  color: var(--clay);
+  font-weight: 500;
+}
+
+.taller-btn.p-button {
+  background: var(--clay);
+  border-color: var(--clay);
+  font-family: var(--font-sans);
+  font-weight: 600;
+  font-size: 12.5px;
+  border-radius: var(--radius);
+}
+.taller-btn.p-button:enabled:hover {
+  background: var(--clay);
+  opacity: 0.9;
+  border-color: var(--clay);
+}
+.taller-btn.p-button.ghost {
+  background: transparent;
+  color: var(--ink-2);
+  border-color: var(--line);
+}
+
+.taller-tag {
+  border-radius: 20px;
+  font-weight: 500;
+  font-size: 11px;
+  padding: 3px 10px;
+  border: none;
+}
+.taller-tag.amber {
+  background: var(--amber-light);
+  color: var(--amber);
+}
+.taller-tag.moss {
+  background: var(--moss-light);
+  color: var(--moss);
+}
+.taller-tag.clay {
+  background: var(--clay-light);
+  color: var(--clay);
+}
+
+.taller-accordion .p-accordion-header-link {
+  background: var(--paper-2);
+  border: 1px solid var(--line);
+  color: var(--ink);
+  padding: 14px 18px;
+}
+.taller-accordion .p-accordion-content {
+  border: 1px solid var(--line);
+  border-top: none;
+  padding: 6px 0;
+  background: var(--paper);
+}
+.taller-accordion .p-accordion-tab {
+  margin-bottom: 14px;
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+
+.taller-search .p-inputtext {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  background: var(--paper-2);
+  border: 1px solid var(--line);
+  color: var(--ink);
+}
+.taller-search .p-inputtext::placeholder {
+  font-family: var(--font-sans);
+  color: var(--stone);
+}

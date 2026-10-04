@@ -10,33 +10,44 @@ interface Props {
 export const ModelCard = ({ model, onEdit, onToggle }: Props) => {
   return (
     <div
-      className="border-round-xl mb-3 pt-4 pb-6 px-4"
+      className="border-round-xl mb-3 pt-3 pb-5 px-3"
       style={{
-        background: "#1a1a2e",
-        boxShadow: "0px 10px 15px -3px rgba(0,0,0,0.1)",
-        color: "#d1d5db",
+        background: "var(--paper-2)",
+        boxShadow: "var(--shadow-3)",
       }}
     >
-      <div className="flex justify-content-between align-items-center">
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "1fr 70px",
+          alignItems: "start",
+        }}
+      >
         <div className="flex flex-column">
-          <span className="font-bold text-lg">{model.name}</span>
-          <em className="text-sm font-light" style={{ color: "#9ca3af" }}>
+          <span
+            className="font-bold text-lg mb-1 mono"
+            style={{ color: "var(--ink)" }}
+          >
+            {model.name}
+          </span>
+          <span
+            className="text-sm font-light"
+            style={{ color: "var(--ink-2)", fontSize: "small" }}
+          >
             ({model?.category?.name})
-          </em>
+          </span>
         </div>
         <div className="flex">
           <Button
             icon="pi pi-file-edit"
             text
-            style={{ color: "#d1d5db", height: "48px" }}
-            size="large"
+            style={{ color: "var(--ink-2)", padding: "1px" }}
             onClick={() => onEdit(model)}
           />
           <Button
             icon="pi pi-sync"
             text
-            style={{ color: "#d1d5db", height: "48px" }}
-            size="large"
+            style={{ color: "var(--ink-2)", padding: "1px" }}
             onClick={() => onToggle(model)}
           />
         </div>
@@ -45,17 +56,31 @@ export const ModelCard = ({ model, onEdit, onToggle }: Props) => {
       <hr style={{ borderColor: "#6b7280", margin: "8px 0" }} />
 
       <div className="flex justify-content-between align-items-center mb-2">
-        <span className="font-bold text-lg">Serie</span>
-        <span className="font-bold text-lg">Precio</span>
+        <span
+          className="font-semibold text-md"
+          style={{ color: "var(--ink-2)" }}
+        >
+          Serie
+        </span>
+        <span
+          className="font-semibold text-md"
+          style={{ color: "var(--ink-2)" }}
+        >
+          Precio
+        </span>
       </div>
 
       {model.variants.map((variant) => (
         <div
-          className="flex justify-content-between align-items-center"
+          className="flex justify-content-between align-items-center mb-2"
           key={variant.id}
         >
-          <span className="text-sm uppercase">{variant?.size?.name}</span>
-          <span>S/ {variant?.standard_price}</span>
+          <span className="text-sm" style={{ color: "var(--ink-2)" }}>
+            {variant?.size?.name}
+          </span>
+          <span style={{ color: "var(--ink-2)" }}>
+            S/ {variant?.standard_price}
+          </span>
         </div>
       ))}
 

@@ -23,22 +23,39 @@ export interface Dozen {
   quantity: number;
   is_active: boolean;
   variant: VariantBasic;
+  registered_at: string;
+  registration_group?: string;
   worker_id?: number | null;
   worker?: { id: number; name: string } | null;
 }
 
-export interface DozenFormData {
-  id?: number;
-  model_id: number | null;
-  variant_id: number | null;
-  worker_id: number | null;
-  code?: string | null;
-  quantity: number;
-  material: string;
-  color: string;
-  status?: string;
-  description?: string;
-  is_active?: boolean;
-  created_at?: Date;
-  model_variant_id?: number | null;
+export interface DozenQueryParams {
+  search: string;
+  model: number | null;
+  status: string | null;
+  material: string | null;
+  color: string | null;
+  page: number;
+  limit: number;
+  exclude_finished?: boolean;
+  no_pagination?: boolean;
+}
+
+// Tipado para la estructura de listas ordenadas de tu Metadata
+export interface MetadataItem {
+  key: string;
+  label: string;
+}
+
+export interface DozenMetadata {
+  statuses: MetadataItem[];
+  materials: MetadataItem[];
+  colors: MetadataItem[];
+  assignment_statuses: MetadataItem[];
+}
+
+export interface UseDozensConfig {
+  autoLoad?: boolean; // Controla si dispara el listado automáticamente
+  exclude_finished?: boolean;
+  no_pagination?: boolean;
 }

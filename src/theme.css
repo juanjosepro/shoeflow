@@ -1,15 +1,62 @@
 @import url("https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap");
 
+/* ============================================================
+   TOKENS — oscuro por defecto, [data-theme="light"] lo sobreescribe
+   ============================================================ */
 :root {
-  /* ---- Modo claro: papel cálido, taller de día ---- */
-  --paper: #f5f1e8;
-  --paper-2: #efe9db;
-  --sidebar: #ede7d8;
-  --line: #ddd5c4;
+  /* fondo detrás de las tarjetas flotantes */
+  /* --app-bg: #0f1012; */
+  /* tarjeta del sidebar */
+  /* --sidebar: #17181b; */
+
+  /* tarjeta de contenido */
+  /* --paper: #17181b; 
+  --paper-2: #1f2124;
+  --line: #2a2c30;
+
+  --ink: #edebe6;
+  --ink-2: #a19e97;
+  --stone: #6e6c67;
+
+  --clay: #e08858;
+  --clay-light: #33261c;
+  --moss: #8fb06c;
+  --moss-light: #202a1c;
+  --amber: #e3b056;
+  --amber-light: #332a18; */
+
+  --app-bg: #1c1a16;
+  --sidebar: #1c1a16;
+  --paper: #1c1a16;
+  --paper-2: #252220;
+  --line: #3a342a;
+  --ink: #ede7da;
+  --ink-2: #a19e97;
+  --stone: #8a8272;
+  --clay: #d68a5e;
+  --clay-light: #3a2a20;
+  --moss: #9cb07e;
+  --moss-light: #28301f;
+  --amber: #d9a85c;
+  --amber-light: #332a1a;
+
+  --shadow: rgba(0, 0, 0, 0.45);
+
+  --font-sans: "Archivo", sans-serif;
+  --font-mono: "IBM Plex Mono", monospace;
+  --radius: 10px;
+}
+
+:root[data-theme="light"] {
+  --app-bg: #ece8df;
+  --sidebar: #ffffff;
+  --paper: #ffffff;
+  --paper-2: #f5f1e8;
+  --line: #e3dccb;
 
   --ink: #2b2620;
-  --ink-2: #5b5548;
-  --stone: #8a8272;
+  --ink-2: #6b6559;
+  --stone: #9a9284;
 
   --clay: #8c4a2f;
   --clay-light: #f1e2d9;
@@ -18,57 +65,7 @@
   --amber: #a9762e;
   --amber-light: #f3e8d4;
 
-  --shadow: rgba(43, 38, 32, 0.06);
-
-  /* Tipografía */
-  --font-sans: "Archivo", sans-serif;
-  --font-mono: "IBM Plex Mono", monospace;
-  --radius: 6px;
-}
-
-/* ---- Modo oscuro: taller de noche, no es solo "claro invertido" ----
-   Fondo más frío/neutro (menos café, más grafito), acentos más saturados
-   y luminosos para que destaquen sobre el fondo oscuro sin verse lavados. */
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) {
-    --paper: #17181a;
-    --paper-2: #1f2123;
-    --sidebar: #1b1c1e;
-    --line: #303234;
-
-    --ink: #e8e6e1;
-    --ink-2: #a8a6a0;
-    --stone: #75746f;
-
-    --clay: #e08858;
-    --clay-light: #33241a;
-    --moss: #8fb06c;
-    --moss-light: #202a1c;
-    --amber: #e3b056;
-    --amber-light: #332a18;
-
-    --shadow: rgba(0, 0, 0, 0.35);
-  }
-}
-
-:root[data-theme="dark"] {
-  --paper: #17181a;
-  --paper-2: #1f2123;
-  --sidebar: #1b1c1e;
-  --line: #303234;
-
-  --ink: #e8e6e1;
-  --ink-2: #a8a6a0;
-  --stone: #75746f;
-
-  --clay: #e08858;
-  --clay-light: #33241a;
-  --moss: #8fb06c;
-  --moss-light: #202a1c;
-  --amber: #e3b056;
-  --amber-light: #332a18;
-
-  --shadow: rgba(0, 0, 0, 0.35);
+  --shadow: rgba(43, 38, 32, 0.08);
 }
 
 * {
@@ -77,7 +74,7 @@
 
 body {
   margin: 0;
-  background: var(--paper);
+  background: var(--app-bg);
   color: var(--ink);
   font-family: var(--font-sans);
 }
@@ -86,251 +83,373 @@ body {
   font-family: var(--font-mono);
 }
 
-/* ---- Sidebar principal ---- */
-
-.taller-sidebar {
-  width: 232px;
-  flex-shrink: 0;
-  background: var(--sidebar);
-  border-right: 1px solid var(--line);
-  padding: 22px 14px 20px;
+/* ============================================================
+   SHELL — el "cascarón" con las dos tarjetas flotantes
+   ============================================================ */
+.taller-shell {
+  min-height: 100vh;
+  /* padding: 16px; */
   display: flex;
-  flex-direction: column;
+  gap: 16px;
+  align-items: flex-start;
 }
 
-.taller-brand {
+/* ============================================================
+   SIDEBAR
+   ============================================================ */
+.taller-sidebar {
+  width: 240px;
+  flex-shrink: 0;
+  background: var(--sidebar);
+  /* border: 1px solid var(--line); */
+  /* border-radius: 16px; */
+  box-shadow: 0 8px 24px var(--shadow);
+  padding: 18px 14px;
+  display: flex;
+  flex-direction: column;
+  /* min-height: calc(100vh - 32px); */
+  min-height: 100vh;
+}
+
+.brand-row {
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 4px 8px 22px;
-  margin-bottom: 14px;
+  padding: 4px 6px 18px;
+  margin-bottom: 12px;
   border-bottom: 1px solid var(--line);
 }
-.taller-brand-mark {
-  width: 26px;
-  height: 26px;
-  border-radius: 6px;
+.brand-mark {
+  width: 30px;
+  height: 30px;
+  border-radius: 9px;
   background: var(--clay);
-  color: var(--paper);
+  color: #fff;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 700;
   flex-shrink: 0;
 }
-.taller-brand-text h1 {
+.brand-row strong {
   font-size: 14.5px;
   font-weight: 700;
-  margin: 0;
-  line-height: 1.2;
 }
-.taller-brand-text p {
-  font-size: 11.5px;
+.brand-row .pi-chevron-down {
+  margin-left: auto;
   color: var(--stone);
-  margin: 1px 0 0;
+  font-size: 11px;
 }
 
-.taller-nav {
+.nav-scroll {
   flex: 1;
   overflow-y: auto;
 }
 
-/* ---- Overrides puntuales de PrimeReact para que respeten los tokens ---- */
+.nav-section-label {
+  font-size: 12px;
+  color: var(--stone);
+  font-weight: 500;
+  padding: 0 10px;
+  margin: 16px 0 6px;
+}
+.nav-section-label:first-child {
+  margin-top: 4px;
+}
 
-.taller-panelmenu .p-panelmenu-header-link {
-  background: transparent;
-  border: none;
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 10px;
+  border-radius: var(--radius);
   color: var(--ink-2);
+  font-size: 14px;
+  font-weight: 500;
+  text-decoration: none;
+  cursor: pointer;
+  margin-bottom: 2px;
+  border: none;
+  background: none;
+  width: 100%;
+  text-align: left;
   font-family: var(--font-sans);
-  font-weight: 600;
-  font-size: 12.5px;
-  padding: 9px 8px;
-  border-radius: var(--radius);
 }
-.taller-panelmenu .p-panelmenu-header-link .p-menuitem-icon {
-  color: var(--stone);
-  font-size: 13px;
-  margin-right: 8px;
-}
-.taller-panelmenu
-  .p-panelmenu-header:not(.p-highlight):hover
-  .p-panelmenu-header-link {
-  background: var(--paper-2);
-}
-.taller-panelmenu .p-panelmenu-header-link .p-submenu-icon {
-  font-size: 11px;
+.nav-item i {
+  font-size: 14.5px;
+  width: 16px;
+  text-align: center;
   color: var(--stone);
 }
-.taller-panelmenu .p-panelmenu-content {
-  background: transparent;
-  border: none;
-  padding: 2px 0 10px 20px;
-  position: relative;
-}
-.taller-panelmenu .p-panelmenu-content::before {
-  content: "";
-  position: absolute;
-  left: 9px;
-  top: 0;
-  bottom: 10px;
-  width: 1px;
-  background: var(--line);
-}
-.taller-panelmenu .p-menuitem-link {
-  border-radius: var(--radius);
-  color: var(--ink-2);
-  font-size: 13.5px;
-  padding: 8px 10px;
-  margin: 1px 0;
-}
-.taller-panelmenu .p-menuitem-link:hover {
+.nav-item:hover {
   background: var(--paper-2);
   color: var(--ink);
 }
-.taller-panelmenu .p-menuitem-link.router-link-active {
-  background: var(--clay-light);
-  color: var(--clay);
-  font-weight: 600;
+.nav-item.active {
+  background: var(--clay);
+  color: #fff;
 }
-.taller-panelmenu .p-panelmenu-panel {
-  margin-bottom: 2px;
+.nav-item.active i {
+  color: #fff;
 }
 
-.taller-sidebar-footer {
+/* Tarjeta inferior — funciona como selector de tema claro/oscuro */
+.theme-card {
+  position: relative;
+  border-radius: 14px;
+  padding: 16px 14px 14px;
+  margin-top: 14px;
+  overflow: hidden;
+  background: linear-gradient(155deg, var(--clay) 0%, var(--amber) 100%);
+  color: #fff;
+}
+.theme-card::after {
+  content: "";
+  position: absolute;
+  right: -30px;
+  bottom: -30px;
+  width: 110px;
+  height: 110px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.12);
+}
+.theme-card-badge {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.9);
+  color: var(--clay);
   display: flex;
   align-items: center;
-  gap: 9px;
-  padding: 10px 8px;
-  margin-top: 10px;
-  border-top: 1px solid var(--line);
+  justify-content: center;
+  font-size: 13px;
+  margin-left: auto;
+  margin-bottom: 8px;
+  position: relative;
+  z-index: 1;
 }
-.taller-avatar {
-  width: 26px;
-  height: 26px;
+.theme-card-title {
+  font-size: 14.5px;
+  font-weight: 700;
+  line-height: 1.25;
+  margin: 0 0 2px;
+  position: relative;
+  z-index: 1;
+}
+.theme-card-sub {
+  font-size: 12px;
+  opacity: 0.85;
+  margin: 0 0 12px;
+  position: relative;
+  z-index: 1;
+}
+.theme-card-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  width: 100%;
+  background: rgba(255, 255, 255, 0.92);
+  /* color: var(--ink); */
+  color: #000;
+  border: none;
+  border-radius: 8px;
+  padding: 8px 10px;
+  font-size: 12.5px;
+  font-weight: 600;
+  font-family: var(--font-sans);
+  cursor: pointer;
+  position: relative;
+  z-index: 1;
+}
+.theme-card-btn:hover {
+  background: #fff;
+}
+
+/* ============================================================
+   Contenido principal
+   ============================================================ */
+.taller-main {
+  flex: 1;
+  min-width: 0;
+  background: var(--paper);
+  /* border: 1px solid var(--line); */
+  /* border-radius: 16px; */
+  box-shadow: 0 8px 24px var(--shadow);
+  padding: 26px 30px 50px;
+  /* min-height: calc(100vh - 32px); */
+  min-height: 100vh;
+}
+
+/* ============================================================
+   HEADER (dentro de la tarjeta de contenido)
+   ============================================================ */
+.taller-header {
+  display: grid;
+  grid-template-columns: 3fr 1.6fr 1fr;
+  align-items: center;
+  gap: 20px;
+  padding-bottom: 18px;
+  margin-bottom: 22px;
+  border-bottom: 1px solid var(--line);
+}
+
+.header-title {
+  font-size: 17px;
+  font-weight: 600;
+  margin: 0;
+  line-height: 1.2;
+}
+.header-subtitle {
+  font-size: 12.5px;
+  color: var(--stone);
+  margin: 2px 0 0;
+}
+
+.header-search {
+  flex: 1;
+  max-width: 360px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--paper-2);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 8px 14px;
+}
+.header-search i {
+  color: var(--stone);
+  font-size: 13px;
+}
+.header-search input {
+  border: none;
+  background: none;
+  outline: none;
+  color: var(--ink);
+  font-family: var(--font-sans);
+  font-size: 13px;
+  width: 100%;
+}
+.header-search input::placeholder {
+  color: var(--stone);
+}
+
+.header-icon-btn {
+  position: relative;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  border: 1px solid var(--line);
+  background: var(--paper-2);
+  color: var(--ink-2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+.header-icon-btn:hover {
+  color: var(--ink);
+}
+.header-badge {
+  position: absolute;
+  top: -3px;
+  right: -3px;
+  background: var(--clay);
+  color: #fff;
+  font-size: 9.5px;
+  font-weight: 700;
+  min-width: 15px;
+  height: 15px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid var(--paper);
+}
+
+.header-divider {
+  width: 1px;
+  height: 24px;
+  background: var(--line);
+  flex-shrink: 0;
+}
+
+.header-user {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border: none;
+  background: none;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 999px;
+}
+.header-user:hover {
+  background: var(--paper-2);
+}
+.header-avatar {
+  width: 30px;
+  height: 30px;
   border-radius: 50%;
   background: var(--moss-light);
   color: var(--moss);
-  font-size: 11px;
+  font-size: 11.5px;
   font-weight: 700;
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
 }
-.taller-sidebar-footer .name {
+.header-user-text {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  line-height: 1.2;
+}
+.header-user-text .name {
   font-size: 12.5px;
-  font-weight: 500;
+  font-weight: 600;
   color: var(--ink);
 }
-.taller-sidebar-footer .role {
+.header-user-text .role {
   font-size: 11px;
   color: var(--stone);
 }
 
-/* ---- Topbar móvil (solo visible <960px) ---- */
-.taller-topbar-mobile {
+.taller-user-menu.p-menu {
+  background: var(--paper);
+  border: 1px solid var(--line);
+}
+.taller-user-menu .p-menuitem-link {
+  color: var(--ink-2);
+  font-size: 13px;
+}
+.taller-user-menu .p-menuitem-link:hover {
+  background: var(--paper-2);
+  color: var(--ink);
+}
+
+.mobile-only {
   display: none;
 }
 
-.taller-sidebar-drawer.p-sidebar {
-  background: var(--sidebar);
-}
-.taller-sidebar-drawer .p-sidebar-header {
-  display: none;
-}
-.taller-sidebar-drawer .p-sidebar-content {
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-  padding: 18px 14px;
-}
-
-.taller-main {
-  padding: 28px 32px 60px;
-}
-
-/* ---- Responsive ---- */
-@media (max-width: 960px) {
-  .taller-sidebar-desktop {
-    display: none;
-  }
-  .taller-topbar-mobile {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 14px 16px;
-    padding-top: calc(14px + env(safe-area-inset-top, 0px));
-    border-bottom: 1px solid var(--line);
-    background: var(--sidebar);
-    position: sticky;
-    top: 0;
-    z-index: 10;
-  }
-  .taller-topbar-mobile button {
-    background: none;
-    border: none;
-    color: var(--ink);
-    font-size: 20px;
-    line-height: 1;
-    padding: 4px;
-    cursor: pointer;
-  }
-  .taller-main {
-    padding: 18px 18px 48px;
-  }
-}
-
-@media (max-width: 720px) {
-  .dozens-layout {
-    flex-direction: column;
-    gap: 18px;
-  }
-  .dozens-stations {
-    width: 100% !important;
-    flex-direction: row !important;
-    overflow-x: auto;
-    gap: 8px !important;
-    padding-bottom: 4px;
-  }
-  .dozens-stations button {
-    flex-shrink: 0;
-    white-space: nowrap;
-    width: auto !important;
-  }
-  .dozens-stations p {
-    display: none;
-  }
-}
-
-@media (max-width: 560px) {
-  .dozen-row {
-    flex-wrap: wrap;
-    padding: 14px 14px !important;
-  }
-  .dozen-row-main {
-    flex-basis: 100%;
-  }
-  .dozen-row .taller-btn {
-    width: 100%;
-    order: 3;
-  }
-  .dozen-row .taller-tag {
-    order: 2;
-  }
-}
-
+/* ============================================================
+   Componentes reutilizados por las páginas (buscador, tags, etc.)
+   ============================================================ */
 .taller-btn.p-button {
   background: var(--clay);
   border-color: var(--clay);
   font-family: var(--font-sans);
   font-weight: 600;
   font-size: 12.5px;
-  border-radius: var(--radius);
+  border-radius: 8px;
 }
 .taller-btn.p-button:enabled:hover {
-  background: var(--clay);
   opacity: 0.9;
+  background: var(--clay);
   border-color: var(--clay);
 }
 .taller-btn.p-button.ghost {
@@ -387,4 +506,257 @@ body {
 .taller-search .p-inputtext::placeholder {
   font-family: var(--font-sans);
   color: var(--stone);
+}
+
+/* Drawer móvil (PrimeReact Sidebar) reutilizando estilos del sidebar fijo */
+.taller-sidebar-drawer.p-sidebar {
+  background: var(--sidebar);
+}
+.taller-sidebar-drawer .p-sidebar-header {
+  display: none;
+}
+.taller-sidebar-drawer .p-sidebar-content {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding: 18px 14px;
+}
+
+/* ============================================================
+   Responsive
+   ============================================================ */
+@media (max-width: 960px) {
+  .taller-sidebar-desktop {
+    display: none;
+  }
+  .taller-shell {
+    padding: 0;
+    gap: 0;
+  }
+  .taller-main {
+    border-radius: 0;
+    border: none;
+    box-shadow: none;
+    min-height: auto;
+    padding: 16px 16px 48px;
+  }
+  .mobile-only {
+    display: flex;
+  }
+  .header-icon-btn.mobile-only {
+    font-size: 18px;
+  }
+}
+
+@media (max-width: 720px) {
+  .taller-header {
+    flex-wrap: wrap;
+    padding-bottom: 14px;
+    margin-bottom: 16px;
+  }
+  .header-search {
+    order: 3;
+    max-width: 100%;
+    flex-basis: 100%;
+  }
+  .header-user-text {
+    display: none;
+  }
+}
+
+@media (max-width: 720px) {
+  .dozens-layout {
+    flex-direction: column;
+    gap: 18px;
+  }
+  .dozens-stations {
+    width: 100% !important;
+    flex-direction: row !important;
+    overflow-x: auto;
+    gap: 8px !important;
+    padding-bottom: 4px;
+  }
+  .dozens-stations button {
+    flex-shrink: 0;
+    white-space: nowrap;
+    width: auto !important;
+  }
+  .dozens-stations p {
+    display: none;
+  }
+}
+
+@media (max-width: 560px) {
+  .dozen-row {
+    flex-wrap: wrap;
+    padding: 14px 14px !important;
+  }
+  .dozen-row-main {
+    flex-basis: 100%;
+  }
+  .dozen-row .taller-btn {
+    width: 100%;
+    order: 3;
+  }
+  .dozen-row .taller-tag {
+    order: 2;
+  }
+}
+
+/* ============================================================
+   DIALOG (formularios modales) — Model, Worker, etc.
+   ============================================================ */
+.taller-dialog.p-dialog {
+  border-radius: 14px;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  box-shadow: 0 16px 40px var(--shadow);
+  font-family: var(--font-sans);
+}
+.taller-dialog .p-dialog-header {
+  background: var(--sidebar);
+  color: var(--ink);
+  border-bottom: 1px solid var(--line);
+  padding: 18px 22px;
+}
+.taller-dialog .p-dialog-header .p-dialog-title {
+  font-weight: 700;
+  font-size: 15.5px;
+}
+.taller-dialog .p-dialog-header-icon {
+  color: var(--ink-2);
+}
+.taller-dialog .p-dialog-header-icon:hover {
+  background: var(--paper-2);
+  color: var(--ink);
+}
+.taller-dialog .p-dialog-content {
+  background: var(--paper);
+  color: var(--ink);
+  padding: 20px 22px;
+}
+.taller-dialog .p-dialog-footer {
+  background: var(--paper);
+  border-top: 1px solid var(--line);
+  padding: 14px 22px;
+}
+.p-dialog-mask {
+  backdrop-filter: blur(3px);
+}
+
+/* Labels y mensajes de error dentro del formulario */
+.taller-dialog label {
+  color: var(--ink-2);
+  font-size: 13px;
+  font-weight: 600;
+}
+.taller-dialog .p-error {
+  color: #e06666;
+  font-size: 12px;
+}
+.taller-dialog em {
+  color: var(--stone) !important;
+  font-style: normal;
+}
+
+/* Inputs — el foco/error usa el mismo acento en ambos temas */
+.taller-dialog .p-inputtext,
+.taller-dialog .p-inputnumber-input {
+  background: var(--paper-2);
+  border: 1px solid var(--line);
+  color: var(--ink);
+  border-radius: 8px;
+  font-family: var(--font-sans);
+  font-size: 13.5px;
+  padding: 9px 12px;
+}
+.taller-dialog .p-inputtext::placeholder {
+  color: var(--stone);
+}
+.taller-dialog .p-inputtext:enabled:focus,
+.taller-dialog .p-inputnumber-input:enabled:focus {
+  border-color: var(--clay);
+  box-shadow: 0 0 0 2px var(--clay-light);
+}
+.taller-dialog .p-inputtext.p-invalid,
+.taller-dialog .p-inputnumber-input.p-invalid {
+  border-color: #c0392b;
+}
+.taller-dialog .p-inputnumber-button {
+  background: var(--paper-2);
+  border-color: var(--line);
+  color: var(--ink-2);
+}
+
+/* Dropdown — el trigger vive dentro del diálogo, el panel se abre por portal */
+.taller-dialog .p-dropdown {
+  background: var(--paper-2);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+}
+.taller-dialog .p-dropdown:not(.p-disabled).p-focus {
+  border-color: var(--clay);
+  box-shadow: 0 0 0 2px var(--clay-light);
+}
+.taller-dialog .p-dropdown.p-invalid {
+  border-color: #c0392b;
+}
+.taller-dialog .p-dropdown .p-dropdown-label {
+  color: var(--ink);
+  font-size: 13.5px;
+}
+.taller-dialog .p-dropdown .p-dropdown-label.p-placeholder {
+  color: var(--stone);
+}
+.taller-dialog .p-dropdown-trigger {
+  color: var(--stone);
+}
+
+/* Panel del Dropdown — se monta en <body>, por eso va fuera de .taller-dialog */
+.p-dropdown-panel {
+  background: var(--paper) !important;
+  border: 1px solid var(--line) !important;
+  border-radius: 8px !important;
+  box-shadow: 0 12px 28px var(--shadow) !important;
+}
+.p-dropdown-panel .p-dropdown-items .p-dropdown-item {
+  color: var(--ink-2);
+  font-size: 13.5px;
+  padding: 9px 12px;
+}
+.p-dropdown-panel .p-dropdown-items .p-dropdown-item:hover {
+  background: var(--paper-2);
+  color: var(--ink);
+}
+.p-dropdown-panel .p-dropdown-items .p-dropdown-item.p-highlight {
+  background: var(--clay-light);
+  color: var(--clay);
+}
+.p-dropdown-panel .p-dropdown-filter-container .p-inputtext {
+  background: var(--paper-2);
+  border-color: var(--line);
+  color: var(--ink);
+}
+
+/* Botones del footer del formulario */
+.taller-dialog .p-button.p-button-success {
+  background: var(--clay);
+  border-color: var(--clay);
+}
+.taller-dialog .p-button.p-button-warning {
+  background: var(--amber);
+  border-color: var(--amber);
+  color: #fff;
+}
+.taller-dialog .p-button.p-button-secondary.p-button-outlined {
+  color: var(--ink-2);
+  border-color: var(--line);
+  background: transparent;
+}
+.taller-dialog .p-button.p-button-secondary.p-button-outlined:enabled:hover {
+  background: var(--paper-2);
+}
+
+.sf-border-line {
+  border: 1px solid var(--line);
 }

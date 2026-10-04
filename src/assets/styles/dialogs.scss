@@ -1,0 +1,62 @@
+.sf-dialog.p-dialog {
+  border-radius: 14px;
+  overflow: hidden;
+  border: 1px solid var(--sf-line);
+  box-shadow: 0 16px 40px var(--sf-shadow);
+  font-family: var(--sf-font-sans);
+
+  .p-dialog-header {
+      background: var(--sf-sidebar);
+      color: var(--sf-ink);
+      border-bottom: 1px solid var(--sf-line);
+      padding: 18px 22px;
+
+      .p-dialog-title {
+        font-weight: 700;
+        font-size: 15.5px;
+      }
+  }
+
+  .p-dialog-header-icon {
+    color: var(--sf-ink-2);
+
+    &:hover {
+      background: var(--sf-paper-2);
+      color: var(--sf-ink);
+    }
+  }
+
+  .p-dialog-content {
+      background: var(--sf-paper);
+      color: var(--sf-ink);
+      padding: 20px 22px;
+  }
+
+  .p-dialog-footer {
+    background: var(--sf-paper);
+    border-top: 1px solid var(--sf-line);
+    padding: 14px 22px;
+  }
+
+  .p-dialog-mask {
+    backdrop-filter: blur(3px);
+  }
+
+  /* Labels y mensajes de error dentro del formulario */
+  label {
+    color: var(--sf-ink-2);
+    font-size: 13px;
+    font-weight: 600;
+  }
+
+  em {
+    color: var(--sf-stone) !important;
+    font-style: normal;
+  }
+
+  .p-error {
+    color: #e06666;
+    font-size: 12px;
+  }
+
+}

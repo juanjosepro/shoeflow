@@ -1,39 +1,48 @@
 import { useState, useEffect, useCallback } from "react";
 import { dozenService } from "../services/dozenService";
-import type { Dozen, DozenFormData } from "../types/dozen";
+import type { Dozen, DozenQueryParams, DozenMetadata, UseDozensConfig } from "../types/dozen";
+import type { DozenFormData } from "../schemas/dozenSchema";
 
-// Tipado para la estructura de listas ordenadas de tu Metadata
-interface MetadataItem {
-  key: string;
-  label: string;
-}
+const DEFAULT_QUERY_PARAMS: DozenQueryParams = {
+  search: "",
+  model: null,
+  status: null,
+  material: null,
+  color: null,
+  page: 1,
+  limit: 15,
+};
 
-interface DozenMetadata {
-  statuses: MetadataItem[];
-  materials: MetadataItem[];
-  colors: MetadataItem[];
-  assignment_statuses: MetadataItem[];
-}
-
-interface UseDozensConfig {
-  autoLoad?: boolean; // Controla si dispara el listado automáticamente
-}
-
-export const useDozens = (config: UseDozensConfig = { autoLoad: true }) => {
+export const useDozens = (config: UseDozensConfig = { autoLoad: true, exclude_finished: false, no_pagination: false }) => {
   const [dozens, setDozens] = useState<Dozen[]>([]);
   const [metadata, setMetadata] = useState<DozenMetadata | null>(null);
   const [loading, setLoading] = useState(config.autoLoad); // Evitamos loading parpadeante si es false
+  const [total, setTotal] = useState(0);
+
+  const [queryParams, setQueryParams] =
+    useState<DozenQueryParams>({
+      ...DEFAULT_QUERY_PARAMS,
+      exclude_finished: config.exclude_finished,
+      no_pagination: config.no_pagination,
+});
 
   // Usamos useCallback para que estas funciones mantengan su referencia en memoria
   const fetchDozens = useCallback(async () => {
     setLoading(true);
     try {
-      const data = await dozenService.getAll();
-      setDozens(data);
+      const data = await dozenService.getAll(queryParams);
+     
+      if (queryParams.no_pagination) {
+        setDozens(data);
+        setTotal(data.length);
+      } else {
+        setDozens(data.results);
+        setTotal(data.count);
+      }
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [queryParams]);
 
   const fetchDozensMetadata = useCallback(async () => {
     try {
@@ -70,8 +79,11 @@ export const useDozens = (config: UseDozensConfig = { autoLoad: true }) => {
 
   return {
     dozens,
+    total,
     metadata,
     loading,
+    queryParams,
+    setQueryParams,
     addDozen,
     updateDozen,
     toggleDozenStatus,

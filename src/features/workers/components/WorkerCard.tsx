@@ -5,7 +5,6 @@ import { DataTable } from "primereact/datatable";
 import { FilterMatchMode } from "primereact/api";
 import { InputText } from "primereact/inputtext";
 // import { Dropdown } from "primereact/dropdown";
-import { Tag } from "primereact/tag";
 import { useState } from "react";
 import { Dialog } from "primereact/dialog";
 import { Button } from "primereact/button";
@@ -33,25 +32,11 @@ export const WorkerCard = ({ workers, loading, onEdit }: Props) => {
     phone: { value: null, matchMode: FilterMatchMode.CONTAINS },
   });
 
-  // const [statuses] = useState(["Activo", "Inactivo"]);
   const [selectedWorker, setSelectedWorker] = useState(null);
   const [isMenuDialogOpen, setIsMenuDialogOpen] = useState(false);
   const [isHistoryDialogOpen, setIsHistoryDialogOpen] = useState(false);
   const [workerHistory, setWorkerHistory] = useState([]);
   const [isPaymentDialogOpen, setIsPaymentDialogOpen] = useState(false);
-
-  const getSeverity = (status) => {
-    switch (status) {
-      case "Activo":
-        return "success";
-
-      case "Inactivo":
-        return "danger";
-
-      default:
-        return "info";
-    }
-  };
 
   const onGlobalFilterChange = (e) => {
     const value = e.target.value;
@@ -71,7 +56,7 @@ export const WorkerCard = ({ workers, loading, onEdit }: Props) => {
           <InputText
             value={globalFilterValue}
             onChange={onGlobalFilterChange}
-            placeholder="Búsqueda por palabras clave"
+            placeholder="Buscar trabajador..."
             className="pr-2 pl-5"
           />
         </span>
@@ -79,37 +64,16 @@ export const WorkerCard = ({ workers, loading, onEdit }: Props) => {
     );
   };
 
-  // const statusItemTemplate = (option) => {
-  //   return <Tag value={option} severity={getSeverity(option)} />;
-  // };
-
-  // const statusRowFilterTemplate = (options) => {
-  //   return (
-  //     <Dropdown
-  //       value={options.value}
-  //       options={statuses}
-  //       onChange={(e) => options.filterApplyCallback(e.value)}
-  //       itemTemplate={statusItemTemplate}
-  //       placeholder="Seleccione"
-  //       className="p-column-filter"
-  //       showClear
-  //       style={{ minWidth: "12rem" }}
-  //     />
-  //   );
-  // };
-
+  // Tag con nuestros propios colores en vez de los severity fijos de PrimeReact,
+  // así respeta el tema igual que el resto del panel de Docenas.
   const statusBodyTemplate = (rowData) => {
     return (
-      <Tag
-        style={{
-          margin: "auto",
-          width: "80px",
-          display: "block",
-          textAlign: "center",
-        }}
-        value={rowData.is_active ? "Activo" : "Inactivo"}
-        severity={getSeverity(rowData.is_active ? "Activo" : "Inactivo")}
-      />
+      <span
+        className={`sf-tag ${rowData.is_active ? "moss" : "clay"}`}
+        style={{ display: "inline-block", width: 80, textAlign: "center" }}
+      >
+        {rowData.is_active ? "Activo" : "Inactivo"}
+      </span>
     );
   };
 
@@ -135,21 +99,18 @@ export const WorkerCard = ({ workers, loading, onEdit }: Props) => {
   };
 
   const onRowSelect = (event) => {
-    console.log(event.data);
     setSelectedWorker(event.data);
     setIsMenuDialogOpen(true);
   };
 
   const processWorkerPayment = async () => {
     setIsPaymentDialogOpen(true);
-
     // const history = await fetchAllWorkerHistory(selectedWorker.id)
     // setWorkerHistory(history)
   };
 
   const getWorkerHistory = async () => {
     setIsHistoryDialogOpen(true);
-
     // const history = await fetchAllWorkerHistory(selectedWorker.id)
     // setWorkerHistory(history)
   };
@@ -169,7 +130,7 @@ export const WorkerCard = ({ workers, loading, onEdit }: Props) => {
             }}
             className={classNames(
               options.className,
-              "w-full p-link flex align-items-center p-2 text-color hover:surface-200 border-noround",
+              "w-full p-link flex align-items-center p-2 border-noround sf-menu-btn",
             )}
           >
             <a className="flex items-center">
@@ -184,7 +145,6 @@ export const WorkerCard = ({ workers, loading, onEdit }: Props) => {
       },
       {
         label: "Ver <strong>(historial completo)</strong>",
-        // icon: "pi pi-history",
         icon: "pi pi-list-check",
         template: (item, options) => (
           <button
@@ -194,7 +154,7 @@ export const WorkerCard = ({ workers, loading, onEdit }: Props) => {
             }}
             className={classNames(
               options.className,
-              "w-full p-link flex align-items-center p-2 text-color hover:surface-200 border-noround",
+              "w-full p-link flex align-items-center p-2 border-noround sf-menu-btn",
             )}
           >
             <a className="flex items-center">
@@ -237,6 +197,7 @@ export const WorkerCard = ({ workers, loading, onEdit }: Props) => {
         globalFilterFields={["names", "team.name", "dni", "phone"]}
         header={header}
         emptyMessage="No workers found."
+        className="sf-table"
       >
         <Column field="id" header="ID" style={{ minWidth: "1rem" }} />
         <Column
@@ -286,11 +247,12 @@ export const WorkerCard = ({ workers, loading, onEdit }: Props) => {
           />
         }
         closable={false}
+        className="sf-dialog"
       >
         <Menu
           model={generateItems()}
           style={{ width: isLaptopUp ? "40vw" : "90vw", margin: "auto" }}
-          className="pau-menu-options-dozen"
+          className="sf-user-menu"
         />
       </Dialog>
 

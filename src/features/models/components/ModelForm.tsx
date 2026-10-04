@@ -29,12 +29,24 @@ interface Props {
   isLoading: boolean;
 }
 
-export const ModelForm = ({ model = null, visible, onHide, onSubmit, isLoading }: Props) => {
+export const ModelForm = ({
+  model = null,
+  visible,
+  onHide,
+  onSubmit,
+  isLoading,
+}: Props) => {
   const [categories, setCategories] = useState<Category[]>([]);
   const [sizes, setSizes] = useState<Size[]>([]);
   const [loadingData, setLoadingData] = useState(false);
 
-  const { register, handleSubmit, control, reset, formState: { errors } } = useForm<FormData>({
+  const {
+    register,
+    handleSubmit,
+    control,
+    reset,
+    formState: { errors },
+  } = useForm<FormData>({
     resolver: zodResolver(schema),
     defaultValues: {
       name: "",
@@ -69,10 +81,13 @@ export const ModelForm = ({ model = null, visible, onHide, onSubmit, isLoading }
         code_prefix: model.code_prefix,
         description: model.description,
         category: model.category.id,
-        variants: model.variants.reduce((acc, v) => {
-          acc[String(v.size.id)] = parseFloat(v.standard_price);
-          return acc;
-        }, {} as Record<string, number>),
+        variants: model.variants.reduce(
+          (acc, v) => {
+            acc[String(v.size.id)] = parseFloat(v.standard_price);
+            return acc;
+          },
+          {} as Record<string, number>,
+        ),
       });
     } else {
       reset({
@@ -87,7 +102,14 @@ export const ModelForm = ({ model = null, visible, onHide, onSubmit, isLoading }
 
   const footer = (
     <div className="flex justify-content-end align-items-center">
-      <Button label="Cancelar" icon="pi pi-times" severity="secondary" outlined onClick={onHide} disabled={isLoading} />
+      <Button
+        label="Cancelar"
+        icon="pi pi-times"
+        severity="secondary"
+        outlined
+        onClick={onHide}
+        disabled={isLoading}
+      />
       <Button
         label={isLoading ? "Guardando..." : "Guardar"}
         icon="pi pi-check"
@@ -101,21 +123,29 @@ export const ModelForm = ({ model = null, visible, onHide, onSubmit, isLoading }
   return (
     <Dialog
       visible={visible}
-      onHide={() => { if (isLoading) return; onHide(); }}
+      onHide={() => {
+        if (isLoading) return;
+        onHide();
+      }}
       header={model ? "Editar Modelo" : "Nuevo Modelo"}
       footer={footer}
       closable={!isLoading}
-      className="p-fluid"
+      className="p-fluid sf-dialog"
       style={{ width: "40vw" }}
       breakpoints={{ "960px": "75vw", "641px": "90vw" }}
     >
       {loadingData ? (
-        <div className="flex align-items-center justify-content-center" style={{ minHeight: '200px' }}>
-          <i className="pi pi-spin pi-spinner" style={{ fontSize: "2rem" }} />
+        <div
+          className="flex align-items-center justify-content-center"
+          style={{ minHeight: "200px" }}
+        >
+          <i
+            className="pi pi-spin pi-spinner"
+            style={{ fontSize: "2rem", color: "var(--clay)" }}
+          />
         </div>
       ) : (
         <div className="flex flex-column gap-3 pt-2">
-
           {/* Categoría */}
           <div className="flex flex-column gap-1">
             <label className="font-bold">Línea de Calzado</label>
@@ -134,7 +164,9 @@ export const ModelForm = ({ model = null, visible, onHide, onSubmit, isLoading }
                 />
               )}
             />
-            {errors.category && <small className="p-error">{errors.category.message}</small>}
+            {errors.category && (
+              <small className="p-error">{errors.category.message}</small>
+            )}
           </div>
 
           {/* Nombre */}
@@ -146,7 +178,9 @@ export const ModelForm = ({ model = null, visible, onHide, onSubmit, isLoading }
               className="uppercase"
               placeholder="Ej. AIR MAX"
             />
-            {errors.name && <small className="p-error">{errors.name.message}</small>}
+            {errors.name && (
+              <small className="p-error">{errors.name.message}</small>
+            )}
           </div>
 
           {/* Codigo de serie */}
@@ -164,7 +198,9 @@ export const ModelForm = ({ model = null, visible, onHide, onSubmit, isLoading }
                 />
               )}
             />
-            {errors.code_prefix && <small className="p-error">{errors.code_prefix.message}</small>}
+            {errors.code_prefix && (
+              <small className="p-error">{errors.code_prefix.message}</small>
+            )}
           </div>
 
           {/* Descripción */}
@@ -176,7 +212,9 @@ export const ModelForm = ({ model = null, visible, onHide, onSubmit, isLoading }
               className="uppercase"
               placeholder="Ej. Línea clásica con cámara de aire"
             />
-            {errors.description && <small className="p-error">{errors.description.message}</small>}
+            {errors.description && (
+              <small className="p-error">{errors.description.message}</small>
+            )}
           </div>
 
           {/* Variantes por talla */}
@@ -185,7 +223,9 @@ export const ModelForm = ({ model = null, visible, onHide, onSubmit, isLoading }
             {sizes.map((size) => (
               <div key={size.id} className="flex flex-column gap-1">
                 <label>
-                  <em style={{ color: '#6b7280' }}>{size.name} — {size.description}</em>
+                  <em>
+                    {size.name} — {size.description}
+                  </em>
                 </label>
                 <Controller
                   name={`variants.${size.id}`}
@@ -207,9 +247,10 @@ export const ModelForm = ({ model = null, visible, onHide, onSubmit, isLoading }
                 />
               </div>
             ))}
-            {errors.variants && <small className="p-error">Revisa los precios</small>}
+            {errors.variants && (
+              <small className="p-error">Revisa los precios</small>
+            )}
           </div>
-
         </div>
       )}
     </Dialog>

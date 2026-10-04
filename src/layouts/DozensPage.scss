@@ -1,0 +1,38 @@
+@media (max-width: 720px) {
+  .dozens-layout {
+    flex-direction: column;
+    gap: 18px;
+  }
+  .dozens-stations {
+    width: 100% !important;
+    flex-direction: row !important;
+    overflow-x: auto;
+    gap: 8px !important;
+    padding-bottom: 4px;
+  }
+  .dozens-stations button {
+    flex-shrink: 0;
+    white-space: nowrap;
+    width: auto !important;
+  }
+  .dozens-stations p {
+    display: none;
+  }
+}
+
+@media (max-width: 560px) {
+  .dozen-row {
+    flex-wrap: wrap;
+    padding: 14px 14px !important;
+  }
+  .dozen-row-main {
+    flex-basis: 100%;
+  }
+  .dozen-row .taller-btn {
+    width: 100%;
+    order: 3;
+  }
+  .dozen-row .taller-tag {
+    order: 2;
+  }
+}

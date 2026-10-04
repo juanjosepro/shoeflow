@@ -1,0 +1,461 @@
+/* ============================================================
+   Componentes reutilizados por las páginas (buscador, tags, etc.)
+   ============================================================ */
+/* Inputs — el foco/error usa el mismo acento en ambos temas */
+.p-inputtext,
+.p-inputnumber-input {
+  background: var(--sf-paper-2);
+  border: 1px solid var(--sf-line);
+  color: var(--sf-ink);
+  border-radius: 8px;
+  font-family: var(--sf-font-sans);
+  font-size: 13.5px;
+  padding: 9px 12px;
+}
+.p-inputtext::placeholder {
+  color: var(--sf-stone);
+}
+.p-inputtext:enabled:focus,
+.p-inputnumber-input:enabled:focus {
+  border-color: var(--sf-clay);
+  box-shadow: 0 0 0 2px var(--sf-clay-light);
+}
+.p-inputtext.p-invalid,
+.p-inputnumber-input.p-invalid {
+  border-color: #c0392b;
+}
+.p-inputnumber-button {
+  background: var(--sf-paper-2);
+  border-color: var(--sf-line);
+  color: var(--sf-ink-2);
+}
+
+/* Dropdown — el trigger vive dentro del diálogo, el panel se abre por portal */
+.p-dropdown {
+  background: var(--sf-paper-2);
+  border: 1px solid var(--sf-line);
+  border-radius: 8px;
+}
+.p-dropdown:not(.p-disabled).p-focus {
+  border-color: var(--sf-clay);
+  box-shadow: 0 0 0 2px var(--sf-clay-light);
+}
+.p-dropdown.p-invalid {
+  border-color: #c0392b;
+}
+.p-dropdown .p-dropdown-label {
+  color: var(--sf-ink);
+  font-size: 13.5px;
+}
+.p-dropdown .p-dropdown-label.p-placeholder {
+  color: var(--sf-stone);
+}
+.p-dropdown-trigger {
+  color: var(--sf-stone);
+}
+
+/* Botones del footer del formulario */
+.p-button.p-button-success {
+  background: var(--sf-clay);
+  border-color: var(--sf-clay);
+}
+.p-button.p-button-warning {
+  background: var(--sf-amber);
+  border-color: var(--sf-amber);
+  color: #fff;
+}
+.p-button.p-button-secondary.p-button-outlined {
+  color: var(--sf-ink-2);
+  border-color: var(--sf-line);
+  background: transparent;
+}
+.p-button.p-button-secondary.p-button-outlined:enabled:hover {
+  background: var(--sf-paper-2);
+}
+
+/* Panel del Dropdown — se monta en <body>, por eso va fuera de .sf-dialog */
+.p-dropdown-panel {
+  background: var(--sf-paper) !important;
+  border: 1px solid var(--sf-line) !important;
+  border-radius: 8px !important;
+  box-shadow: 0 12px 28px var(--sf-shadow) !important;
+
+  .p-dropdown-items .p-dropdown-item {
+    color: var(--sf-ink-2);
+    font-size: 13.5px;
+    padding: 9px 12px;
+
+    &:hover {
+      background: var(--sf-paper-2);
+      color: var(--sf-ink);
+    }
+  }
+  .p-dropdown-items .p-dropdown-item.p-highlight {
+    background: var(--sf-clay-light);
+    color: var(--sf-clay);
+  }
+  .p-dropdown-filter-container .p-inputtext {
+    background: var(--sf-paper-2);
+    border-color: var(--sf-line);
+    color: var(--sf-ink);
+  }
+}
+
+.sf-btn.p-button {
+    background: var(--sf-clay);
+    border-color: var(--sf-clay);
+    font-family: var(--sf-font-sans);
+    font-weight: 600;
+    font-size: 12.5px;
+    border-radius: 8px;
+
+    &:enabled:hover {
+        opacity: 0.9;
+        background: var(--sf-clay);
+        border-color: var(--sf-clay);
+    }
+
+    &.ghost {
+        background: transparent;
+        color: var(--sf-ink-2);
+        border-color: var(--sf-line);
+    }
+}
+
+.sf-tag {
+  border-radius: 20px;
+  font-weight: 500;
+  font-size: 11px;
+  padding: 3px 10px;
+  border: none;
+
+  &.amber {
+    background: var(--sf-amber-light);
+    color: var(--sf-amber);
+  }
+
+  &.moss {
+    background: var(--sf-moss-light);
+    color: var(--sf-moss);
+  }
+
+  &.clay {
+    background: var(--sf-clay-light);
+    color: var(--sf-clay);
+  }
+}
+
+.sf-accordion {
+  .p-accordion-header-link {
+    background: var(--sf-paper-2);
+    border: 1px solid var(--sf-line);
+    color: var(--sf-ink);
+    padding: 14px 18px;
+  }
+
+  .p-accordion-content {
+    border: 1px solid var(--sf-line);
+    border-top: none;
+    padding: 6px 0;
+    background: var(--sf-paper);
+  }
+
+  .p-accordion-tab {
+    margin-bottom: 14px;
+    border-radius: var(--sf-radius);
+    overflow: hidden;
+  }
+}
+
+.sf-search {
+  .p-inputtext {
+    font-family: var(--sf-font-mono);
+    font-size: 13px;
+    background: var(--sf-paper-2);
+    border: 1px solid var(--sf-line);
+    color: var(--sf-ink);
+
+    &::placeholder {
+      font-family: var(--sf-font-sans);
+      color: var(--sf-stone);
+    }
+  }
+}
+
+.sf-sidebar-drawer.p-sidebar {
+  background: var(--sf-sidebar);
+
+  .p-sidebar-header {
+    display: none;
+  }
+
+  .p-sidebar-content {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    padding: 18px 14px;
+  }
+}
+
+/* Menu Options Workers list and Dozen list */
+.sf-menu-options {
+  border: none;
+}
+
+.sf-menu-options .p-menuitem-link {
+  padding: 1.25rem 1.25rem !important;
+  border-bottom: 1px solid rgb(235, 233, 233);
+}
+
+/* input password full width, for login page */
+.p-password .p-icon-field.p-icon-field-right {
+  width: 100%;
+}
+
+/* ============================================================
+   DATATABLE — tablas de listados (Workers, Models, etc.)
+   ============================================================ */
+.sf-table.p-datatable { font-family: var(--sf-font-sans); background: transparent; }
+ 
+.sf-table .p-datatable-header {
+  background: transparent;
+  border: none;
+  padding: 0 0 18px;
+}
+.sf-table .p-datatable-header .p-inputtext {
+  background: var(--sf-paper-2);
+  border: 1px solid var(--sf-line);
+  color: var(--sf-ink);
+  // border-radius: 999px;
+  font-size: 13px;
+  padding: 9px 14px;
+}
+.sf-table .p-datatable-header .p-inputtext::placeholder { color: var(--sf-stone); }
+.sf-table .p-input-icon-left > i { color: var(--sf-stone); }
+
+.sf-table .p-datatable-header .p-dropdown .p-dropdown-label.p-inputtext {
+  padding-right: 28px;
+}
+
+.sf-table .p-datatable-header .p-dropdown .p-icon.p-dropdown-clear-icon.p-clickable {
+  right: 3.5rem;
+  width: 13px;
+  // color: var(--sf-clay);
+}
+ 
+.sf-table .p-datatable-thead > tr > th {
+  background: var(--sf-paper-2);
+  color: var(--sf-ink-2);
+  border-color: var(--sf-line);
+  font-size: 12.5px;
+  font-weight: 600;
+  padding: 12px 16px;
+}
+.sf-table .p-datatable-thead > tr > th:first-child { border-top-left-radius: 10px; }
+.sf-table .p-datatable-thead > tr > th:last-child { border-top-right-radius: 10px; }
+.sf-table .p-sortable-column .p-sortable-column-icon { color: var(--sf-stone); }
+ 
+.sf-table .p-datatable-tbody > tr {
+  background: var(--sf-paper);
+  color: var(--sf-ink);
+  transition: background .12s;
+}
+.sf-table .p-datatable-tbody > tr > td {
+  border-color: var(--sf-line);
+  padding: 12px 16px;
+  font-size: 13.5px;
+}
+.sf-table .p-datatable-tbody > tr:hover { background: var(--sf-paper-2); cursor: pointer; }
+.sf-table .p-datatable-tbody > tr.p-highlight { background: var(--sf-clay-light) !important; color: var(--sf-ink); }
+ 
+.sf-table .p-paginator {
+  background: transparent;
+  border: none;
+  color: var(--sf-ink-2);
+  padding-top: 16px;
+}
+.sf-table .p-paginator .p-paginator-element {
+  color: var(--sf-ink-2);
+  border-radius: 8px;
+  min-width: 2.2rem;
+  height: 2.2rem;
+}
+.sf-table .p-paginator .p-paginator-element:not(.p-disabled):hover { background: var(--sf-paper-2); }
+.sf-table .p-paginator .p-highlight { background: var(--sf-clay) !important; color: #fff !important; border-color: var(--sf-clay) !important; }
+ 
+.sf-table .p-datatable-emptymessage td { color: var(--sf-stone); text-align: center; padding: 30px; }
+.sf-table .p-datatable-loading-overlay { background: var(--sf-paper); opacity: .75; }
+ 
+/* ============================================================
+   MENU (usado tanto en popup del header como en diálogos de opciones)
+   ============================================================ */
+.sf-user-menu.p-menu {
+  background: var(--sf-paper);
+  border: 1px solid var(--sf-line);
+  border-radius: 10px;
+  padding: 6px;
+}
+.sf-user-menu .p-menuitem-link {
+  color: var(--sf-ink-2);
+  font-size: 13.5px;
+  border-radius: 8px;
+  padding: 10px 12px;
+}
+.sf-user-menu .p-menuitem-link:hover { background: var(--sf-paper-2); color: var(--sf-ink); }
+.sf-user-menu .p-menuitem-icon { color: var(--sf-stone); }
+.sf-user-menu .p-menuitem-separator { border-color: var(--sf-line); margin: 6px 4px; }
+ 
+.sf-menu-btn {
+  color: var(--sf-ink-2);
+  border-radius: 8px;
+}
+.sf-menu-btn:hover { background: var(--sf-paper-2); color: var(--sf-ink); }
+.sf-menu-btn .pi { color: var(--sf-stone); }
+ 
+/* ============================================================
+   DETALLE DE DOCENA — grid de datos + línea de tiempo por etapa
+   ============================================================ */
+.sf-detail-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px 24px;
+  margin-bottom: 22px;
+}
+.sf-detail-grid .full { grid-column: 1 / -1; }
+.sf-detail-label { font-size: 11.5px; color: var(--sf-stone); margin: 0 0 3px; }
+.sf-detail-value { font-size: 14px; font-weight: 600; color: var(--sf-ink); text-transform: capitalize; }
+.sf-detail-value.mono { font-family: var(--sf-font-mono); font-weight: 500; text-transform: none; }
+.sf-detail-value.note { font-weight: 400; text-transform: none; }
+ 
+.sf-section-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--sf-ink);
+  margin: 0 0 16px;
+  padding-top: 18px;
+  border-top: 1px solid var(--sf-line);
+}
+ 
+.sf-timeline { position: relative; }
+.sf-timeline-item { position: relative; display: flex; gap: 14px; padding-bottom: 22px; }
+.sf-timeline-item:last-child { padding-bottom: 0; }
+.sf-timeline-item::before {
+  content: "";
+  position: absolute;
+  left: 15px;
+  top: 32px;
+  bottom: -6px;
+  width: 1px;
+  background: var(--sf-line);
+}
+.sf-timeline-item:last-child::before { display: none; }
+ 
+.sf-stage-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  flex-shrink: 0;
+  z-index: 1;
+}
+.sf-stage-icon.canceled { background: var(--sf-red-light); color: var(--sf-red); border: 1px dashed var(--sf-red); }
+.sf-stage-icon.completed { background: var(--sf-moss-light); color: var(--sf-moss); }
+.sf-stage-icon.in_progress { background: var(--sf-amber-light); color: var(--sf-amber); }
+.sf-stage-icon.pending { background: var(--sf-paper-2); color: var(--sf-stone); border: 1px dashed var(--sf-line); }
+ 
+.sf-timeline-body { flex: 1; min-width: 0; padding-top: 3px; }
+.sf-timeline-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+.sf-timeline-stage { font-size: 13.5px; font-weight: 700; color: var(--sf-ink); }
+.sf-timeline-worker { font-size: 13px; color: var(--sf-ink-2); margin: 3px 0 0; }
+.sf-timeline-worker.unassigned { color: var(--sf-stone); font-style: italic; }
+.sf-timeline-meta { font-size: 11.5px; color: var(--sf-stone); margin-top: 5px; display: flex; gap: 14px; flex-wrap: wrap; align-items: center; justify-content: space-between; }
+.sf-timeline-payment { font-family: var(--sf-font-mono); font-size: 12.5px; color: var(--sf-moss); font-weight: 600; }
+ 
+@media (max-width: 560px) {
+  .sf-detail-grid { grid-template-columns: 1fr; }
+}
+
+
+/* ============================================================
+   Form Dozen
+   CALENDAR (Datepicker) — el panel se monta en <body>, por eso va global
+   ============================================================ */
+.p-datepicker {
+  background: var(--paper) !important;
+  border: 1px solid var(--line) !important;
+  border-radius: 10px !important;
+  box-shadow: 0 12px 28px var(--shadow) !important;
+  color: var(--ink);
+  font-family: var(--font-sans);
+}
+.p-datepicker .p-datepicker-header { background: transparent; border-bottom: 1px solid var(--line); color: var(--ink); padding-bottom: 8px; }
+.p-datepicker .p-datepicker-header .p-datepicker-title { color: var(--ink); font-weight: 600; font-size: 13.5px; }
+.p-datepicker .p-datepicker-prev, .p-datepicker .p-datepicker-next { color: var(--stone); }
+.p-datepicker .p-datepicker-prev:hover, .p-datepicker .p-datepicker-next:hover { background: var(--paper-2); color: var(--ink); }
+.p-datepicker table th { color: var(--stone); font-size: 11.5px; font-weight: 600; }
+.p-datepicker table td { color: var(--ink-2); }
+.p-datepicker table td > span { border-radius: 8px; }
+.p-datepicker table td > span:hover { background: var(--paper-2); color: var(--ink); }
+.p-datepicker table td.p-datepicker-today > span { background: var(--amber-light); color: var(--amber); font-weight: 600; }
+.p-datepicker table td > span.p-highlight { background: var(--clay) !important; color: #fff !important; }
+.p-datepicker .p-datepicker-buttonbar { border-top: 1px solid var(--line); padding-top: 8px; }
+.p-datepicker .p-datepicker-buttonbar .p-button { background: transparent; border: none; color: var(--clay); font-weight: 600; font-size: 12.5px; padding: 6px 8px; }
+.p-datepicker .p-datepicker-buttonbar .p-button:hover { background: var(--clay-light); }
+
+.p-calendar .p-datepicker-trigger.p-button {
+  background: var(--sf-moss);
+  border-color: var(--sf-moss);
+}
+ 
+/* ============================================================
+   INPUTNUMBER — botones +/- (usado en Cantidad)
+   ============================================================ */
+.p-inputnumber-button { background: var(--paper-2) !important; border-color: var(--line) !important; color: var(--ink-2) !important; }
+.p-inputnumber-button:hover { background: var(--clay-light) !important; color: var(--clay) !important; }
+.p-inputnumber .p-inputtext { background: var(--paper-2); border-color: var(--line); color: var(--ink); }
+ 
+/* ============================================================
+   FORMULARIOS DE PÁGINA COMPLETA (fuera de Dialog/login) — DozenForm, etc.
+   ============================================================ */
+.sf-form textarea.p-inputtextarea,
+.sf-form .p-inputtext,
+.sf-form .p-inputnumber-input {
+  background: var(--paper-2);
+  border: 1px solid var(--line);
+  color: var(--ink);
+  border-radius: 8px;
+  font-family: var(--font-sans);
+  font-size: 13.5px;
+}
+.sf-form textarea.p-inputtextarea::placeholder,
+.sf-form .p-inputtext::placeholder { color: var(--stone); }
+.sf-form textarea.p-inputtextarea:focus,
+.sf-form .p-inputtext:enabled:focus { border-color: var(--clay); box-shadow: 0 0 0 2px var(--clay-light); outline: none; }
+.sf-form label { color: var(--ink-2); font-size: 13px; }
+.sf-form .p-error { color: #E06666; font-size: 12px; }
+.sf-form .p-button.p-button-success { background: var(--moss); border-color: var(--moss); }
+.sf-form .p-button.p-button-success:enabled:hover { opacity: .9; }
+.sf-form .p-button.p-button-secondary { background: var(--paper-2); border-color: var(--line); color: var(--ink-2); }
+ 
+/* ============================================================
+   BREADCRUMB
+   ============================================================ */
+.sf-breadcrumb.p-breadcrumb {
+  background: transparent;
+  border: none;
+  padding: 0;
+  font-family: var(--sf-font-sans);
+  font-size: 13px;
+}
+.sf-breadcrumb .p-breadcrumb-list > li .p-menuitem-link { color: var(--sf-ink-2); }
+.sf-breadcrumb .p-breadcrumb-list > li .p-menuitem-link:hover { color: var(--sf-clay); }
+.sf-breadcrumb .p-breadcrumb-list > li.p-breadcrumb-chevron,
+.sf-breadcrumb .p-breadcrumb-list > li .p-icon-wrapper svg { color: var(--sf-stone); margin: 0 4px; font-size: 11px; }
+.sf-breadcrumb .p-breadcrumb-home .p-menuitem-icon { color: var(--sf-clay); font-size: 13px; }
+.sf-breadcrumb .p-breadcrumb-list > li:last-child .p-menuitem-text { color: var(--sf-ink); font-weight: 600; }
+ 
+.sf-breadcrumb-link { color: var(--sf-clay); font-weight: 600; text-decoration: none; }
+.sf-breadcrumb-link:hover { text-decoration: underline; }

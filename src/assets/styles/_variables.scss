@@ -1,0 +1,75 @@
+/* ============================================================
+   TOKENS — oscuro por defecto, [data-theme="light"] lo sobreescribe
+   ============================================================ */
+
+:root {
+  /* fondo detrás de las tarjetas flotantes */
+  /* --sf-app-bg: #0f1012; */
+  /* tarjeta del sidebar */
+  /* --sf-sidebar: #17181b; */
+
+  /* tarjeta de contenido */
+  /* --sf-paper: #17181b; 
+  --sf-paper-2: #1f2124;
+  --sf-line: #2a2c30;
+
+  --sf-ink: #edebe6;
+  --sf-ink-2: #a19e97;
+  --sf-stone: #6e6c67;
+
+  --sf-clay: #e08858;
+  --sf-clay-light: #33261c;
+  --sf-moss: #8fb06c;
+  --sf-moss-light: #202a1c;
+  --sf-amber: #e3b056;
+  --sf-amber-light: #332a18; */
+
+  --sf-app-bg: #1c1a16;
+  --sf-sidebar: #1c1a16;
+  --sf-paper: #1c1a16;
+  --sf-paper-2: #252220;
+  --sf-line: #3a342a;
+  --sf-ink: #ede7da;
+  --sf-ink-2: #a19e97;
+  --sf-stone: #8a8272;
+  --sf-clay: #d68a5e;
+  --sf-clay-light: #3a2a20;
+  --sf-moss: #9cb07e;
+  --sf-moss-light: #28301f;
+  --sf-amber: #d9a85c;
+  --sf-amber-light: #332a1a;
+  --sf-red: #C45A4E;
+  --sf-red-light: #3A2421;
+  --sf-red-dark: #E0786C;
+
+  --sf-shadow: rgba(0, 0, 0, 0.45);
+
+  --sf-font-sans: "Archivo", sans-serif;
+  --sf-font-mono: "IBM Plex Mono", monospace;
+  --sf-radius: 10px;
+}
+
+:root[data-theme="light"] {
+  --sf-app-bg: #ece8df;
+  --sf-sidebar: #ffffff;
+  --sf-paper: #ffffff;
+  --sf-paper-2: #f5f1e8;
+  --sf-line: #e3dccb;
+
+  --sf-ink: #2b2620;
+  --sf-ink-2: #6b6559;
+  --sf-stone: #9a9284;
+
+  --sf-clay: #8c4a2f;
+  --sf-clay-light: #f1e2d9;
+  --sf-moss: #5c6b4a;
+  --sf-moss-light: #e7ece0;
+  --sf-amber: #a9762e;
+  --sf-amber-light: #f3e8d4;
+
+  --sf-red: #A6463A;
+  --sf-red-light: #F3DCD8;
+  --sf-red-dark: #7F332B;
+
+  --sf-shadow: rgba(43, 38, 32, 0.08);
+}

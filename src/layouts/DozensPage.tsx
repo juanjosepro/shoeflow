@@ -2,7 +2,7 @@ import { useMemo, useState } from "react";
 import { InputText } from "primereact/inputtext";
 import { Accordion, AccordionTab } from "primereact/accordion";
 import { Button } from "primereact/button";
-import "../theme.css";
+import "./DozensPage.scss";
 
 // Las "estaciones" representan el traspaso entre áreas: qué docenas
 // terminaron un área y están esperando ser asignadas a la siguiente.
@@ -140,7 +140,7 @@ export const DozensPage = () => {
       {/* Contenido principal */}
       <div style={{ flex: 1, minWidth: 0 }}>
         <span
-          className="p-input-icon-left taller-search"
+          className="p-input-icon-left sf-search"
           style={{ display: "block", marginBottom: 6 }}
         >
           <i className="pi pi-search" />
@@ -160,7 +160,7 @@ export const DozensPage = () => {
           {activeStationData?.count} pendientes.
         </p>
 
-        <Accordion multiple activeIndex={[0]} className="taller-accordion">
+        <Accordion multiple activeIndex={[0]} className="sf-accordion">
           {filteredWeeks.map((week, i) => (
             <AccordionTab
               key={i}
@@ -237,14 +237,14 @@ export const DozensPage = () => {
                         Talla {item.size} · {item.material} · {item.meta}
                       </div>
                     </div>
-                    <span className={`taller-tag ${st.cls}`}>{st.label}</span>
+                    <span className={`sf-tag ${st.cls}`}>{st.label}</span>
                     <Button
                       label={
                         item.status === "in_progress"
                           ? "Ver detalle"
                           : "Asignar armador"
                       }
-                      className={`taller-btn p-button-sm ${item.status === "in_progress" ? "ghost" : ""}`}
+                      className={`sf-btn p-button-sm ${item.status === "in_progress" ? "ghost" : ""}`}
                       onClick={() => {
                         // POST /api/dozen-stage-assignments/deliver/  { dozen_id, stage, worker_id }
                       }}

@@ -1,0 +1,69 @@
+/* ============================================================
+   LOGIN — layout de dos paneles
+   ============================================================ */
+.login-shell { min-height: 100vh; background: var(--app-bg); }
+ 
+.login-aside {
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(155deg, var(--clay) 0%, var(--amber) 100%);
+  color: #fff;
+  padding: 48px;
+}
+.login-aside::before {
+  content: "";
+  position: absolute;
+  width: 340px;
+  height: 340px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.08);
+  right: -120px;
+  top: -100px;
+}
+.login-aside::after {
+  content: "";
+  position: absolute;
+  width: 260px;
+  height: 260px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.08);
+  left: -80px;
+  bottom: -90px;
+}
+.login-aside-content { position: relative; z-index: 1; height: 100%; display: flex; flex-direction: column; justify-content: space-between; }
+.login-aside .brand-mark { background: rgba(255,255,255,0.95); color: var(--clay); }
+.login-quote { font-size: 21px; font-weight: 600; line-height: 1.45; max-width: 380px; }
+.login-quote-role { font-size: 13px; opacity: 0.85; margin-top: 14px; }
+ 
+.login-card {
+  width: 100%;
+  max-width: 400px;
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  box-shadow: 0 16px 40px var(--shadow);
+  padding: 40px 36px;
+}
+ 
+.login-toggle {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  border: 1px solid var(--line);
+  background: var(--paper);
+  color: var(--ink-2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 20;
+  box-shadow: 0 4px 12px var(--shadow);
+}
+.login-toggle:hover { color: var(--ink); }
+ 
+@media (max-width: 768px) {
+  .login-aside { display: none; }
+}

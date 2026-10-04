@@ -135,7 +135,7 @@ export const WorkerForm = ({
       header={worker ? "Editar Trabajador" : "Nuevo Trabajador"}
       footer={footer}
       closable={!isLoading}
-      className="p-fluid"
+      className="p-fluid sf-dialog"
       style={{ width: "40vw" }}
       breakpoints={{ "960px": "75vw", "641px": "90vw" }}
     >

@@ -1,0 +1,195 @@
+/* ============================================================
+   SIDEBAR
+   ============================================================ */
+.sf-layout__sidebar {
+    width: 240px;
+    flex-shrink: 0;
+    background: var(--sf-sidebar);
+    box-shadow: 0 8px 24px var(--sf-shadow);
+    padding: 18px 14px;
+
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+
+    @media (max-width: 960px) {
+      &.sf-sidebar-desktop {
+        display: none;
+      }
+    }
+  }
+
+  .brand {
+    &-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 4px 6px 18px;
+      margin-bottom: 12px;
+      border-bottom: 1px solid var(--sf-line);
+
+      .brand-mark {
+        width: 30px;
+        height: 30px;
+        border-radius: 9px;
+        background: var(--sf-clay);
+        color: #fff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 14px;
+        font-weight: 700;
+        flex-shrink: 0;
+      }
+
+      strong {
+        font-size: 14.5px;
+        font-weight: 700;
+      }
+
+      .pi-chevron-down {
+        margin-left: auto;
+        color: var(--stone);
+        font-size: 11px;
+      }
+    }
+  }
+
+  .nav {
+    &-scroll {
+      flex: 1;
+      overflow-y: auto;
+    }
+
+    &-section-label {
+      font-size: 12px;
+      color: var(--stone);
+      font-weight: 500;
+      padding: 0 10px;
+      margin: 16px 0 6px;
+
+      &:first-child {
+        margin-top: 4px;
+      }
+    }
+
+    &-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 9px 10px;
+      border-radius: var(--sf-radius);
+      color: var(--sf-ink-2);
+      font-size: 14px;
+      font-weight: 500;
+      text-decoration: none;
+      cursor: pointer;
+      margin-bottom: 2px;
+      border: none;
+      background: none;
+      width: 100%;
+      text-align: left;
+      font-family: var(--sf-font-sans);
+
+      :hover {
+        background: var(--sf-paper-2);
+        color: var(--sf-ink);
+      }
+
+      &.active {
+        background: var(--sf-clay);
+        color: #fff;
+
+        i {
+          color: #fff;
+        }
+      }
+
+      i {
+        font-size: 14.5px;
+        width: 16px;
+        text-align: center;
+        color: var(--sf-stone);
+      }
+    }
+  }
+
+  /* Tarjeta inferior — funciona como selector de tema claro/oscuro */
+  .theme-card {
+      position: relative;
+      border-radius: 14px;
+      padding: 16px 14px 14px;
+      margin-top: 14px;
+      overflow: hidden;
+      background: linear-gradient(155deg, var(--sf-clay) 0%, var(--sf-amber) 100%);
+      color: #fff;
+
+      &::after {
+        content: "";
+        position: absolute;
+        right: -30px;
+        bottom: -30px;
+        width: 110px;
+        height: 110px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.12);
+      }
+
+      &-badge {
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.9);
+        color: var(--sf-clay);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 13px;
+        margin-left: auto;
+        margin-bottom: 8px;
+        position: relative;
+        z-index: 1;
+      }
+
+      &-title {
+        font-size: 14.5px;
+        font-weight: 700;
+        line-height: 1.25;
+        margin: 0 0 2px;
+        position: relative;
+        z-index: 1;
+      }
+
+      &-sub {
+        font-size: 12px;
+        opacity: 0.85;
+        margin: 0 0 12px;
+        position: relative;
+        z-index: 1;
+      }
+
+      &-btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        width: 100%;
+        background: rgba(255, 255, 255, 0.92);
+        /* color: var(--ink); */
+        color: #000;
+        border: none;
+        border-radius: 8px;
+        padding: 8px 10px;
+        font-size: 12.5px;
+        font-weight: 600;
+        font-family: var(--sf-font-sans);
+        cursor: pointer;
+        position: relative;
+        z-index: 1;
+
+        &:hover {
+          background: #fff;
+        }
+      }
+  }
+

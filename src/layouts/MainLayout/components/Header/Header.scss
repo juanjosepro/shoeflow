@@ -1,0 +1,189 @@
+/* ============================================================
+   HEADER (dentro de la tarjeta de contenido)
+   ============================================================ */
+.sf-layout__header {
+    display: grid;
+    grid-template-columns: 3fr 1.6fr 1fr;
+    align-items: center;
+    gap: 20px;
+
+    padding-bottom: 18px;
+    margin-bottom: 22px;
+
+    border-bottom: 1px solid var(--sf-line);
+
+    @media (max-width: 720px) {
+      flex-wrap: wrap;
+      padding-bottom: 14px;
+      margin-bottom: 16px;
+    }
+
+    .header-title {
+        font-size: 17px;
+        font-weight: 600;
+        margin: 0;
+        line-height: 1.2;
+    }
+
+    .header-subtitle {
+        font-size: 12.5px;
+        color: var(--sf-stone);
+        margin: 2px 0 0;
+    }
+
+    .header-search {
+        flex: 1;
+        max-width: 360px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        background: var(--sf-paper-2);
+        border: 1px solid var(--sf-line);
+        border-radius: 999px;
+        padding: 8px 14px;
+
+        @media (max-width: 720px) {
+          order: 3;
+          max-width: 100%;
+          flex-basis: 100%;
+        }
+
+        i {
+          color: var(--sf-stone);
+          font-size: 13px;
+        }
+
+        input {
+          border: none;
+          background: none;
+          outline: none;
+          color: var(--sf-ink);
+          font-family: var(--sf-font-sans);
+          font-size: 13px;
+          width: 100%;
+
+          &::placeholder {
+            color: var(--sf-stone);
+          }
+        }
+    }
+
+    .header-icon-btn {
+      position: relative;
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      border: 1px solid var(--sf-line);
+      background: var(--sf-paper-2);
+      color: var(--sf-ink-2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      cursor: pointer;
+      flex-shrink: 0;
+
+      &:hover {
+        color: var(--sf-ink);
+      }
+
+      @media (max-width: 960px) {
+        &.mobile-only {
+          font-size: 18px;
+        }
+      }
+    }
+
+    .mobile-only {
+      display: none;
+
+      @media (max-width: 960px) {
+        display: flex;
+      }
+    }
+
+    .header-badge {
+      position: absolute;
+      top: -3px;
+      right: -3px;
+      background: var(--sf-clay);
+      color: #fff;
+      font-size: 9.5px;
+      font-weight: 700;
+      min-width: 15px;
+      height: 15px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 2px solid var(--sf-paper);
+    }
+
+    .header-divider {
+      width: 1px;
+      height: 24px;
+      background: var(--sf-line);
+      flex-shrink: 0;
+    }
+
+    .header-user {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        border: none;
+        background: none;
+        cursor: pointer;
+        padding: 4px;
+        border-radius: 999px;
+
+        &:hover {
+          background: var(--sf-paper-2);
+        }
+    }
+
+    .header-avatar {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      background: var(--sf-moss-light);
+      color: var(--sf-moss);
+      font-size: 11.5px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .header-user-text {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      line-height: 1.2;
+
+      @media (max-width: 720px) {
+        display: none;
+      }
+    }
+    .header-user-text .name {
+      font-size: 12.5px;
+      font-weight: 600;
+      color: var(--sf-ink);
+    }
+    .header-user-text .role {
+      font-size: 11px;
+      color: var(--sf-stone);
+    }
+
+    .sf-user-menu.p-menu {
+      background: var(--sf-paper);
+      border: 1px solid var(--sf-line);
+    }
+    .sf-user-menu .p-menuitem-link {
+      color: var(--sf-ink-2);
+      font-size: 13px;
+    }
+    .sf-user-menu .p-menuitem-link:hover {
+      background: var(--sf-paper-2);
+      color: var(--sf-ink);
+    }
+}

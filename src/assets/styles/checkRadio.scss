@@ -1,0 +1,30 @@
+/* Scroll horizontal para filas de chips seleccionables (modelo, material, color, trabajador) */
+.sf-chip-scroll {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding: 8px 2px;
+}
+
+.sf-chip.p-chip {
+  background: var(--sf-paper-2);
+  border: 1px solid var(--sf-line);
+  color: var(--sf-ink-2);
+  padding: 0.35rem 1.1rem;
+  cursor: pointer;
+  transition: background .15s, border-color .15s, color .15s;
+}
+.sf-chip.p-chip:hover { border-color: var(--sf-clay); color: var(--sf-ink); }
+.sf-chip.p-chip .p-chip-text {
+  font-family: var(--sf-font-sans);
+  font-size: 13px;
+  width: max-content;
+  margin: 0;
+}
+
+.sf-chip-selected.p-chip {
+  background: var(--sf-clay) !important;
+  border-color: var(--sf-clay) !important;
+  color: #fff !important;
+}
+.sf-chip-selected.p-chip .p-chip-icon { color: #fff !important; }
