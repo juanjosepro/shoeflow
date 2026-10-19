@@ -1,16 +1,15 @@
 import { useState } from "react";
-
 import dayjs from "@/shared/lib/dayjs";
-
 import type { Model } from "@/features/models/types/model";
-
-import type { Dozen, DozenMetadata, DozenQueryParams } from "../types/dozen";
-
+import type {
+  CatalogOptions,
+  Dozen,
+  DozenMetadata,
+  DozenQueryParams,
+} from "../types/dozen";
 import { useDozenFilters } from "../hooks/useDozenFilters";
-
 import DozenTableFilters from "./DozenTableFilters";
 import DozenDetailDialog from "./DozenDetailDialog";
-
 import { Column, type ColumnBodyOptions } from "primereact/column";
 import { DataTable } from "primereact/datatable";
 import type {
@@ -28,6 +27,7 @@ interface Props {
   queryParams: DozenQueryParams;
   setQueryParams: React.Dispatch<React.SetStateAction<DozenQueryParams>>;
   metadata: DozenMetadata | null;
+  options: CatalogOptions;
 }
 
 const DozenListTable = ({
@@ -38,16 +38,22 @@ const DozenListTable = ({
   queryParams,
   setQueryParams,
   metadata,
+  options,
 }: Props) => {
-  const [selectedDozen, setSelectedDozen] = useState<Dozen | null>(null);
-
-  const [isDetailDialogOpen, setIsDetailDialogOpen] = useState(false);
-
   const { onSearchChange, onFilterChange, clearFilters, hasActiveFilters } =
     useDozenFilters({
       queryParams,
       setQueryParams,
     });
+  const [selectedDozen, setSelectedDozen] = useState<Dozen | null>(null);
+  const [isDetailDialogOpen, setIsDetailDialogOpen] = useState(false);
+
+  const priorityColors: Record<string, string> = {
+    BAJA: "#16A34A",
+    NORMAL: "#64748B",
+    ALTA: "#EA580C",
+    URGENTE: "#DC2626",
+  };
 
   /*
    * ==========================================
@@ -102,27 +108,55 @@ const DozenListTable = ({
    * TABLE TEMPLATES
    * ==========================================
    */
-  const numberBodyTemplate = (
-    _rowData: Dozen,
-    options: ColumnBodyOptions
-  ) => {
-    return options.rowIndex + 1;
+  const numberBodyTemplate = (_rowData: Dozen, options: ColumnBodyOptions) => {
+    return total - options.rowIndex;
   };
 
-  const colorBodyTemplate = (rowData: Dozen) => (
-    <span>{capitalizeWords(rowData.color)}</span>
-  );
   const modelBodyTemplate = (rowData: Dozen) => (
-    <span>{capitalizeWords(rowData.variant.model.name)}</span>
+    <span>{capitalizeWords(rowData.model.name)}</span>
   );
-  
+
+  const colorBodyTemplate = (rowData: Dozen) => (
+    <span>{capitalizeWords(rowData.color.name)}</span>
+  );
+
   const materialBodyTemplate = (rowData: Dozen) => (
-    <span>{capitalizeWords(rowData.material)}</span>
+    <span>{capitalizeWords(rowData.material_type.name)}</span>
   );
-  
+
+  const plantTypeBodyTemplate = (rowData: Dozen) => (
+    <span>{capitalizeWords(rowData.plant_type.name)}</span>
+  );
+
   const processBodyTemplate = (rowData: Dozen) => (
     <span>{capitalizeWords(rowData.status)}</span>
   );
+
+  const priorityBodyTemplate = (rowData: Dozen) => {
+    const priority =
+      metadata?.prioritiesMap[rowData.priority] ??
+      metadata?.prioritiesMap.NORMAL;
+
+    if (!priority) return null;
+
+    const color = priorityColors[rowData.priority] ?? priorityColors.NORMAL;
+
+    return (
+      <div className="flex align-items-center gap-2">
+        <span
+          style={{
+            width: "8px",
+            height: "8px",
+            borderRadius: "50%",
+            backgroundColor: color,
+            flexShrink: 0,
+          }}
+        />
+
+        <span>{priority.label}</span>
+      </div>
+    );
+  };
 
   const statusBodyTemplate = (rowData: Dozen) => (
     <span
@@ -150,7 +184,7 @@ const DozenListTable = ({
   const codeBodyTemplate = (rowData: Dozen) => (
     <div className="flex flex-column gap-1">
       <span className="mono">{rowData.code}</span>
-  
+
       {rowData.registration_group && (
         <small
           className="mono"
@@ -166,10 +200,12 @@ const DozenListTable = ({
   );
 
   const sizeTemplate = (rowData: Dozen) => (
-    <div className="flex align-items-center flex-column gap-1">
-      <span>{rowData.variant.size.name} <small style={{color: "var(--sf-stone)"}}>({rowData.variant.size.description})</small></span>
-      
-    </div>
+    <span>
+      {rowData.size.name}{" "}
+      <small style={{ color: "var(--sf-stone)" }}>
+        ({rowData.size.description})
+      </small>
+    </span>
   );
 
   /*
@@ -202,6 +238,7 @@ const DozenListTable = ({
           <DozenTableFilters
             models={models}
             metadata={metadata}
+            options={options}
             queryParams={queryParams}
             onSearchChange={onSearchChange}
             onFilterChange={onFilterChange}
@@ -224,14 +261,9 @@ const DozenListTable = ({
         />
 
         <Column
-          header="Cantidad"
-          field="quantity"
-        />
-
-        <Column
           header="Modelo"
           body={modelBodyTemplate}
-          style={{ minWidth: "10rem" }}
+          style={{ minWidth: "7rem" }}
         />
 
         <Column
@@ -240,11 +272,27 @@ const DozenListTable = ({
           style={{ minWidth: "10rem" }}
         />
 
-        <Column header="Color" body={colorBodyTemplate} style={{ minWidth: "8rem" }} />
+        <Column
+          header="Color"
+          body={colorBodyTemplate}
+          style={{ minWidth: "8rem" }}
+        />
 
         <Column
           header="Material"
           body={materialBodyTemplate}
+          style={{ minWidth: "8rem" }}
+        />
+        <Column header="Cantidad" field="pairs" />
+
+        <Column
+          header="Planta"
+          body={plantTypeBodyTemplate}
+          style={{ minWidth: "8rem" }}
+        />
+        <Column
+          header="Prioridad"
+          body={priorityBodyTemplate}
           style={{ minWidth: "8rem" }}
         />
 
@@ -261,6 +309,7 @@ const DozenListTable = ({
 
       <DozenDetailDialog
         dozen={selectedDozen}
+        stages={options.specialties}
         visible={isDetailDialogOpen}
         onHide={() => setIsDetailDialogOpen(false)}
       />

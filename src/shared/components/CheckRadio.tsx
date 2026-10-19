@@ -1,8 +1,9 @@
 import { useEffect, useRef } from "react";
 import "@/assets/styles/checkRadio.scss";
 import { Chip } from "primereact/chip";
+import { Badge } from "primereact/badge";
 
-const CheckRadio = ({ label, valueCheck, value, name, onChange }) => {
+const CheckRadio = ({ label, valueCheck, value, name, onChange, hex }) => {
   const isSelected = valueCheck === value;
   const ref = useRef();
 
@@ -31,10 +32,15 @@ const CheckRadio = ({ label, valueCheck, value, name, onChange }) => {
   return (
     <div ref={isSelected ? ref : null}>
       <Chip
-        label={label}
-        icon={isSelected ? "pi pi-check" : undefined}
         onClick={handleClick}
         className={`sf-chip ${isSelected ? "sf-chip-selected" : ""}`}
+        template={() => (
+          <>
+            {isSelected && <i className="pi pi-check mr-1" />}
+            {label}
+            {hex && <Badge value=" " style={{ background: hex }} />}
+          </>
+        )}
       />
     </div>
   );

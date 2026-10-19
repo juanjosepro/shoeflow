@@ -1,7 +1,10 @@
 import api from "@/shared/lib/axios";
 import type {
+  AssignStagesPayload,
   Dozen,
   DozenQueryParams,
+  DozenStatusAction,
+  StageRow,
 } from "../types/dozen";
 import type { DozenFormData } from "../schemas/dozenSchema";
 import type { PaginatedResponse } from "@/shared/types";
@@ -28,5 +31,10 @@ export const dozenService = {
   patch: (id: number, data: Partial<Dozen>) => api.patch<Dozen>(`${ENDPOINT}/${id}/`, data).then(r => r.data),
   delete: (id: number) => api.delete(`${ENDPOINT}/${id}/`),
 
-  dozenMetadata: () => api.get(`/production/dozen-metadata/`).then(r => r.data),
+  getStageOptions: (id: number) =>
+    api.get<StageRow[]>(`${ENDPOINT}/${id}/stage-options/`).then((r) => r.data),
+  assignStages: (id: number, payload: AssignStagesPayload) =>
+    api.post<Dozen>(`${ENDPOINT}/${id}/assign-stages/`, payload).then((r) => r.data),
+  changeStatus: (id: number, action: DozenStatusAction) =>
+    api.post<Dozen>(`${ENDPOINT}/${id}/${action}/`).then((r) => r.data),
 };

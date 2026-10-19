@@ -1,0 +1,69 @@
+.sf-color-card {
+  position: relative;
+  border: 1px solid var(--surface-border);
+  border-radius: 14px;
+  overflow: hidden;
+  background: var(--surface-card);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.sf-color-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.14);
+}
+
+.sf-color-card__swatch {
+  position: relative;
+  height: 7.5rem;
+  display: flex;
+  align-items: flex-end;
+  padding: 0.6rem 0.8rem;
+  /* borde interior para que el blanco no se pierda contra la tarjeta */
+  box-shadow: inset 0 -1px 0 rgba(0, 0, 0, 0.08);
+}
+
+/* Inactivo: color apagado con rayas diagonales */
+.sf-color-card--inactive .sf-color-card__swatch {
+  filter: grayscale(0.55);
+  opacity: 0.55;
+  background-image: repeating-linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.35) 0,
+    rgba(255, 255, 255, 0.35) 8px,
+    transparent 8px,
+    transparent 16px
+  );
+}
+
+.sf-color-card__hex {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.8rem;
+  letter-spacing: 0.04em;
+  font-weight: 600;
+}
+
+.sf-color-card__actions {
+  position: absolute;
+  top: 0.4rem;
+  right: 0.4rem;
+  display: flex;
+  gap: 0.15rem;
+  padding: 0.15rem;
+  border-radius: 999px;
+  background: var(--surface-card);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  opacity: 0;
+  transition: opacity 0.15s ease;
+}
+
+.sf-color-card:hover .sf-color-card__actions,
+.sf-color-card:focus-within .sf-color-card__actions {
+  opacity: 1;
+}
+
+/* En pantallas táctiles no hay hover: las acciones siempre visibles */
+@media (hover: none) {
+  .sf-color-card__actions {
+    opacity: 1;
+  }
+}

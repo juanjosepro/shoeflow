@@ -1,7 +1,15 @@
 import { Dialog } from "primereact/dialog";
 import { Button } from "primereact/button";
 
-export const ConfirmDialog = ({ open, onOpenChange, title, description, onConfirm, isLoading }) => {
+export const ConfirmDialog = ({
+  open,
+  onOpenChange,
+  title,
+  description,
+  onConfirm,
+  isLoading,
+  textButton,
+}) => {
   const footerContent = (
     <div className="flex justify-content-end">
       <Button
@@ -19,7 +27,7 @@ export const ConfirmDialog = ({ open, onOpenChange, title, description, onConfir
         onClick={onConfirm}
         disabled={isLoading}
       >
-        Desactivar
+        {textButton || "Desactivar"}
       </Button>
     </div>
   );
@@ -27,13 +35,15 @@ export const ConfirmDialog = ({ open, onOpenChange, title, description, onConfir
   return (
     <Dialog
       visible={open}
-      onHide={() => { if (isLoading) return; onOpenChange(false); }}
+      onHide={() => {
+        if (isLoading) return;
+        onOpenChange(false);
+      }}
       header={title}
       footer={footerContent}
+      className="sf-dialog"
     >
-      <p className="m-0">
-        {description}
-      </p>
+      <p className="m-0">{description}</p>
     </Dialog>
-  )
-}
+  );
+};

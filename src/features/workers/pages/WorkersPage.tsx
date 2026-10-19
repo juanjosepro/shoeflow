@@ -1,15 +1,28 @@
-import { useState } from "react";
-import { useWorkers } from "../hooks/useWorkers";
-import { WorkerCard } from "../components/WorkerCard";
+import { useRef, useState } from "react";
+import { PAGE_SIZE, useWorkers } from "../hooks/useWorkers";
+import { WorkerList } from "../components/WorkerList";
 import { WorkerForm } from "../components/WorkerForm";
 import { ConfirmDialog } from "@/shared/components/ConfirmDialog";
 import type { WorkerFormData, Worker, WorkerPayload } from "../types/worker";
 import { toast } from "@/shared/lib/toast";
 import { Button } from "primereact/button";
+import { useDebounce } from "@/shared/hooks/useDebounce";
 
 export const WorkersPage = () => {
-  const { workers, loading, addWorker, updateWorker, toggleWorkerStatus } =
-    useWorkers({ noPagination: true });
+  const [search, setSearch] = useState("");
+  const debouncedSearch = useDebounce(search, 400);
+  const {
+    workers,
+    count,
+    page,
+    loading,
+    getPaginated,
+    addWorker,
+    updateWorker,
+    toggleWorkerStatus,
+  } = useWorkers({
+    query: { search: debouncedSearch },
+  });
 
   const [modalWorker, setModalWorker] = useState<Worker | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -18,6 +31,10 @@ export const WorkersPage = () => {
   const [confirmWorker, setConfirmWorker] = useState<Worker | null>(null);
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
   const [isToggling, setIsToggling] = useState(false);
+
+  // Spinner de pantalla completa solo la primera vez
+  const hasLoaded = useRef(false);
+  if (!loading) hasLoaded.current = true;
 
   const openCreate = () => {
     setModalWorker(null);
@@ -52,7 +69,6 @@ export const WorkersPage = () => {
     try {
       const payload: WorkerFormData = {
         ...formData,
-        team_id: Number(formData.team_id),
       };
       if (modalWorker) {
         await updateWorker(modalWorker.id, payload);
@@ -69,7 +85,7 @@ export const WorkersPage = () => {
     }
   };
 
-  if (loading) {
+  if (loading && !hasLoaded.current) {
     return (
       <div
         className="flex align-items-center justify-content-center"
@@ -82,7 +98,16 @@ export const WorkersPage = () => {
 
   return (
     <>
-      <WorkerCard workers={workers} loading={loading} onEdit={openEdit} />
+      <WorkerList
+        workers={workers}
+        loading={loading}
+        onEdit={openEdit}
+        search={search}
+        onSearchChange={setSearch}
+        totalRecords={count}
+        first={(page - 1) * PAGE_SIZE}
+        onPageChange={(newPage) => getPaginated(newPage)}
+      />
 
       <WorkerForm
         visible={isModalOpen}

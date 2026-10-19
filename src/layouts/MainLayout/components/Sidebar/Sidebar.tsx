@@ -5,9 +5,38 @@ import "./Sidebar.scss";
 
 const NAV_SECTIONS = [
   {
+    label: "General",
+    items: [
+      {
+        label: "Dashboard",
+        icon: "pi pi-microsoft",
+        path: "/catalog/models",
+      },
+    ],
+  },
+  {
+    label: "Producción",
+    items: [
+      {
+        label: "Docenas",
+        icon: "pi pi-box",
+        path: "/production/dozens",
+      },
+      {
+        label: "Procesos de producción",
+        icon: "pi pi-sync",
+        path: "/production/dozens/process",
+      },
+    ],
+  },
+  {
     label: "Personal",
     items: [
-      { label: "Equipos", icon: "pi pi-sitemap", path: "/staff/teams" },
+      {
+        label: "Especialidades",
+        icon: "pi pi-briefcase",
+        path: "/staff/specialties",
+      },
       {
         label: "Trabajadores",
         icon: "pi pi-users",
@@ -16,49 +45,49 @@ const NAV_SECTIONS = [
     ],
   },
   {
-    label: "General",
+    label: "Tarifarios",
     items: [
-      { label: "Modelos", icon: "pi pi-box", path: "/catalog/models" },
+      {
+        label: "Tárifas por especialidad",
+        icon: "pi pi-wallet",
+        path: "/payroll/rates",
+      },
+      // {
+      //   label: "Tarifas por trabajador",
+      //   icon: "pi pi-id-card",
+      //   path: "/payroll/worker-rates",
+      // },
+    ],
+  },
+  {
+    label: "Catálogo",
+    items: [
+      { label: "Modelos", icon: "pi pi-tag", path: "/catalog/models" },
+      {
+        label: "Categorías",
+        icon: "pi pi-tags",
+        path: "/catalog/categories",
+      },
       {
         label: "Tallas",
-        icon: "pi pi-arrow-right-arrow-left",
+        icon: "pi pi-arrows-h",
         path: "/catalog/sizes",
       },
       { label: "Colores", icon: "pi pi-palette", path: "/catalog/colors" },
     ],
   },
   {
-    label: "Producción",
+    label: "Configuración",
     items: [
       {
-        label: "Todas las docenas",
-        icon: "pi pi-box",
-        path: "/production/dozens",
+        label: "Tipo de Materiales",
+        icon: "pi pi-clone",
+        path: "/catalog/material-types",
       },
       {
-        label: "Docenas en proceso",
-        icon: "pi pi-box",
-        path: "/production/dozens/process",
-      },
-      {
-        label: "Corte",
-        icon: "pi pi-verified",
-        path: "/production/dozens/corte",
-      },
-      {
-        label: "Aparado → Armado",
-        icon: "pi pi-arrow-right-arrow-left",
-        path: "/production/dozens/armado",
-      },
-      {
-        label: "Armado → Rematado",
-        icon: "pi pi-arrow-right-arrow-left",
-        path: "/docenas/rematado",
-      },
-      {
-        label: "Rematado → Calidad",
-        icon: "pi pi-shield",
-        path: "/docenas/calidad",
+        label: "Tipo de Plantas",
+        icon: "pi pi-th-large",
+        path: "/catalog/plant-types",
       },
     ],
   },

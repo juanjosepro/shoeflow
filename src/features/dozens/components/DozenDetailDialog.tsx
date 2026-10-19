@@ -2,27 +2,17 @@ import useMediaQuery from "@/shared/hooks/useMediaQuery";
 import dayjs from "@/shared/lib/dayjs";
 import { capitalizeFirstWord } from "@/shared/lib/helpers";
 
-import type { Dozen } from "../types/dozen";
+import type { Dozen, DozenAssignment, StageOption } from "../types/dozen";
 
 import { Button } from "primereact/button";
 import { Dialog } from "primereact/dialog";
 
 interface Props {
   dozen: Dozen | null;
+  stages: StageOption[]; // etapas activas de la fábrica (especialidades activas)
   visible: boolean;
   onHide: () => void;
 }
-
-const DOZEN_STAGE_ASSIGNMENT = [
-  { key: "CORTADO", label: "Corte" },
-  { key: "APARADO", label: "Aparado" },
-  { key: "ARMADO", label: "Armado" },
-  { key: "REMATADO", label: "Rematado" },
-  {
-    key: "CONTROL_DE_CALIDAD",
-    label: "Control de calidad",
-  },
-] as const;
 
 type StatusClass = "pending" | "in_progress" | "completed" | "canceled";
 
@@ -41,29 +31,23 @@ const STATUS_ICON: Record<StatusClass, string> = {
 };
 
 const getStatusClass = (
-  assignment: Dozen["assignments"][number] | undefined,
+  assignment: DozenAssignment | undefined,
 ): StatusClass => {
   if (!assignment) return "pending";
 
-  if (assignment.status === "COMPLETADO") {
-    return "completed";
-  }
-
-  if (assignment.status === "EN PROCESO") {
-    return "in_progress";
-  }
-
-  if (assignment.status === "CANCELADO") {
-    return "canceled";
-  }
+  if (assignment.status === "COMPLETADO") return "completed";
+  if (assignment.status === "EN PROCESO") return "in_progress";
+  if (assignment.status === "CANCELADO") return "canceled";
 
   return "pending";
 };
 
-const DozenDetailDialog = ({ dozen, visible, onHide }: Props) => {
-  const isLaptopUp = useMediaQuery("(min-width: 1024px)");
+// Las fechas de las etapas son solo día (sin hora)
+const formatDay = (date?: string | null) =>
+  date && dayjs(date).isValid() ? dayjs(date).format("D MMM YYYY") : "—";
 
-  const pairs = dozen ? Number(dozen.quantity) * 12 : 0;
+const DozenDetailDialog = ({ dozen, stages, visible, onHide }: Props) => {
+  const isLaptopUp = useMediaQuery("(min-width: 1024px)");
 
   const formatRegisteredAt = (date?: string | null) => {
     if (!date) return "—";
@@ -74,6 +58,24 @@ const DozenDetailDialog = ({ dozen, visible, onHide }: Props) => {
       ? parsedDate.format("D [de] MMMM [de] YYYY")
       : "—";
   };
+
+  // Etapas a mostrar: las activas + las que ya tienen asignación aunque hoy estén
+  // desactivadas (así el historial de esta docena no se pierde), en orden de proceso.
+  const timelineStages = (() => {
+    const list = [...stages];
+    (dozen?.assignments ?? []).forEach((assignment) => {
+      if (!list.some((stage) => stage.id === assignment.specialty.id)) {
+        list.push(assignment.specialty);
+      }
+    });
+    return list.sort((a, b) => a.order - b.order);
+  })();
+
+  const quantityLabel = dozen
+    ? dozen.pairs === 12
+      ? "1 docena · 12 pares"
+      : `${dozen.pairs} pares (${dozen.pairs}/12 de docena)`
+    : "";
 
   return (
     <Dialog
@@ -114,47 +116,58 @@ const DozenDetailDialog = ({ dozen, visible, onHide }: Props) => {
           <div className="sf-detail-grid">
             <div>
               <p className="sf-detail-label">Modelo</p>
-
-              <p className="sf-detail-value">
-                {dozen.variant?.model?.name || "—"}
-              </p>
+              <p className="sf-detail-value">{dozen.model?.name || "—"}</p>
             </div>
 
             <div>
               <p className="sf-detail-label">Talla</p>
-
-              <p className="sf-detail-value">
-                {dozen.variant?.size?.name || "—"}
-              </p>
+              <p className="sf-detail-value">{dozen.size?.name || "—"}</p>
             </div>
 
             <div>
               <p className="sf-detail-label">Material</p>
-
               <p className="sf-detail-value">
-                {dozen.material?.toLowerCase() || "—"}
+                {dozen.material_type?.name || "—"}
               </p>
             </div>
 
             <div>
               <p className="sf-detail-label">Color</p>
-
               <p className="sf-detail-value">
-                {dozen.color?.toLowerCase() || "—"}
+                {dozen.color && (
+                  <span
+                    className="inline-block border-circle mr-2"
+                    style={{
+                      width: "0.75rem",
+                      height: "0.75rem",
+                      background: dozen.color.hex_code,
+                      border: "1px solid var(--sf-ink-2)",
+                    }}
+                  />
+                )}
+                {dozen.color?.name || "—"}
+              </p>
+            </div>
+
+            <div>
+              <p className="sf-detail-label">Tipo de Planta</p>
+              <p className="sf-detail-value">{dozen.plant_type?.name || "—"}</p>
+            </div>
+
+            <div>
+              <p className="sf-detail-label">Prioridad</p>
+              <p className="sf-detail-value">
+                {dozen.priority?.toLowerCase() || "—"}
               </p>
             </div>
 
             <div>
               <p className="sf-detail-label">Cantidad</p>
-
-              <p className="sf-detail-value">
-                {dozen.quantity} docena(s) · {pairs} pares
-              </p>
+              <p className="sf-detail-value">{quantityLabel}</p>
             </div>
 
             <div>
               <p className="sf-detail-label">Registrado el</p>
-
               <p className="sf-detail-value">
                 {formatRegisteredAt(dozen.registered_at)}
               </p>
@@ -163,7 +176,6 @@ const DozenDetailDialog = ({ dozen, visible, onHide }: Props) => {
             {dozen.description && (
               <div className="full">
                 <p className="sf-detail-label">Nota</p>
-
                 <p className="sf-detail-value note">{dozen.description}</p>
               </div>
             )}
@@ -173,22 +185,22 @@ const DozenDetailDialog = ({ dozen, visible, onHide }: Props) => {
           <h3 className="sf-section-title">Recorrido por áreas</h3>
 
           <div className="sf-timeline">
-            {DOZEN_STAGE_ASSIGNMENT.map((stage) => {
+            {timelineStages.map((stage) => {
               const assignment = (dozen.assignments || []).find(
-                (item) => item.stage === stage.key,
+                (item) => item.specialty.id === stage.id,
               );
 
               const statusClass = getStatusClass(assignment);
 
               return (
-                <div className="sf-timeline-item" key={stage.key}>
+                <div className="sf-timeline-item" key={stage.id}>
                   <span className={`sf-stage-icon ${statusClass}`}>
                     <i className={`pi ${STATUS_ICON[statusClass]}`} />
                   </span>
 
                   <div className="sf-timeline-body">
                     <div className="sf-timeline-head">
-                      <span className="sf-timeline-stage">{stage.label}</span>
+                      <span className="sf-timeline-stage">{stage.name}</span>
 
                       {assignment && (
                         <span
@@ -207,38 +219,25 @@ const DozenDetailDialog = ({ dozen, visible, onHide }: Props) => {
                       {assignment?.worker?.names || "Sin asignar todavía"}
                     </p>
 
-                    {assignment &&
-                      (assignment.delivered_at ||
-                        assignment.completed_at ||
-                        assignment.total_payment) && (
-                        <div className="sf-timeline-meta">
-                          <div className="flex align-items-center gap-4">
-                            {assignment.delivered_at && (
-                              <span>
-                                Entregado:{" "}
-                                {dayjs(assignment.delivered_at).format(
-                                  "D MMM, h:mm A",
-                                )}
-                              </span>
-                            )}
-
-                            {assignment.completed_at && (
-                              <span>
-                                Completado:{" "}
-                                {dayjs(assignment.completed_at).format(
-                                  "D MMM, h:mm A",
-                                )}
-                              </span>
-                            )}
-                          </div>
-
-                          {assignment.total_payment && (
-                            <span className="sf-timeline-payment">
-                              S/ {Number(assignment.total_payment).toFixed(2)}
-                            </span>
-                          )}
+                    {assignment && (
+                      <div className="sf-timeline-meta">
+                        <div className="flex align-items-center gap-4">
+                          <span>
+                            Entregado: {formatDay(assignment.delivered_at)}
+                          </span>
+                          <span>
+                            Completado: {formatDay(assignment.completed_at)}
+                          </span>
                         </div>
-                      )}
+
+                        <span className="sf-timeline-payment">
+                          S/ {Number(assignment.amount).toFixed(2)}
+                          <span className="text-xs font-normal ml-2">
+                            {assignment.settlement ? "Pagado" : "Por pagar"}
+                          </span>
+                        </span>
+                      </div>
+                    )}
                   </div>
                 </div>
               );

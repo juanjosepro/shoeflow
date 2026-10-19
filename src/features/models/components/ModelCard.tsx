@@ -12,8 +12,8 @@ export const ModelCard = ({ model, onEdit, onToggle }: Props) => {
     <div
       className="border-round-xl mb-3 pt-3 pb-5 px-3"
       style={{
-        background: "var(--paper-2)",
-        boxShadow: "var(--shadow-3)",
+        background: "var(--sf-paper-2)",
+        boxShadow: "var(--sf-shadow-3)",
       }}
     >
       <div
@@ -26,13 +26,13 @@ export const ModelCard = ({ model, onEdit, onToggle }: Props) => {
         <div className="flex flex-column">
           <span
             className="font-bold text-lg mb-1 mono"
-            style={{ color: "var(--ink)" }}
+            style={{ color: "var(--sf-ink)" }}
           >
             {model.name}
           </span>
           <span
             className="text-sm font-light"
-            style={{ color: "var(--ink-2)", fontSize: "small" }}
+            style={{ color: "var(--sf-ink-2)", fontSize: "small" }}
           >
             ({model?.category?.name})
           </span>
@@ -41,48 +41,39 @@ export const ModelCard = ({ model, onEdit, onToggle }: Props) => {
           <Button
             icon="pi pi-file-edit"
             text
-            style={{ color: "var(--ink-2)", padding: "1px" }}
+            style={{ color: "var(--sf-ink-2)", padding: "1px" }}
             onClick={() => onEdit(model)}
           />
           <Button
             icon="pi pi-sync"
             text
-            style={{ color: "var(--ink-2)", padding: "1px" }}
+            style={{ color: "var(--sf-ink-2)", padding: "1px" }}
             onClick={() => onToggle(model)}
           />
         </div>
       </div>
 
       <hr style={{ borderColor: "#6b7280", margin: "8px 0" }} />
-
       <div className="flex justify-content-between align-items-center mb-2">
-        <span
-          className="font-semibold text-md"
-          style={{ color: "var(--ink-2)" }}
-        >
-          Serie
+        <span className="text-sm" style={{ color: "var(--sf-ink-2)" }}>
+          Prefijo
         </span>
-        <span
-          className="font-semibold text-md"
-          style={{ color: "var(--ink-2)" }}
-        >
-          Precio
+        <span className="mono" style={{ color: "var(--sf-ink-2)" }}>
+          {model.code_prefix}
         </span>
       </div>
-
-      {model.variants.map((variant) => (
-        <div
-          className="flex justify-content-between align-items-center mb-2"
-          key={variant.id}
-        >
-          <span className="text-sm" style={{ color: "var(--ink-2)" }}>
-            {variant?.size?.name}
-          </span>
-          <span style={{ color: "var(--ink-2)" }}>
-            S/ {variant?.standard_price}
-          </span>
-        </div>
-      ))}
+      <div className="flex justify-content-between align-items-center mb-2">
+        <span className="text-sm" style={{ color: "var(--sf-ink-2)" }}>
+          Creado
+        </span>
+        <span className="mono text-sm" style={{ color: "var(--sf-ink-2)" }}>
+          {new Date(model.created_at).toLocaleDateString("es-PE", {
+            year: "numeric",
+            month: "2-digit",
+            day: "2-digit",
+          })}
+        </span>
+      </div>
 
       <hr style={{ borderColor: "#6b7280", margin: "8px 0" }} />
 

@@ -90,7 +90,7 @@ export default function LoginPage() {
                 fontSize: 22,
                 fontWeight: 700,
                 margin: 0,
-                color: "var(--ink)",
+                color: "var(--sf-ink)",
               }}
             >
               Bienvenido de vuelta
@@ -98,7 +98,7 @@ export default function LoginPage() {
             <p
               style={{
                 fontSize: 13.5,
-                color: "var(--stone)",
+                color: "var(--sf-stone)",
                 margin: "6px 0 0",
               }}
             >
@@ -167,7 +167,7 @@ export default function LoginPage() {
               marginTop: 28,
               marginBottom: 0,
               fontSize: 12,
-              color: "var(--stone)",
+              color: "var(--sf-stone)",
             }}
           >
             ShoeFlow © {new Date().getFullYear()}

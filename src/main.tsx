@@ -8,8 +8,10 @@ import "primeflex/primeflex.css";
 import "./assets/styles/globals.scss";
 import { setupPrimeReactLocale } from "./config/primeReactLocale";
 import App from "./App";
+import { setupTenantManifest } from './pwa/tenantManifest'
 
 setupPrimeReactLocale();
+setupTenantManifest()
 
 function Root() {
   const { dark } = useThemeStore();

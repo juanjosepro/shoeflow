@@ -1,6 +1,13 @@
 import type { DozenQueryParams } from "../types/dozen";
 
-type FilterField = "model" | "status" | "material" | "color";
+type FilterField =
+  | "model"
+  | "size"
+  | "status"
+  | "material_type"
+  | "color"
+  | "plant_type"
+  | "priority";
 
 interface UseDozenFiltersProps {
   queryParams: DozenQueryParams;
@@ -37,19 +44,25 @@ export const useDozenFilters = ({
       ...prev,
       search: "",
       model: null,
+      size: null,
       status: null,
-      material: null,
+      material_type: null,
       color: null,
+      plant_type: null,
+      priority: null,
       page: 1,
     }));
   };
 
   const hasActiveFilters = Boolean(
     queryParams.search ||
-      queryParams.model ||
-      queryParams.status ||
-      queryParams.material ||
-      queryParams.color,
+    queryParams.model ||
+    queryParams.size ||
+    queryParams.status ||
+    queryParams.material_type ||
+    queryParams.color ||
+    queryParams.plant_type ||
+    queryParams.priority,
   );
 
   return {

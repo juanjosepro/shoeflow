@@ -11,12 +11,6 @@ export interface Size {
   description: string;
 }
 
-export interface Variant {
-  id: number;
-  size: Size;
-  standard_price: string;
-}
-
 export interface Category {
   id: number;
   name: string;

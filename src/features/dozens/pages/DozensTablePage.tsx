@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useDozens } from "../hooks/useDozens";
 import { useModels } from "@/features/models/hooks/useModels";
@@ -6,29 +6,21 @@ import DozenListTable from "../components/DozenListTable";
 import { Button } from "primereact/button";
 import { Dropdown } from "primereact/dropdown";
 import { Avatar } from "primereact/avatar";
+import { useDozenMetadata } from "@/shared/hooks/useDozenMetadata";
+import { useCatalogOptions } from "@/shared/hooks/useCatalogOptions";
 
 export const DozensTablePage = () => {
-  const {
-    metadata,
-    dozens,
-    loading,
-    total,
-    queryParams,
-    setQueryParams,
-    fetchDozensMetadata,
-  } = useDozens();
-  const { models } = useModels();
+  const { dozens, loading, total, queryParams, setQueryParams } = useDozens();
+  const { metadata, loading: loadingMetadata } = useDozenMetadata();
+  const { models } = useModels({ noPagination: true });
+  const { options } = useCatalogOptions();
   const [selectedOption, setSelectedOption] = useState(null);
 
-  const options = [
+  const exportOptions = [
     { name: "Excel", code: "EX", icon: "pi pi-file-excel" },
     { name: "PDF", code: "PDF", icon: "pi pi-file-pdf" },
     { name: "Descargar", code: "DOWNLOAD", icon: "pi pi-download" },
   ];
-
-  useEffect(() => {
-    fetchDozensMetadata();
-  }, [fetchDozensMetadata]);
 
   const selectedOptionTemplate = (option, props) => {
     if (option) {
@@ -63,7 +55,7 @@ export const DozensTablePage = () => {
           <Dropdown
             value={selectedOption}
             onChange={(e) => setSelectedOption(e.value)}
-            options={options}
+            options={exportOptions}
             optionLabel="name"
             placeholder="Opciones"
             valueTemplate={selectedOptionTemplate}
@@ -86,6 +78,7 @@ export const DozensTablePage = () => {
         total={total}
         loading={loading}
         metadata={metadata}
+        options={options}
         queryParams={queryParams}
         setQueryParams={setQueryParams}
       />

@@ -4,7 +4,8 @@ import { ModelCard } from "../components/ModelCard";
 import { ModelForm } from "../components/ModelForm";
 import { ConfirmDialog } from "@/shared/components/ConfirmDialog";
 import { toast } from "@/shared/lib/toast";
-import type { ModelFormData, Model, ModelPayload } from "../types/model";
+import type { Model } from "../types/model";
+import { type ModelFormData } from "../schemas/model-form.schema";
 import { Button } from "primereact/button";
 
 export const ModelsPage = () => {
@@ -52,23 +53,19 @@ export const ModelsPage = () => {
     }
   };
 
-  const handleSubmit = async (formData: ModelPayload) => {
+  const handleSubmit = async (formData: ModelFormData) => {
     setIsSubmitting(true);
     try {
-      const payload: ModelFormData = {
-        ...formData,
-        category_id: Number(formData.category),
-        model_variants: formData.variants,
-      };
       if (modalModel) {
-        await updateModel(modalModel.id, payload);
+        await updateModel(modalModel.id, formData);
         toast.success("Modelo actualizado");
       } else {
-        await addModel(payload);
+        await addModel(formData);
         toast.success("Modelo creado");
       }
       setIsModalOpen(false);
-    } catch {
+    } catch (e: any) {
+      if (e.response?.status === 400) throw e;
       toast.error("Error al guardar el modelo.");
     } finally {
       setIsSubmitting(false);
@@ -92,7 +89,7 @@ export const ModelsPage = () => {
         <Button
           label="Nuevo"
           icon="pi pi-plus"
-          className={`sf-btn p-button-sm in_progress`}
+          className={`sf-btn p-button-sm`}
           onClick={() => openCreate()}
         />
       </div>

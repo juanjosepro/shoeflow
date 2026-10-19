@@ -5,13 +5,26 @@ import { Button } from "primereact/button";
 import { Dropdown } from "primereact/dropdown";
 import { InputText } from "primereact/inputtext";
 
-import type { DozenMetadata, DozenQueryParams } from "../types/dozen";
+import type {
+  CatalogOptions,
+  ColorOption,
+  DozenMetadata,
+  DozenQueryParams,
+} from "../types/dozen";
 
-type FilterField = "model" | "status" | "material" | "color";
+type FilterField =
+  | "model"
+  | "size"
+  | "status"
+  | "material_type"
+  | "color"
+  | "plant_type"
+  | "priority";
 
 interface Props {
   models: Model[];
-  metadata: DozenMetadata | null;
+  metadata: DozenMetadata | null; // estados y prioridades
+  options: CatalogOptions; // materiales, colores, plantas y tallas
   queryParams: DozenQueryParams;
 
   onSearchChange: (value: string) => void;
@@ -25,9 +38,29 @@ interface Props {
   hasActiveFilters: boolean;
 }
 
+// Color con su muestra, tanto en la lista desplegable como en el valor elegido
+const colorTemplate = (color: ColorOption | null, placeholder?: string) =>
+  color ? (
+    <div className="flex align-items-center gap-2">
+      <span
+        className="border-circle"
+        style={{
+          width: "0.75rem",
+          height: "0.75rem",
+          background: color.hex_code,
+          border: "1px solid var(--sf-ink-2)",
+        }}
+      />
+      <span>{color.name}</span>
+    </div>
+  ) : (
+    <span>{placeholder}</span>
+  );
+
 const DozenTableFilters = ({
   models,
   metadata,
+  options,
   queryParams,
   onSearchChange,
   onFilterChange,
@@ -63,13 +96,25 @@ const DozenTableFilters = ({
           className="sf-filter"
         />
 
+        {/* SIZE */}
+        <Dropdown
+          value={queryParams.size}
+          options={options.sizes}
+          optionLabel="name"
+          optionValue="id"
+          onChange={(e) => onFilterChange("size", e.value)}
+          placeholder="Talla"
+          showClear
+          className="sf-filter"
+        />
+
         {/* MATERIAL */}
         <Dropdown
-          value={queryParams.material}
-          options={metadata?.materials ?? []}
-          optionLabel="label"
-          optionValue="key"
-          onChange={(e) => onFilterChange("material", e.value)}
+          value={queryParams.material_type}
+          options={options.materialTypes}
+          optionLabel="name"
+          optionValue="id"
+          onChange={(e) => onFilterChange("material_type", e.value)}
           placeholder="Material"
           showClear
           className="sf-filter"
@@ -78,11 +123,39 @@ const DozenTableFilters = ({
         {/* COLOR */}
         <Dropdown
           value={queryParams.color}
-          options={metadata?.colors ?? []}
-          optionLabel="label"
-          optionValue="key"
+          options={options.colors}
+          optionLabel="name"
+          optionValue="id"
           onChange={(e) => onFilterChange("color", e.value)}
           placeholder="Color"
+          itemTemplate={(color: ColorOption) => colorTemplate(color)}
+          valueTemplate={(color: ColorOption | null, props) =>
+            colorTemplate(color, props.placeholder)
+          }
+          showClear
+          className="sf-filter"
+        />
+
+        {/* TYPE OF PLANT */}
+        <Dropdown
+          value={queryParams.plant_type}
+          options={options.plantTypes}
+          optionLabel="name"
+          optionValue="id"
+          onChange={(e) => onFilterChange("plant_type", e.value)}
+          placeholder="Planta"
+          showClear
+          className="sf-filter"
+        />
+
+        {/* PRIORITY */}
+        <Dropdown
+          value={queryParams.priority}
+          options={metadata?.priorities ?? []}
+          optionLabel="label"
+          optionValue="key"
+          onChange={(e) => onFilterChange("priority", e.value)}
+          placeholder="Prioridad"
           showClear
           className="sf-filter"
         />

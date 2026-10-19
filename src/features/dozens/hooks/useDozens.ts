@@ -1,21 +1,16 @@
 import { useState, useEffect, useCallback } from "react";
 import { dozenService } from "../services/dozenService";
-import type { Dozen, DozenQueryParams, DozenMetadata, UseDozensConfig } from "../types/dozen";
-import type { DozenFormData } from "../schemas/dozenSchema";
+import type { AssignStagesPayload, Dozen, DozenQueryParams, DozenStatusAction, UseDozensConfig } from "../types/dozen";
+import type { DozenPayload } from "../schemas/dozenSchema";
 
 const DEFAULT_QUERY_PARAMS: DozenQueryParams = {
-  search: "",
-  model: null,
-  status: null,
-  material: null,
-  color: null,
-  page: 1,
-  limit: 15,
+  search: "", model: null, size: null, status: null,
+  material_type: null, color: null, plant_type: null, priority: null,
+  page: 1, limit: 15,
 };
 
 export const useDozens = (config: UseDozensConfig = { autoLoad: true, exclude_finished: false, no_pagination: false }) => {
   const [dozens, setDozens] = useState<Dozen[]>([]);
-  const [metadata, setMetadata] = useState<DozenMetadata | null>(null);
   const [loading, setLoading] = useState(config.autoLoad); // Evitamos loading parpadeante si es false
   const [total, setTotal] = useState(0);
 
@@ -44,20 +39,11 @@ export const useDozens = (config: UseDozensConfig = { autoLoad: true, exclude_fi
     }
   }, [queryParams]);
 
-  const fetchDozensMetadata = useCallback(async () => {
-    try {
-      const data = await dozenService.dozenMetadata();
-      setMetadata(data);
-    } catch (error) {
-      console.error("Error cargando metadatos", error);
-    }
-  }, []);
-
-  const addDozen = async (data: DozenFormData) => {
+  const addDozen = async (data: DozenPayload) => {
     return await dozenService.create(data);
   };
 
-  const updateDozen = async (id: number, data: DozenFormData) => {
+  const updateDozen = async (id: number, data: DozenPayload) => {
     return await dozenService.update(id, data);
   };
 
@@ -71,6 +57,17 @@ export const useDozens = (config: UseDozensConfig = { autoLoad: true, exclude_fi
     if (config.autoLoad) await fetchDozens();
   };
 
+  // assignStages ahora devuelve la docena:
+  const assignStages = async (dozenId: number, payload: AssignStagesPayload) => {
+    const dozen = await dozenService.assignStages(dozenId, payload);
+    if (config.autoLoad) await fetchDozens();
+    return dozen;
+  };
+  const changeDozenStatus = async (id: number, action: DozenStatusAction) => {
+    await dozenService.changeStatus(id, action);
+    if (config.autoLoad) await fetchDozens();
+  };
+
   useEffect(() => {
     if (config.autoLoad) {
       fetchDozens();
@@ -80,7 +77,6 @@ export const useDozens = (config: UseDozensConfig = { autoLoad: true, exclude_fi
   return {
     dozens,
     total,
-    metadata,
     loading,
     queryParams,
     setQueryParams,
@@ -88,7 +84,8 @@ export const useDozens = (config: UseDozensConfig = { autoLoad: true, exclude_fi
     updateDozen,
     toggleDozenStatus,
     deleteDozen,
-    fetchDozensMetadata,
-    fetchDozens
+    fetchDozens,
+    assignStages,
+    changeDozenStatus,
   };
 };

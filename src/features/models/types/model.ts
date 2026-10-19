@@ -1,4 +1,12 @@
-import type { Category, Variant } from "@/shared/types";
+import type { Category } from "@/shared/types";
+
+export interface ModelSizeRate {
+  specialty: number;
+  size: number;
+  price: string | number | null; // el backend lo devuelve como "15.00"
+}
+export interface SpecialtyOption { id: number; name: string; }
+export interface SizeOption { id: number; name: string; description?: string | null; }
 
 export interface Model {
   id: number;
@@ -6,8 +14,10 @@ export interface Model {
   code_prefix: string;
   description: string;
   category: Category;
-  variants: Variant[];
   is_active: boolean;
+  // dentro de Model:
+  size_rates?: ModelSizeRate[];
+  created_at: string | number | Date;
 }
 
 export interface ModelFormData {
@@ -15,7 +25,6 @@ export interface ModelFormData {
   code_prefix: string;
   description?: string;
   category_id: number;
-  brand_variants: Record<string, number>;
 }
 
 export interface ModelPayload {
@@ -23,5 +32,4 @@ export interface ModelPayload {
   code_prefix: string;
   description?: string;
   category: Category;
-  variants: Variant[];
 }

@@ -5,7 +5,6 @@ import type { PaginatedResponse } from "@/shared/types";
 const ENDPOINT = "catalog/models";
 
 export const modelService = {
-  // getAll: () => api.get<PaginatedResponse<Model>>(`${ENDPOINT}/`).then(r => r.data.results),
   getAll: (noPagination = false) => {
     const url = noPagination ? `${ENDPOINT}/?no_pagination=true` : `${ENDPOINT}/`;
     return noPagination

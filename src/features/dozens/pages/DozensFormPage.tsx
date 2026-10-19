@@ -1,35 +1,38 @@
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { useDozens } from "../hooks/useDozens";
-import { useWorkers } from "@/features/workers/hooks/useWorkers";
+import { useCatalogOptions } from "@/shared/hooks/useCatalogOptions";
 import { useModels } from "@/features/models/hooks/useModels";
 import DozenForm from "../components/DozenForm";
 import BreadCrumbComponent from "@/shared/components/BreadCrumb";
 import { toast } from "@/shared/lib/toast";
-import { teamsChoices } from "@/config/constants";
 import { dozenService } from "../services/dozenService";
 import type { Dozen } from "../types/dozen";
-import type { DozenFormData } from "../schemas/dozenSchema";
+import type { DozenFormData, DozenPayload } from "../schemas/dozenSchema";
+import { useDozenMetadata } from "@/shared/hooks/useDozenMetadata";
+
+// La fecha viaja como texto ISO; el resto del formulario va igual
+const toPayload = (data: DozenFormData): DozenPayload => ({
+  ...data,
+  registered_at: data.registered_at.toISOString(),
+});
 
 export const DozensFormPage = () => {
   const { id } = useParams();
   const isEditing = Boolean(id);
-  const { metadata, fetchDozensMetadata, addDozen, updateDozen } = useDozens();
-  const { workers } = useWorkers({ noPagination: true });
+
+  // autoLoad: false -> aquí solo se guarda, no hace falta traer el listado
+  const { addDozen, updateDozen } = useDozens({ autoLoad: false });
+  const { metadata } = useDozenMetadata(); // prioridades
+  const { options } = useCatalogOptions(); // materiales, colores, plantas, tallas
   const { models } = useModels({ noPagination: true });
 
-  // En vez de dos estados separados (dozen + dozenLoading) que había que
-  // mantener sincronizados a mano con setState dentro del efecto, guardamos
-  // PARA QUÉ id es válido el dato que tenemos. "Loading" se DERIVA comparando
-  // ese id contra el id actual de la URL — no necesita su propio setState.
+  // Guardamos PARA QUÉ id es válido el dato que tenemos. "Loading" se DERIVA
+  // comparando ese id con el de la URL, sin setState síncrono en el efecto.
   const [loaded, setLoaded] = useState<{ id: number | null; dozen?: Dozen }>({
     id: null,
     dozen: undefined,
   });
-
-  useEffect(() => {
-    fetchDozensMetadata();
-  }, [fetchDozensMetadata]);
 
   useEffect(() => {
     if (!isEditing) return;
@@ -53,56 +56,31 @@ export const DozensFormPage = () => {
     };
   }, [id, isEditing]);
 
-  // Derivados — nada de setState síncrono en el efecto de arriba.
   const dozenLoading = isEditing && loaded.id !== Number(id);
-  const dozen = isEditing && loaded.id === Number(id) ? loaded.dozen : undefined;
+  const dozen =
+    isEditing && loaded.id === Number(id) ? loaded.dozen : undefined;
 
   const handleDozenAction = async (data: DozenFormData) => {
     try {
       if (isEditing) {
-        const response = await updateDozen(Number(id), {
-          ...data,
-          model_variant_id: data.variant_id,
-        });
+        const response = await updateDozen(Number(id), toPayload(data));
         toast.success("¡Docena actualizada exitosamente!");
         return response;
-      } else {
-        const response = await addDozen({
-          worker_id: data.worker_id,
-          quantity: data.quantity || 1,
-          material: data.material,
-          color: data.color,
-          description: data.description,
-          model_variant_id: data.variant_id,
-          registered_at: data.registered_at.toISOString(),
-        });
-        toast.success("¡Docena creada exitosamente!");
-        return response;
       }
+
+      const response = await addDozen(toPayload(data));
+      toast.success(
+        data.count > 1
+          ? `¡${data.count} docenas creadas exitosamente!`
+          : "¡Docena creada exitosamente!",
+      );
+      return response;
     } catch (error) {
       console.error(error);
       toast.error("Error al guardar la docena.");
       return { error };
     }
   };
-
-  const workersGroupedByTeam = useMemo(() => {
-    if (!workers) return {};
-    return workers.reduce((acc, item) => {
-      const teamId = item.team?.id;
-      if (!teamId) return acc;
-
-      if (!acc[teamId]) {
-        acc[teamId] = {
-          team_id: teamId,
-          team_name: item.team?.name ?? "Equipo Desconocido",
-          members: [],
-        };
-      }
-      acc[teamId].members.push(item);
-      return acc;
-    }, {});
-  }, [workers]);
 
   if (dozenLoading) {
     return (
@@ -131,10 +109,9 @@ export const DozensFormPage = () => {
       <DozenForm
         isEditing={isEditing}
         dozen={dozen}
-        groupedByTeamId={workersGroupedByTeam}
         models={models}
         metadata={metadata}
-        teamsChoices={teamsChoices}
+        options={options}
         saveAction={handleDozenAction}
       />
     </>

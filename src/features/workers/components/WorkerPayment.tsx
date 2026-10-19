@@ -1,489 +1,646 @@
-import { useRef, useState } from "react";
-import { Accordion, AccordionTab } from "primereact/accordion";
-import { Button } from "primereact/button";
+import { useEffect, useRef, useState } from "react";
 import { Dialog } from "primereact/dialog";
-import { ListBox } from "primereact/listbox";
-import { paymentStatusChoices } from "@/config/constants";
-import { useWorkerDozens } from "../hooks/useWorkerDozens";
-import dayjs from "dayjs";
-import isoWeek from "dayjs/plugin/isoWeek";
-import "dayjs/locale/es";
-import { Checkbox } from "primereact/checkbox";
-import { Tag } from "primereact/tag";
-import { Toast } from "primereact/toast";
+import { Button } from "primereact/button";
+import { Calendar } from "primereact/calendar";
+import { Dropdown } from "primereact/dropdown";
 import { InputNumber } from "primereact/inputnumber";
+import { InputText } from "primereact/inputtext";
+import { InputTextarea } from "primereact/inputtextarea";
+import { Column } from "primereact/column";
+import { DataTable } from "primereact/datatable";
+import { toast } from "@/shared/lib/toast";
+import dayjs from "@/shared/lib/dayjs";
+import { paymentService } from "../services/paymentService";
+import { formatDay, formatMoney, getApiError } from "../utils/format";
+import type { Worker } from "../types/worker";
+import type {
+  AdjustmentPayload,
+  PaymentPreview,
+  PendingWeek,
+} from "../types/payment";
+import type { DozenAssignment } from "@/features/dozens/types/dozen";
 import { Divider } from "primereact/divider";
 
-dayjs.locale("es");
-dayjs.extend(isoWeek);
+interface Props {
+  visible: boolean;
+  onHide: () => void;
+  worker: Worker | null;
+  onPaid?: () => void;
+}
 
-const WorkerPayment = ({
-  selectedWorker,
-  workerHistory,
-  isPaymentDialogOpen,
-  setIsPaymentDialogOpen,
-  processWorkerPayment,
-}) => {
-  const { isLoading, updateWorkerDozen } = useWorkerDozens();
-  const [selectedDozen, setSelectedDozen] = useState(null);
-  const [isPayDialogOpen, setIsPayDialogOpen] = useState(false);
-  const [pay, setPay] = useState(0);
-  const toast = useRef(null);
+const ADJUSTMENT_OPTIONS = [
+  { label: "Bono (suma)", value: "BONO" },
+  { label: "Descuento (resta)", value: "DESCUENTO" },
+  { label: "Adelanto (resta)", value: "ADELANTO" },
+];
 
-  const handleSelectionPayment = (e) => {
-    setSelectedDozen(e.value);
+const DATE_FORMAT = "YYYY-MM-DD";
 
-    setIsPayDialogOpen(true);
-  };
+// Semana de pago: lunes a domingo (la misma que usa el historial)
+const weekFrom = (monday: ReturnType<typeof dayjs>): Date[] => [
+  monday.toDate(),
+  monday.add(6, "day").toDate(),
+];
 
-  const isoWeekText = (day) => {
-    const fecha = dayjs(day);
+const mondayOf = (date: ReturnType<typeof dayjs>) =>
+  date.subtract((date.day() + 6) % 7, "day").startOf("day");
 
-    const startOfWeek = fecha.startOf("isoWeek"); // lunes
-    const endOfWeek = fecha.endOf("isoWeek"); // domingo
+const currentWeek = (): Date[] => weekFrom(mondayOf(dayjs()));
 
-    return `Desde <strong>${startOfWeek.format(
-      "D [de] MMMM",
-    )}</strong> hasta <strong>${endOfWeek.format("D [de] MMMM")}</strong>`;
-  };
+const formatWeek = (start: string, end: string) => {
+  const from = dayjs(start);
+  const to = dayjs(end);
+  return from.month() === to.month()
+    ? `${from.format("D")}–${to.format("D MMM")}`
+    : `${from.format("D MMM")} – ${to.format("D MMM")}`;
+};
 
-  const makeFullPayment = async () => {
-    // pagar todo
+// Opción del selector: una semana con lo que hay pendiente en ella
+interface WeekOption {
+  value: string; // lunes, YYYY-MM-DD
+  label: string;
+  isCurrent: boolean;
+}
+
+const emptyAdjustment = {
+  type: "BONO" as AdjustmentPayload["type"],
+  amount: null as number | null,
+  reason: "",
+};
+
+const WorkerPayment = ({ visible, onHide, worker, onPaid }: Props) => {
+  const [range, setRange] = useState<(Date | null)[]>(currentWeek);
+  const [preview, setPreview] = useState<PaymentPreview | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [pendingWeeks, setPendingWeeks] = useState<PendingWeek[]>([]);
+  const [reloadKey, setReloadKey] = useState(0);
+
+  // Etapas marcadas para pagar (todas por defecto)
+  const [selected, setSelected] = useState<DozenAssignment[]>([]);
+  const selectionKey = useRef("");
+
+  // Monto que escribió el administrador. Se descarta solo cuando cambia el total
+  // (otra selección, otro rango, un ajuste nuevo): ahí vuelve a valer el total.
+  const [custom, setCustom] = useState<{
+    total: number;
+    value: number | null;
+  } | null>(null);
+  const [note, setNote] = useState("");
+  const [saving, setSaving] = useState(false);
+
+  const [adjustment, setAdjustment] = useState(emptyAdjustment);
+  const [savingAdjustment, setSavingAdjustment] = useState(false);
+
+  const workerId = worker?.id;
+  const [start, end] = range;
+  const startKey = start ? dayjs(start).format(DATE_FORMAT) : null;
+  const endKey = end ? dayjs(end).format(DATE_FORMAT) : null;
+
+  // Al abrir con otro trabajador: semana actual y formulario limpio
+  useEffect(() => {
+    if (!visible) return;
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setRange(currentWeek());
+    setNote("");
+    setAdjustment(emptyAdjustment);
+    setPreview(null);
+  }, [visible, workerId]);
+
+  // Semanas en las que este trabajador tiene algo sin pagar
+  useEffect(() => {
+    if (!visible || workerId == null) return;
+
+    let ignore = false;
+
+    const load = async () => {
+      try {
+        const weeks = await paymentService.getPendingWeeks(workerId);
+        if (!ignore) setPendingWeeks(weeks);
+      } catch {
+        if (!ignore) setPendingWeeks([]);
+      }
+    };
+
+    load();
+    return () => {
+      ignore = true;
+    };
+  }, [visible, workerId]);
+
+  // Pedir la vista previa cuando hay trabajador y rango completo
+  useEffect(() => {
+    if (!visible || workerId == null || !startKey || !endKey) return;
+
+    let ignore = false;
+
+    const load = async () => {
+      setLoading(true);
+      try {
+        const data = await paymentService.preview(workerId, startKey, endKey);
+        if (ignore) return;
+        setPreview(data);
+        // Otro trabajador o rango: se marcan todas. Si solo se agregó un ajuste, se respeta la selección.
+        const key = `${workerId}|${startKey}|${endKey}`;
+        if (selectionKey.current !== key) {
+          selectionKey.current = key;
+          setSelected(data.items);
+        } else {
+          setSelected((prev) =>
+            data.items.filter((item) => prev.some((p) => p.id === item.id)),
+          );
+        }
+      } catch (error) {
+        if (!ignore)
+          toast.error(getApiError(error, "No se pudo calcular el pago."));
+      } finally {
+        if (!ignore) setLoading(false);
+      }
+    };
+
+    load();
+    return () => {
+      ignore = true;
+    };
+  }, [visible, workerId, startKey, endKey, reloadKey]);
+
+  // Totales según lo marcado (los ajustes pendientes entran siempre)
+  const earned = selected.reduce((sum, item) => sum + Number(item.amount), 0);
+  const adjustmentsTotal = Number(preview?.total_adjustments ?? 0);
+  const totalToPay = earned + adjustmentsTotal;
+
+  // Opciones del selector: la semana actual (siempre) + las semanas con pendientes
+  const currentMonday = dayjs(currentWeek()[0]).format(DATE_FORMAT);
+  const weekOptions: WeekOption[] = (() => {
+    const options: WeekOption[] = pendingWeeks.map((week) => ({
+      value: week.start_date,
+      label: `${formatWeek(week.start_date, week.end_date)} · ${week.count} ${
+        week.count === 1 ? "etapa" : "etapas"
+      } · ${formatMoney(week.amount)}${week.start_date === currentMonday ? " · esta semana" : ""}`,
+      isCurrent: week.start_date === currentMonday,
+    }));
+    if (!options.some((option) => option.isCurrent)) {
+      const monday = dayjs(currentMonday);
+      options.unshift({
+        value: currentMonday,
+        label: `${formatWeek(currentMonday, monday.add(6, "day").format(DATE_FORMAT))} · esta semana`,
+        isCurrent: true,
+      });
+    }
+    return options.sort((a, b) => b.value.localeCompare(a.value));
+  })();
+
+  // El selector marca la semana solo si el rango elegido es exactamente lunes-domingo
+  const selectedWeek =
+    startKey &&
+    endKey &&
+    dayjs(startKey).add(6, "day").format(DATE_FORMAT) === endKey &&
+    dayjs(startKey).day() === 1
+      ? startKey
+      : null;
+  const olderPending = pendingWeeks.filter(
+    (week) => week.start_date < currentMonday,
+  ).length;
+  const isPartial = !!preview && selected.length < preview.items.length;
+
+  // El monto entregado se calcula al renderizar (sin efectos), así nunca queda en 0 por timing
+  const defaultAmount = Math.max(totalToPay, 0);
+  const amountPaid =
+    custom && custom.total === totalToPay ? custom.value : defaultAmount;
+
+  const paid = isPartial ? defaultAmount : (amountPaid ?? 0);
+  const pendingBalance = totalToPay - paid;
+  const hasContent =
+    !!preview && (selected.length > 0 || preview.adjustments.length > 0);
+
+  const invalidReason = !hasContent
+    ? "No hay nada pendiente en este periodo."
+    : totalToPay < 0
+      ? "Los descuentos superan lo ganado."
+      : !isPartial && amountPaid == null
+        ? "Indica el monto entregado."
+        : paid > totalToPay
+          ? "El monto entregado supera el total a pagar."
+          : null;
+
+  const handlePay = async () => {
+    if (!worker || !startKey || !endKey || invalidReason) return;
+
+    setSaving(true);
     try {
-      await updateWorkerDozen(selectedDozen.id, {
-        status: paymentStatusChoices.PAGADO,
-        paid_at: selectedDozen.total_amount,
+      await paymentService.create({
+        worker: worker.id,
+        start_date: startKey,
+        end_date: endKey,
+        assignment_ids: selected.map((item) => item.id),
+        // Con selección parcial el backend paga el total exacto
+        amount_paid: isPartial ? undefined : paid,
+        description: note.trim() || undefined,
       });
-
-      setSelectedDozen(null);
-
-      setPay(0);
-
-      processWorkerPayment();
-
-      toast.current.show({
-        severity: "success",
-        summary: "Aviso",
-        detail: "¡Acción realizada con éxito! 💪",
-        life: 6000,
-      });
+      toast.success(
+        isPartial
+          ? `Pago registrado. ${preview!.items.length - selected.length} etapa(s) siguen pendientes.`
+          : pendingBalance > 0
+            ? `Pago registrado. Quedan ${formatMoney(pendingBalance)} pendientes para la próxima semana.`
+            : "Pago registrado",
+      );
+      onPaid?.();
+      onHide();
     } catch (error) {
-      console.error(error);
-      toast.current.show({
-        severity: "error",
-        summary: "Error",
-        detail: "Error al pagar, intentelo nuevamente",
-        life: 6000,
-      });
+      toast.error(getApiError(error, "No se pudo registrar el pago."));
+    } finally {
+      setSaving(false);
     }
-
-    setIsPayDialogOpen(false);
   };
 
-  const makePartialPayment = async () => {
-    // pagar una parte
-
-    if (pay === "") {
-      toast.current.show({
-        severity: "error",
-        summary: "Error",
-        detail: "El monto a pagar no puede ser vacío",
-        life: 6000,
-      });
+  const handleAddAdjustment = async () => {
+    if (!worker || !adjustment.amount || adjustment.amount <= 0) {
+      toast.error("Indica un monto mayor a 0.");
       return;
     }
-
-    if (pay === 0) {
-      toast.current.show({
-        severity: "error",
-        summary: "Error",
-        detail: "El monto a pagar no puede ser 0",
-        life: 6000,
-      });
-      return;
-    }
-
-    if (pay > selectedDozen.total_amount) {
-      toast.current.show({
-        severity: "error",
-        summary: "Error",
-        detail: "El monto a pagar no puede ser mayor al total",
-        life: 6000,
-      });
-      return;
-    }
-
-    if (pay < 0) {
-      toast.current.show({
-        severity: "error",
-        summary: "Error",
-        detail: "El monto a pagar no puede ser menor a 0",
-        life: 6000,
-      });
-      return;
-    }
-
-    if (
-      selectedDozen.status === paymentStatusChoices.INCOMPLETO &&
-      pay > selectedDozen.total_amount - selectedDozen.paid_at
-    ) {
-      toast.current.show({
-        severity: "error",
-        summary: "Error",
-        detail: "El monto a pagar no puede ser mayor al saldo pendiente",
-        life: 6000,
-      });
-      return;
-    }
-
-    let newState =
-      selectedDozen.paid_at + pay === selectedDozen.total_amount
-        ? paymentStatusChoices.PAGADO
-        : paymentStatusChoices.INCOMPLETO;
-
+    setSavingAdjustment(true);
     try {
-      await updateWorkerDozen(selectedDozen.id, {
-        status: newState,
-        paid_at: selectedDozen.paid_at + pay,
+      await paymentService.createAdjustment({
+        worker: worker.id,
+        type: adjustment.type,
+        amount: adjustment.amount,
+        reason: adjustment.reason.trim(),
       });
-
-      setSelectedDozen(null);
-
-      setPay(0);
-
-      processWorkerPayment();
-
-      toast.current.show({
-        severity: "success",
-        summary: "Aviso",
-        detail: "¡Acción realizada con éxito! 💪",
-        life: 6000,
-      });
+      setAdjustment(emptyAdjustment);
+      setReloadKey((key) => key + 1);
     } catch (error) {
-      console.error(error);
-      toast.current.show({
-        severity: "error",
-        summary: "Error",
-        detail: "Error al pagar, intentelo nuevamente",
-        life: 6000,
-      });
+      toast.error(getApiError(error, "No se pudo agregar el ajuste."));
+    } finally {
+      setSavingAdjustment(false);
     }
-
-    setIsPayDialogOpen(false);
   };
 
-  const getWeekText = (date) => {
-    const currentDate = dayjs();
-    const d = dayjs(date);
-    const startOfWeek = d.startOf("isoWeek");
-
-    const weeksDiff = currentDate.startOf("isoWeek").diff(startOfWeek, "week");
-
-    let title;
-
-    if (weeksDiff === 0) {
-      title = "esta semana";
-    } else if (weeksDiff === 1) {
-      title = "semana pasada";
-    } else if (weeksDiff === 2) {
-      title = "hace dos semanas";
-    } else if (weeksDiff === 3) {
-      title = "hace tres semanas";
-    } else if (weeksDiff === 4) {
-      title = "hace cuatro semanas";
-    } else if (weeksDiff > 4 && weeksDiff <= 8) {
-      title = "hace más de un mes";
-    } else {
-      title = "hace más de dos meses";
+  const handleDeleteAdjustment = async (id: number) => {
+    try {
+      await paymentService.deleteAdjustment(id);
+      setReloadKey((key) => key + 1);
+    } catch (error) {
+      toast.error(getApiError(error, "No se pudo eliminar el ajuste."));
     }
-
-    return title;
   };
 
-  const listBoxBodySection = (dozen) => {
-    const isSelected = selectedDozen && selectedDozen.id === dozen.id;
-
-    return (
-      <div className="flex align-items-center">
-        <div className="flex gap-4 w-full">
-          <Checkbox
-            checked={isSelected}
-            onChange={() => {
-              setSelectedDozen(isSelected ? null : dozen);
-            }}
-            className="mt-1"
-          />
-          <div className="w-full">
-            <h3 className="text-gray-600 font-bold text-md first-letter-uppercase">
-              {getWeekText(dozen.created_at)}
-            </h3>
-            <p
-              className="text-gray-700 pb-2"
-              dangerouslySetInnerHTML={{
-                __html: isoWeekText(dozen.created_at),
-              }}
-            ></p>
-            <div className="grid grid-cols-3 gap-3">
-              <span className="col-span-2">Cantidad de docenas:</span>
-              <span className="col-span-1 text-right text-black text-s">
-                x{dozen.dozens_per_week.length}
-              </span>
-            </div>
-            <div className="grid grid-cols-3 gap-3">
-              <span className="col-span-2">Total:</span>
-              <span className="col-span-1 text-right text-green-500 text-lg">
-                S/. {dozen.total_amount}
-              </span>
-            </div>
-            <div className="grid grid-cols-3 gap-3">
-              <span className="col-span-2">Pagado:</span>
-              <span className="col-span-1 text-right text-green-500 text-lg">
-                S/. {dozen.paid_at}
-              </span>
-            </div>
-            <div className="grid grid-cols-3 gap-2 mb-2">
-              <span className="col-span-2">Estado de Pago:</span>
-              {dozen.status === paymentStatusChoices.PAGADO ? (
-                <Tag icon="pi pi-check" severity="success" value="Pagado" />
-              ) : dozen.status === paymentStatusChoices.POR_PAGAR ? (
-                <Tag
-                  icon="pi pi-info-circle"
-                  value="Por pagar"
-                  style={{ backgroundColor: "var(--blue-500)" }}
-                />
-              ) : (
-                <Tag
-                  icon="pi pi-exclamation-triangle"
-                  value="Incompleto"
-                  style={{ backgroundColor: "var(--yellow-500)" }}
-                />
-              )}
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  };
-
-  if (isLoading) {
-    return (
-      <div
-        className="flex align-items-center justify-content-center"
-        style={{ height: "100vh" }}
-      >
-        <i className="pi pi-spin pi-spinner" style={{ fontSize: "2.5rem" }} />
-      </div>
-    );
-  }
+  const footer = (
+    <div className="flex justify-content-end gap-2">
+      <Button
+        label="Cancelar"
+        icon="pi pi-times"
+        severity="secondary"
+        outlined
+        onClick={onHide}
+        disabled={saving}
+      />
+      <Button
+        label={saving ? "Registrando..." : `Pagar ${formatMoney(paid)}`}
+        icon="pi pi-wallet"
+        severity="success"
+        loading={saving}
+        disabled={!!invalidReason || loading}
+        tooltip={invalidReason ?? undefined}
+        tooltipOptions={{ showOnDisabled: true, position: "top" }}
+        onClick={handlePay}
+      />
+    </div>
+  );
 
   return (
-    <>
-      <Dialog
-        header={
-          <h3 className="font-bold text-gray-700">Pagar al trabajador</h3>
-        }
-        maximized
-        position="bottom"
-        visible={isPaymentDialogOpen}
-        onHide={() => {
-          if (!isPaymentDialogOpen) return;
-          setIsPaymentDialogOpen(false);
-        }}
-        footer={
-          <Button
-            label="Cerrar"
-            icon="pi pi-times"
-            severity="secondary"
-            outlined
-            onClick={() => setIsPaymentDialogOpen(false)}
-          />
-        }
-        closable={false}
-      >
-        <h2 className="text-gray-600">Resumen por semana</h2>
-
-        {workerHistory?.dozens?.length > 0 && (
-          <ListBox
-            className="w-full md:w-14rem pau-list-box"
-            options={workerHistory?.data}
-            itemTemplate={listBoxBodySection}
-            listStyle={{ maxHeight: "none" }}
-            onChange={handleSelectionPayment}
-            optionDisabled={(item) =>
-              item.status === paymentStatusChoices.PAGADO
-            }
-          />
-        )}
-      </Dialog>
-
-      <Dialog
-        header={
-          <div className="flex justify-between items-center">
-            <h3 className="font-bold text-gray-700">Realizar Pago</h3>
-            <Button
-              icon="pi pi-times"
-              onClick={() => setIsPayDialogOpen(false)}
-              severity="secondary"
-              outlined
+    <Dialog
+      visible={visible}
+      onHide={() => {
+        if (!saving) onHide();
+      }}
+      header={`Pagar a ${worker?.names ?? ""}`}
+      footer={footer}
+      className="sf-dialog"
+      style={{ width: "55vw" }}
+      breakpoints={{ "960px": "80vw", "641px": "95vw" }}
+      maskStyle={{ backdropFilter: "blur(4px)" }}
+    >
+      <div className="flex flex-column gap-4 pt-2">
+        {/* Semana */}
+        <div className="flex flex-column gap-2">
+          <label className="font-bold">Semana a pagar</label>
+          <div className="flex flex-wrap align-items-center gap-2">
+            <Dropdown
+              value={selectedWeek}
+              options={weekOptions}
+              onChange={(e) => setRange(weekFrom(dayjs(e.value)))}
+              placeholder="Otro rango"
+              className="w-full md:w-auto"
+              style={{ minWidth: "22rem" }}
+            />
+            <Calendar
+              value={range as Date[]}
+              onChange={(e) => setRange((e.value as Date[]) ?? [])}
+              selectionMode="range"
+              readOnlyInput
+              dateFormat="dd/mm/yy"
+              showIcon
+              placeholder="Selecciona el rango"
             />
           </div>
-        }
-        position="bottom"
-        style={{ width: "94vw" }}
-        maskStyle={{ backdropFilter: "blur(4px)" }}
-        visible={isPayDialogOpen}
-        onHide={() => {
-          if (!isPayDialogOpen) return;
-          setIsPayDialogOpen(false);
-        }}
-        closable={false}
-      >
-        <small
-          className="text-gray-500 font-medium flex items-center gap-1 mb-1"
-          style={{ fontSize: "1rem" }}
-        >
-          <i className="pi pi-check-circle" />
-          <div>
-            El pago es de{" "}
-            <strong className="text-green-500">
-              {getWeekText(selectedDozen?.created_at)}
-            </strong>
-            .
-          </div>
-        </small>
-        <small
-          className="text-gray-500 font-medium flex items-center gap-1 mb-1"
-          style={{ fontSize: "1rem" }}
-        >
-          <i className="pi pi-check-circle" />
-          <div>
-            Se realizará el pago al trabajador{" "}
-            <strong className="text-green-500">{selectedWorker?.name}</strong>.
-          </div>
-        </small>
-        <small
-          className="text-gray-500 font-medium flex items-center gap-1 mb-1"
-          style={{ fontSize: "1rem" }}
-        >
-          <i className="pi pi-check-circle" />
-          <div>
-            Realizo{" "}
-            <strong className="text-green-500">
-              x{selectedDozen?.dozens_per_week?.length}
-            </strong>{" "}
-            docenas en esta Semana.
-          </div>
-        </small>
-        {selectedDozen?.status === paymentStatusChoices.POR_PAGAR && (
-          <small
-            className="text-gray-500 font-medium flex items-center gap-1 mb-1"
-            style={{ fontSize: "1rem" }}
-          >
-            <i className="pi pi-check-circle" />
-            <div>
-              El monto a pagar es{" "}
-              <strong className="text-green-500">
-                S/. {selectedDozen?.total_amount}
-              </strong>
-              .
-            </div>
+          {olderPending > 0 && (
+            <small style={{ color: "var(--orange-600)" }}>
+              <i className="pi pi-exclamation-triangle mr-1" />
+              Tiene etapas sin pagar de {olderPending}{" "}
+              {olderPending === 1 ? "semana anterior" : "semanas anteriores"}.
+            </small>
+          )}
+          <small className="text-color-secondary">
+            Semana de lunes a domingo. Se pagan las etapas terminadas en ese
+            rango que aún no se hayan pagado.
           </small>
-        )}
-        {selectedDozen?.status === paymentStatusChoices.INCOMPLETO && (
-          <small
-            className="text-gray-500 font-medium flex items-start gap-1 mb-1"
-            style={{ fontSize: "1rem" }}
-          >
-            <i className="pi pi-check-circle mt-1" />
-            <div>
-              El monto a pagar es el <strong>saldo pendiente</strong> de{" "}
-              <strong className="text-green-500">
-                S/. {selectedDozen?.total_amount - selectedDozen?.paid_at}
-              </strong>
-              .
-            </div>
-          </small>
-        )}
-        <Divider />
+        </div>
 
-        <Accordion activeIndex={0}>
-          <AccordionTab header="Pagar Todo">
-            {selectedDozen?.status === paymentStatusChoices.POR_PAGAR && (
-              <small className="text-gray-500 mb-2 block">
-                Se pagara todo el monto de la semana{" "}
-                <strong>S/. {selectedDozen?.total_amount}</strong>.
-              </small>
-            )}
-            {selectedDozen?.status === paymentStatusChoices.INCOMPLETO && (
-              <small className="text-gray-500 mb-2 block">
-                Se pagará todo el <strong>saldo pendiente</strong> de{" "}
-                <strong>
-                  S/. {selectedDozen?.total_amount - selectedDozen?.paid_at}
-                </strong>
-                .
-              </small>
-            )}
-            <Button
-              label="Pagar Todo"
-              icon="pi pi-check-circle"
-              disabled={!selectedDozen}
-              onClick={makeFullPayment}
-              style={{
-                width: "100%",
-                display: "block",
-                backgroundColor: "var(--green-500)",
-              }}
-            />
-          </AccordionTab>
-          <AccordionTab header="Pagar Una Parte">
-            <div className="flex flex-col gap-2">
-              <label htmlFor="pay">Monto a pagar</label>
-              <InputNumber
-                inputId="currency-peru"
-                value={pay}
-                onChange={(e) => setPay(e.value)}
-                mode="currency"
-                currency="PEN"
-                currencyDisplay="code"
-                locale="es-PE"
-                minFractionDigits={0}
-                maxFractionDigits={0}
-              />
-              {selectedDozen?.status === paymentStatusChoices.POR_PAGAR && (
-                <small id="pay-help">
-                  El monto a pagar debe ser menor o igual al{" "}
-                  <strong>total</strong> de{" "}
-                  <strong>S/. {selectedDozen?.total_amount}</strong>
-                </small>
-              )}
-              {selectedDozen?.status === paymentStatusChoices.INCOMPLETO && (
-                <small className="mb-2 block">
-                  El monto a pagar debe ser menor o igual al{" "}
-                  <strong>saldo pendiente</strong> de{" "}
-                  <strong>
-                    S/. {selectedDozen?.total_amount - selectedDozen?.paid_at}
-                  </strong>
-                </small>
-              )}
-              <div className="py-1" />
-              <Button
-                label="Pagar una parte"
-                icon="pi pi-check-circle"
-                disabled={!selectedDozen}
-                onClick={makePartialPayment}
-                style={{
-                  width: "100%",
-                  display: "block",
-                  backgroundColor: "var(--green-500)",
-                }}
-              />
-            </div>
-          </AccordionTab>
-        </Accordion>
-      </Dialog>
+        {loading && !preview ? (
+          <div className="flex justify-content-center py-5">
+            <i className="pi pi-spin pi-spinner" style={{ fontSize: "2rem" }} />
+          </div>
+        ) : (
+          preview && (
+            <>
+              {/* Etapas del periodo */}
+              <DataTable
+                value={preview.items}
+                selection={selected}
+                onSelectionChange={(e) =>
+                  setSelected(e.value as DozenAssignment[])
+                }
+                selectionMode="checkbox"
+                dataKey="id"
+                loading={loading}
+                size="small"
+                className="sf-table"
+                emptyMessage="No hay etapas pendientes de pago en este periodo."
+              >
+                <Column
+                  selectionMode="multiple"
+                  headerStyle={{ width: "3rem" }}
+                />
+                <Column field="dozen_code" header="Docena" />
+                <Column header="Etapa" body={(row) => row.specialty.name} />
+                <Column
+                  header="Terminada"
+                  body={(row) => formatDay(row.completed_at)}
+                />
+                <Column
+                  header="Precio docena"
+                  body={(row) => formatMoney(row.unit_price)}
+                />
+                <Column
+                  header="Monto"
+                  body={(row) => <strong>{formatMoney(row.amount)}</strong>}
+                />
+              </DataTable>
 
-      <Toast ref={toast} position="top-center" />
-    </>
+              <Divider className="m-1" />
+
+              {/* Ajustes pendientes (entran todos, sin importar la fecha) */}
+              <div className="flex flex-column gap-2">
+                <label className="font-bold">
+                  Bonos, descuentos y adelantos pendientes
+                </label>
+
+                {preview.adjustments.length === 0 && (
+                  <small className="text-color-secondary">
+                    No hay ajustes pendientes.
+                  </small>
+                )}
+
+                {preview.adjustments.map((a) => {
+                  const negative = Number(a.signed_amount) < 0;
+                  return (
+                    <div
+                      key={a.id}
+                      className="flex align-items-center justify-content-between gap-2"
+                    >
+                      <div className="flex flex-column">
+                        <span>{a.type_label}</span>
+                        {a.reason && (
+                          <small className="text-color-secondary">
+                            {a.reason}
+                          </small>
+                        )}
+                      </div>
+                      <div className="flex align-items-center gap-2">
+                        <strong
+                          style={{
+                            color: negative
+                              ? "var(--red-500)"
+                              : "var(--green-600)",
+                          }}
+                        >
+                          {negative ? "-" : "+"} {formatMoney(a.amount)}
+                        </strong>
+                        {/* El saldo anterior lo genera el sistema: no se borra a mano */}
+                        {a.type !== "SALDO" && (
+                          <Button
+                            icon="pi pi-trash"
+                            rounded
+                            text
+                            severity="danger"
+                            size="small"
+                            onClick={() => handleDeleteAdjustment(a.id)}
+                          />
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
+
+                <div className="flex justify-content-center align-items-start gap-2">
+                  <div className="grid mt-1 w-full">
+                    <div className="col-6 md:col-6">
+                      <Dropdown
+                        value={adjustment.type}
+                        options={ADJUSTMENT_OPTIONS}
+                        onChange={(e) =>
+                          setAdjustment((prev) => ({ ...prev, type: e.value }))
+                        }
+                        className="w-full"
+                      />
+                    </div>
+                    <div className="col-6 md:col-6">
+                      <InputNumber
+                        value={adjustment.amount}
+                        onValueChange={(e) =>
+                          setAdjustment((prev) => ({
+                            ...prev,
+                            amount: e.value ?? null,
+                          }))
+                        }
+                        mode="currency"
+                        currency="PEN"
+                        locale="es-PE"
+                        min={0}
+                        placeholder="Monto"
+                        className="w-full"
+                      />
+                    </div>
+                    <div className="col-12 md:col-12">
+                      <InputTextarea
+                        value={adjustment.reason}
+                        onChange={(e) =>
+                          setAdjustment((prev) => ({
+                            ...prev,
+                            reason: e.target.value,
+                          }))
+                        }
+                        placeholder="Motivo"
+                        className="w-full"
+                        rows={2}
+                      />
+                    </div>
+                  </div>
+                  <div style={{ marginTop: "12px" }}>
+                    <Button
+                      label="Agregar"
+                      icon="pi pi-plus"
+                      outlined
+                      className="w-full"
+                      size="small"
+                      style={{
+                        borderColor: "var(--sf-moss)",
+                        color: "var(--sf-moss)",
+                      }}
+                      loading={savingAdjustment}
+                      onClick={handleAddAdjustment}
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <Divider className="m-1" />
+
+              {/* Totales */}
+              <div className="w-full">
+                <table className="border-collapse" style={{ float: "right" }}>
+                  <thead>
+                    <tr>
+                      <th className="text-left p-2">Concepto</th>
+                      <th className="text-right p-2">Importe</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td className="p-2">
+                        Total ganado ({selected.length} de{" "}
+                        {preview.items.length} etapas)
+                      </td>
+                      <td className="text-right p-2">{formatMoney(earned)}</td>
+                    </tr>
+                    <tr>
+                      <td className="p-2">Ajustes</td>
+                      <td className="text-right p-2">
+                        {formatMoney(adjustmentsTotal)}
+                      </td>
+                    </tr>
+                    <tr className="surface-100 text-xl">
+                      <td className="p-2 font-bold">Total a pagar</td>
+                      <td className="text-right p-2 font-bold">
+                        {formatMoney(totalToPay)}
+                      </td>
+                    </tr>
+                    <tr className="surface-100 text-xl">
+                      <td colSpan={2} className="p-2">
+                        <div className="flex flex-column gap-1">
+                          <label className="font-bold">Monto entregado</label>
+                          <InputNumber
+                            value={isPartial ? defaultAmount : amountPaid}
+                            disabled={isPartial}
+                            onValueChange={(e) =>
+                              setCustom({
+                                total: totalToPay,
+                                value: e.value ?? null,
+                              })
+                            }
+                            mode="currency"
+                            currency="PEN"
+                            locale="es-PE"
+                            min={0}
+                            max={Math.max(totalToPay, 0)}
+                            className="w-full"
+                          />
+                          {isPartial && (
+                            <small className="text-color-secondary">
+                              Al pagar solo algunas etapas se entrega el total
+                              exacto. Las demás siguen pendientes.
+                            </small>
+                          )}
+                          {!isPartial && pendingBalance > 0 && (
+                            <small style={{ color: "var(--orange-600)" }}>
+                              Quedan {formatMoney(pendingBalance)} pendientes:
+                              se sumarán al próximo pago.
+                            </small>
+                          )}
+                        </div>
+                      </td>
+                    </tr>
+                    <tr className="surface-100 text-xl">
+                      <td colSpan={2} className="p-2">
+                        <div className="flex flex-column gap-1">
+                          <label className="font-bold">Nota (opcional)</label>
+                          <InputTextarea
+                            value={note}
+                            onChange={(e) => setNote(e.target.value)}
+                            rows={3}
+                            autoResize
+                          />
+                        </div>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+
+              {/* Lo que realmente se entrega */}
+              {/* <div className="grid">
+                <div className="col-12 md:col-5 flex flex-column gap-1">
+                  <label className="font-bold">Monto entregado</label>
+                  <InputNumber
+                    value={isPartial ? defaultAmount : amountPaid}
+                    disabled={isPartial}
+                    onValueChange={(e) =>
+                      setCustom({ total: totalToPay, value: e.value ?? null })
+                    }
+                    mode="currency"
+                    currency="PEN"
+                    locale="es-PE"
+                    min={0}
+                    max={Math.max(totalToPay, 0)}
+                    className="w-full"
+                  />
+                  {isPartial && (
+                    <small className="text-color-secondary">
+                      Al pagar solo algunas etapas se entrega el total exacto.
+                      Las demás siguen pendientes.
+                    </small>
+                  )}
+                  {!isPartial && pendingBalance > 0 && (
+                    <small style={{ color: "var(--orange-600)" }}>
+                      Quedan {formatMoney(pendingBalance)} pendientes: se
+                      sumarán al próximo pago.
+                    </small>
+                  )}
+                </div>
+                <div className="col-12 md:col-7 flex flex-column gap-1">
+                  <label className="font-bold">Nota (opcional)</label>
+                  <InputTextarea
+                    value={note}
+                    onChange={(e) => setNote(e.target.value)}
+                    rows={2}
+                    autoResize
+                  />
+                </div>
+              </div> */}
+            </>
+          )
+        )}
+      </div>
+    </Dialog>
   );
 };
 

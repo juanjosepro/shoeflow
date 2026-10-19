@@ -1,7 +1,18 @@
-export const teamsChoices: Record<string, number> = {
-  "CORTADOR": 1,
-  "APARADOR": 2,
-  "ARMADOR": 3,
-  "REMATADOR": 4,
-  "AYUDADNTE": 5,
+export const specialtiesChoices: Record<string, number> = {
+  "PENDIENTE": 0,
+  "CORTADO": 1,
+  "PINTADO": 2,
+  "DESBASTADO": 3,
+  "PICADO": 4,
+  "APARADO": 5,
+  "ARMADO COMPLETO": 6,
+  "ARMADO": 7,
+  "PEGADO": 8,
+  "REMATADO": 9,
 };
+
+export const paymentStatusChoices = {
+  "PAGADO": "pagado",
+  "POR_PAGAR": "por_pagar",
+  "INCOMPLETO": "incompleto",
+}

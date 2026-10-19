@@ -4,7 +4,7 @@ const getBaseURL = () => {
 	const hostname = window.location.hostname; // nikfort.localhost
 	const subdomain = hostname.split('.')[0];  // nikfort
 
-	const base = import.meta.env.VITE_API_BASE_URL; // http://localhost:8000/api/v1
+	const base = import.meta.env.VITE_API_URL; // http://localhost:8000/api/v1
 
 	// http://localhost:8000/api/v1 -> http://nikfort.localhost:8000/api/v1
 	return base.replace('://', `://${subdomain}.`);
