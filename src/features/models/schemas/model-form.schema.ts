@@ -4,9 +4,8 @@ export const modelSchema = z.object({
   name: z.string().min(1, "El nombre es obligatorio"),
   code_prefix: z.string().min(2, "El prefijo del código es obligatorio"),
   description: z.string().optional(),
-  category_id: z.number({ message: "Seleccione una categoría" }),
+  category_id: z.number({ message: "Seleccione una categoría" }).nullable(),
   is_active: z.boolean(),
-  // dentro de modelSchema:
   size_rates: z.array(
     z.object({
       specialty: z.number(),

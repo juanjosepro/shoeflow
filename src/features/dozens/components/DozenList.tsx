@@ -17,6 +17,12 @@ import type {
   DozenStatusAction,
 } from "../types/dozen";
 import BulkAssignDozenDialog from "./BulkAssignDozenDialog";
+import { useFichaPrint } from "../hooks/useFichaPrint";
+import { Dialog } from "primereact/dialog";
+import { InputTextarea } from "primereact/inputtextarea";
+import "./DozenList.scss";
+import CheckRadio from "@/shared/components/CheckRadio";
+import { SelectButton } from "primereact/selectbutton";
 
 // Estados de una docena (los mismos que define el backend)
 const STATUS = {
@@ -71,7 +77,7 @@ interface DozenListProps {
     payload: AssignStagesPayload,
   ) => Promise<Dozen>;
   // Completar, rechazar o reabrir una docena
-  changeDozenStatus: (id: number, action: DozenStatusAction) => Promise<void>;
+  changeDozenStatus: (id: number, action: DozenStatusAction, reason?: string) => Promise<void>;
 }
 
 const DozenList = ({
@@ -97,6 +103,12 @@ const DozenList = ({
     action: DozenStatusAction;
   } | null>(null);
   const [isChangingStatus, setIsChangingStatus] = useState(false);
+  // Motivo opcional al rechazar: queda en la nota de la docena
+  const [rejectReason, setRejectReason] = useState("");
+
+  // Fichas imprimibles (una docena desde su menú, o todas las filtradas desde el encabezado)
+  const { printFichas, fichaPrinter, preparingFichas } = useFichaPrint();
+  const printMenuRef = useRef<Menu>(null);
 
   // Color del tag según el estado (moss=éxito, amber=en curso, clay=atención)
   const statusTagClass = (status: string) => {
@@ -196,8 +208,15 @@ const DozenList = ({
   const getMenuItems = (dozen: Dozen | null): MenuItem[] => {
     if (!dozen) return [];
 
+    const printItem: MenuItem = {
+      label: "Imprimir ficha",
+      icon: "pi pi-print",
+      command: () => printFichas([dozen], "single"),
+    };
+
     if (ASSIGNABLE_STATES.includes(dozen.status)) {
       return [
+        printItem,
         {
           label: "Marcar como completada",
           icon: "pi pi-check-circle",
@@ -213,6 +232,7 @@ const DozenList = ({
     }
 
     return [
+      printItem,
       {
         label: "Reabrir docena",
         icon: "pi pi-replay",
@@ -225,9 +245,12 @@ const DozenList = ({
     if (!statusChange) return;
     setIsChangingStatus(true);
     try {
-      await changeDozenStatus(statusChange.dozen.id, statusChange.action);
+      const reason =
+        statusChange.action === "reject" ? rejectReason.trim() || undefined : undefined;
+      await changeDozenStatus(statusChange.dozen.id, statusChange.action , reason);
       toast.success(STATUS_ACTION_TEXT[statusChange.action].success);
       setStatusChange(null);
+      setRejectReason("");
     } catch (error: any) {
       toast.error(
         error?.response?.data?.detail ??
@@ -247,6 +270,20 @@ const DozenList = ({
     }
   };
 
+  // Imprime las fichas de lo que se ve ahora (estación + búsqueda)
+  const printMenuItems: MenuItem[] = [
+    {
+      label: "4 por hoja A4 (recortar)",
+      icon: "pi pi-th-large",
+      command: () => printFichas(filteredDozens, "sheet4"),
+    },
+    {
+      label: "Una por hoja (A6)",
+      icon: "pi pi-file",
+      command: () => printFichas(filteredDozens, "single"),
+    },
+  ];
+
   const openAssignDialog = (dozen: Dozen) => {
     setAssignTarget(dozen);
     setIsAssignDialogOpen(true);
@@ -257,8 +294,8 @@ const DozenList = ({
       <div className="dozens-layout" style={{ display: "flex", gap: 24 }}>
         {/* Filtro por estación */}
         <div
-          className="dozens-stations p-3 sf-border-line border-round-lg"
-          style={{ width: 220, flexShrink: 0 }}
+          className="hide-for-mobile dozens-stations p-3 sf-border-line border-round-lg"
+          style={{ width: 220, flexShrink: 0}}
         >
           <p
             style={{
@@ -323,13 +360,15 @@ const DozenList = ({
           style={{ flex: 1, minWidth: 0 }}
           className="p-3 sf-border-line border-round-lg"
         >
-          <div className="flex align-items-center justify-content-between gap-3 mb-3">
-            <div>
+          <div className="grid align-items-center mb-3">
+            {/* Título */}
+            <div className="col-6 md:col-4 order-1">
               <h2 style={{ fontSize: 19, fontWeight: 600, margin: 0 }}>
                 {activeStation === "all"
                   ? "Todas las docenas"
                   : getStatusLabel(activeStation)}
               </h2>
+
               <p
                 style={{
                   fontSize: 13,
@@ -337,22 +376,54 @@ const DozenList = ({
                   margin: "2px 0 0",
                 }}
               >
-                {stations.find((s) => s.key === activeStation)?.count ?? 0}{" "}
-                docenas
+                {stations.find((s) => s.key === activeStation)?.count ?? 0} docenas
               </p>
             </div>
-            <span
-              className="p-input-icon-left taller-search"
-              style={{ minWidth: 220 }}
-            >
-              <i className="pi pi-search pl-2" />
-              <InputText
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                placeholder="Buscar por código o modelo..."
-                className="pl-5 w-full"
+
+            {/* Botón imprimir */}
+            <div className="col-6 md:col-2 flex justify-content-end order-2 md-order-3">
+              <Button
+                label="Imprimir"
+                icon="pi pi-print"
+                className="p-button-sm sf-btn--slate"
+                tooltip="Imprimir fichas"
+                loading={preparingFichas}
+                disabled={filteredDozens.length === 0}
+                tooltipOptions={{ position: "top" }}
+                onClick={(e) => printMenuRef.current?.toggle(e)}
               />
-            </span>
+              <Menu model={printMenuItems} popup ref={printMenuRef} />
+            </div>
+
+            {/* Buscador */}
+            <div className="col-12 md:col-6 order-3 md-order-2">
+              <span className="p-input-icon-left taller-search w-full">
+                <i className="pi pi-search pl-2" />
+                <InputText
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  placeholder="Buscar por código o modelo..."
+                  className="pl-5 w-full"
+                />
+              </span>
+            </div>
+          </div>
+
+          {/* Filtro por estación */}
+          <div className="hide-for-tablet sf-chip-scroll-2 mb-3">
+            <SelectButton
+              value={activeStation}
+              options={stations.map((s) => ({
+                label: `${s.name} (${s.count})`,
+                value: s.key,
+              }))}
+              onChange={(e) => {
+                if (e.value !== null) {
+                  setActiveStation(e.value);
+                }
+              }}
+              allowEmpty={false}
+            />
           </div>
 
           {groupedByWeek.length === 0 ? (
@@ -421,115 +492,73 @@ const DozenList = ({
                         key={item.id}
                         className="dozen-row"
                         style={{
-                          display: "flex",
-                          alignItems: "center",
-                          gap: 14,
-                          padding: "12px 18px",
-                          borderTop:
-                            j > 0 ? "1px solid var(--sf-line)" : "none",
+                          borderTop: j > 0 ? "1px solid var(--sf-line)" : "none",
                         }}
                       >
-                        <span
-                          style={{
-                            fontSize: 12,
-                            color: "var(--sf-stone)",
-                            fontWeight: 600,
-                          }}
-                        >
-                          {j + 1}.{" "}
-                        </span>
-                        {/* Punto con el color real de la docena */}
-                        <span
-                          style={{
-                            width: 10,
-                            height: 10,
-                            borderRadius: "50%",
-                            boxShadow:
-                              "0 0 0 2px color-mix(in srgb, currentColor 12%, transparent)",
-                            background:
-                              item.color?.hex_code ?? "var(--sf-stone)",
-                            flexShrink: 0,
-                          }}
-                        />
-                        <div
-                          className="dozen-row-main"
-                          style={{ flex: 1, minWidth: 0 }}
-                        >
-                          <div
+                        {/* NÚMERO Y COLOR */}
+                        <div className="dozen-row-leading">
+                          <span className="mono dozen-row-number">
+                            {j + 1}.
+                          </span>
+
+                          <span
+                            className="dozen-row-color"
                             style={{
-                              fontSize: 13.5,
-                              fontWeight: 500,
-                              cursor: "pointer",
+                              background: item.color?.hex_code ?? "var(--sf-stone)",
                             }}
-                            onClick={() =>
-                              navigate(`/production/dozens/${item.id}/edit`)
-                            }
+                          />
+                        </div>
+
+                        {/* INFORMACIÓN PRINCIPAL */}
+                        <div className="dozen-row-main">
+                          <div
+                            className="dozen-row-title"
+                            onClick={() => navigate(`/production/dozens/${item.id}/edit`)}
                           >
                             {capitalizeWords(item.model?.name)}{" "}
-                            <span
-                              className="mono"
-                              style={{
-                                fontSize: 12,
-                                color: "var(--sf-stone)",
-                                fontWeight: 400,
-                              }}
-                            >
+                            <span className="mono dozen-row-code">
                               {item.code}
                             </span>
                           </div>
-                          <div
-                            style={{ fontSize: 12, color: "var(--sf-stone)" }}
-                          >
+
+                          <div className="dozen-row-details">
                             Talla {item.size?.name}
-                            {item.size?.description &&
-                              ` (${item.size.description})`}{" "}
-                            — {capitalizeWords(item.material_type?.name)}
+                            {item.size?.description && ` (${item.size.description})`}
+                            {" — "}{capitalizeWords(item.material_type?.name)}
                             {item.pairs < 12 && ` — ${item.pairs} pares`}
                             {` — ${item.assigned_stages}/${item.total_stages} etapas`}
                           </div>
+
+                          {/* <span className={`sf-tag ${statusTagClass(item.status)}`}>
+                            {getStatusLabel(item.status)}
+                          </span> */}
                         </div>
-                        <span
-                          className={`sf-tag ${statusTagClass(item.status)}`}
-                        >
-                          {getStatusLabel(item.status)}
-                        </span>
-                        <Button
-                          label={canAssign ? "Asignar etapas" : "Sin acción"}
-                          icon={canAssign ? "pi pi-users" : undefined}
-                          className="sf-btn p-button-sm"
-                          disabled={!canAssign}
-                          onClick={() => openAssignDialog(item)}
-                        />
-                        <Button
-                          icon={
-                            item.is_active ? "pi pi-eye-slash" : "pi pi-eye"
-                          }
-                          className="p-button-sm p-button-text"
-                          style={{ color: "var(--sf-ink)" }}
-                          onClick={async () => {
-                            try {
-                              await toggleDozenStatus(item.id, item.is_active);
-                              toast.success(
-                                item.is_active
-                                  ? "Docena desactivada."
-                                  : "Docena activada.",
-                              );
-                            } catch {
-                              toast.error(
-                                "Error al cambiar el estado de la docena.",
-                              );
-                            }
-                          }}
-                        />
-                        <Button
-                          icon="pi pi-ellipsis-v"
-                          className="p-button-sm p-button-text"
-                          style={{ color: "var(--sf-ink)" }}
-                          onClick={(e) => {
-                            setMenuTarget(item);
-                            menuRef.current?.toggle(e);
-                          }}
-                        />
+
+                        {/* ESTADO Y ACCIONES */}
+                        <div className="dozen-row-actions">
+                        <span className={`sf-tag ${statusTagClass(item.status)}`}>
+                            {getStatusLabel(item.status)}
+                          </span>
+                          <div>
+                            <Button
+                              label={canAssign ? "Asignar" : "Sin acción"}
+                              icon={canAssign ? "pi pi-users" : undefined}
+                              className="p-button-sm sf-btn--moss"
+                              disabled={!canAssign}
+                              onClick={() => openAssignDialog(item)}
+                            />
+
+                            <Button
+                              icon="pi pi-ellipsis-v"
+                              className="p-button-sm p-button-text"
+                              style={{ color: "var(--sf-ink)" }}
+                              onClick={(e) => {
+                                setMenuTarget(item);
+                                menuRef.current?.toggle(e);
+                              }}
+                            />
+                          </div>
+                        </div>
                       </div>
                     );
                   })}
@@ -551,8 +580,62 @@ const DozenList = ({
       {/* Menú de acciones de la fila (completar, rechazar, reabrir) */}
       <Menu model={getMenuItems(menuTarget)} popup ref={menuRef} />
 
+      {fichaPrinter}
+
+      {/* Rechazar: pide un motivo opcional */}
+      <Dialog
+        visible={statusChange?.action === "reject"}
+        onHide={() => {
+          if (isChangingStatus) return;
+          setStatusChange(null);
+          setRejectReason("");
+        }}
+        header={statusChange ? STATUS_ACTION_TEXT.reject.title : ""}
+        className="sf-dialog"
+        style={{ width: "min(32rem, 95vw)" }}
+        maskStyle={{ backdropFilter: "blur(4px)" }}
+        footer={
+          <div className="flex justify-content-end gap-2">
+            <Button
+              label="Cancelar"
+              outlined
+              severity="secondary"
+              disabled={isChangingStatus}
+              onClick={() => {
+                setStatusChange(null);
+                setRejectReason("");
+              }}
+            />
+            <Button
+              label="Rechazar docena"
+              icon="pi pi-ban"
+              severity="danger"
+              loading={isChangingStatus}
+              onClick={handleConfirmStatusChange}
+            />
+          </div>
+        }
+      >
+        <p style={{ margin: "0 0 12px", fontSize: 14 }}>
+          {statusChange ? STATUS_ACTION_TEXT.reject.description(statusChange.dozen.code) : ""}
+        </p>
+        <label htmlFor="reject-reason" style={{ fontSize: 13, fontWeight: 500 }}>
+          Motivo (opcional)
+        </label>
+        <InputTextarea
+          id="reject-reason"
+          value={rejectReason}
+          onChange={(e) => setRejectReason(e.target.value)}
+          rows={3}
+          maxLength={200}
+          autoResize
+          className="w-full mt-2"
+          placeholder="Ej. Suela despegada en todo el lote"
+        />
+      </Dialog>
+
       <ConfirmDialog
-        open={statusChange !== null}
+        open={statusChange !== null && statusChange.action !== "reject"}
         onOpenChange={(open) => {
           if (!open && !isChangingStatus) setStatusChange(null);
         }}

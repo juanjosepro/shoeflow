@@ -1,9 +1,9 @@
-// Lo que tienen en común categorías, tallas, materiales y tipos de planta
+// Este Feature(Catalog) se usa en Categories, Sizes, MaterialTypes y PlantTypes ya que todos tienen los mismos campos
 export interface CatalogItem {
   id: number;
   name: string;
   description: string | null;
-  is_active?: boolean; // categorías y tallas no lo tienen
+  is_active?: boolean;
 }
 
 export interface CatalogFormData {

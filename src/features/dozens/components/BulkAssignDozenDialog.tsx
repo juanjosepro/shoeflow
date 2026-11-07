@@ -38,12 +38,7 @@ const getErrorMessage = (error: any) => {
   return "Error al realizar la asignación masiva.";
 };
 
-const BulkAssignDozenDialog = ({
-  visible,
-  onHide,
-  dozen,
-  onConfirm,
-}: Props) => {
+const BulkAssignDozenDialog = ({ visible, onHide, dozen, onConfirm }: Props) => {
   const [rows, setRows] = useState<RowState[]>([]);
   const [loadingRows, setLoadingRows] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -89,13 +84,31 @@ const BulkAssignDozenDialog = ({
   const isAssigned = (row: RowState) => row.stage.assignment !== null;
   const isFilled = (row: RowState) => isAssigned(row) || row.workerId != null;
 
-  // Una fila se habilita cuando la anterior ya tiene trabajador (o ya estaba asignada).
-  // Si no tiene tarifa o ya fue asignada, no se puede editar.
-  const isRowEnabled = (index: number) => {
-    const row = rows[index];
-    if (isAssigned(row) || row.stage.missing_rate) return false;
-    return index === 0 || isFilled(rows[index - 1]);
+  // Etapas excluyentes (ej. Armado completo vs Armador + Pegador):
+  // una fila "no aplica" si una etapa que no se usa junto con ella ya está elegida o asignada.
+  const excludesOf = (row: RowState) => row.stage.excludes ?? [];
+  const isBlocked = (list: RowState[], index: number) => {
+    const row = list[index];
+    if (isAssigned(row)) return false;
+    if (row.stage.not_applicable) return true;
+    return list.some(
+      (other, i) =>
+        i !== index && isFilled(other) && excludesOf(row).includes(other.stage.specialty.id),
+    );
   };
+
+  // Una fila se habilita cuando todas las anteriores están resueltas: con trabajador,
+  // ya asignadas o "no aplica". Las alternativas excluyentes de esta fila no cuentan.
+  // Si no tiene tarifa o ya fue asignada, no se puede editar.
+  const isEnabledIn = (list: RowState[], index: number) => {
+    const row = list[index];
+    if (isAssigned(row) || row.stage.missing_rate || isBlocked(list, index)) return false;
+    return list.slice(0, index).every((prev, j) => {
+      if (excludesOf(row).includes(prev.stage.specialty.id)) return true; // alternativa de esta fila
+      return isFilled(prev) || isBlocked(list, j);
+    });
+  };
+  const isRowEnabled = (index: number) => isEnabledIn(rows, index);
 
   const updateRow = (index: number, patch: Partial<RowState>) => {
     setRows((prev) =>
@@ -104,25 +117,32 @@ const BulkAssignDozenDialog = ({
   };
 
   const handleSelectWorker = (index: number, workerId: number | null) => {
-    setRows((prev) =>
-      prev.map((row, i) => {
-        if (i === index) return { ...row, workerId };
-        // Si se borra una fila, las siguientes sin asignar se limpian y se vuelven a bloquear
-        if (i > index && workerId == null && !isAssigned(row)) {
-          return { ...row, workerId: null };
-        }
-        return row;
-      }),
-    );
+    setRows((prev) => {
+      let next = prev.map((row, i) => (i === index ? { ...row, workerId } : row));
+      // Al elegir una etapa, las que no se usan junto con ella se limpian
+      if (workerId != null) {
+        const blockedIds = excludesOf(next[index]);
+        next = next.map((row) =>
+          !isAssigned(row) && blockedIds.includes(row.stage.specialty.id)
+            ? { ...row, workerId: null }
+            : row,
+        );
+      }
+      // Las filas que ya no están habilitadas (por borrar una anterior) se limpian
+      next = next.map((row, i) =>
+        !isAssigned(row) && row.workerId != null && !isEnabledIn(next, i)
+          ? { ...row, workerId: null }
+          : row,
+      );
+      return next;
+    });
   };
 
   // Trabajador elegido en una fila (con el precio que calculó el backend)
   const selectedWorker = (row: RowState) =>
     row.stage.workers.find((w) => w.id === row.workerId);
 
-  const selectedRows = rows.filter(
-    (row) => !isAssigned(row) && row.workerId != null,
-  );
+  const selectedRows = rows.filter((row) => !isAssigned(row) && row.workerId != null);
 
   const totalToRegister = selectedRows.reduce(
     (sum, row) => sum + Number(selectedWorker(row)?.amount ?? 0),
@@ -135,9 +155,7 @@ const BulkAssignDozenDialog = ({
       return;
     }
 
-    const invalid = selectedRows.find(
-      (row) => row.deliveredAt > row.completedAt,
-    );
+    const invalid = selectedRows.find((row) => row.deliveredAt > row.completedAt);
     if (invalid) {
       toast.error(
         `${invalid.stage.specialty.name}: la fecha de entrega no puede ser posterior a la de término.`,
@@ -212,14 +230,18 @@ const BulkAssignDozenDialog = ({
         >
           <i
             className="pi pi-spin pi-spinner"
-            style={{ fontSize: "2rem", color: "var(--sf-clay)" }}
+            style={{ fontSize: "2rem", color: "var(--clay)" }}
           />
         </div>
       ) : (
         <div className="sf-bulk-assign-rows flex flex-column gap-2">
           {rows.map((row, index) => {
             const enabled = isRowEnabled(index);
+            const blocked = isBlocked(rows, index);
             const assignment = row.stage.assignment;
+            const alternatives = rows
+              .filter((r) => excludesOf(row).includes(r.stage.specialty.id))
+              .map((r) => r.stage.specialty.name);
             const worker = selectedWorker(row);
             const options = row.stage.workers.map((w) => ({
               label: `${w.names} · ${formatMoney(w.amount)}`,
@@ -230,12 +252,11 @@ const BulkAssignDozenDialog = ({
               <div
                 key={row.stage.specialty.id}
                 className={`sf-bulk-row ${enabled || assignment ? "" : "sf-bulk-row-disabled"}`}
+                style={blocked ? { opacity: 0.55 } : undefined}
               >
                 <div className="flex flex-column gap-3">
-                  <div className="sf-bulk-row-label flex align-items-center justify-content-between w-full">
-                    <span className="font-bold">
-                      {row.stage.specialty.name}
-                    </span>
+                  <div className="sf-bulk-row-label w-full flex align-items-center justify-content-between">
+                    <span className="font-bold">{row.stage.specialty.name}</span>
                     <span
                       className="text-sm"
                       style={{ color: "var(--sf-stone)" }}
@@ -246,12 +267,21 @@ const BulkAssignDozenDialog = ({
                     </span>
                   </div>
 
+                  {alternatives.length > 0 && !assignment && (
+                    <span className="text-sm" style={{ color: "var(--sf-stone)" }}>
+                      No se usa junto con: {alternatives.join(", ")}
+                    </span>
+                  )}
+
                   {/* Etapa ya asignada: solo lectura */}
-                  {assignment ? (
+                  {blocked ? (
+                    <span className="text-sm" style={{ color: "var(--sf-stone)" }}>
+                      No aplica en esta docena.
+                    </span>
+                  ) : assignment ? (
                     <div className="flex flex-column gap-1">
                       <span>
-                        {assignment.worker.names} ·{" "}
-                        {formatMoney(assignment.amount)}{" "}
+                        {assignment.worker.names} · {formatMoney(assignment.amount)}{" "}
                         <span className="text-xs">
                           ({assignment.is_paid ? "Pagado" : "Por pagar"})
                         </span>
@@ -357,9 +387,7 @@ const BulkAssignDozenDialog = ({
                     </div>
                     <InputTextarea
                       value={row.note}
-                      onChange={(e) =>
-                        updateRow(index, { note: e.target.value })
-                      }
+                      onChange={(e) => updateRow(index, { note: e.target.value })}
                       rows={3}
                       placeholder="Nota (opcional)"
                       className="w-full"

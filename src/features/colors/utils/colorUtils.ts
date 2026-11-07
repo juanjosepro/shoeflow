@@ -15,10 +15,9 @@ export const readableOn = (hex: string) => {
 export const COLOR_PRESETS = [
   { name: "Blanco", hex: "#FFFFFF" },
   { name: "Negro", hex: "#000000" },
-  { name: "Plomo", hex: "#A9A9A9" },
-  { name: "Beige", hex: "#D2B48C" },
-  { name: "Café", hex: "#8B4513" },
-  { name: "Dorado", hex: "#DAA520" },
-  { name: "Azul acero", hex: "#483D8B" },
-  { name: "Rojo", hex: "#C0392B" },
+  { name: "Plomo", hex: "#575557" },
+  { name: "Beige", hex: "#A88960" },
+  { name: "Café", hex: "#382314" },
+  { name: "Amarillo", hex: "#DAA520" },
+  { name: "Azul acero", hex: "#282633" },
 ];

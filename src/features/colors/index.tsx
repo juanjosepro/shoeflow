@@ -1,1 +1,1 @@
-export { ColorsPage } from "./pages/colorsPage";
+export { ColorsPage } from "./pages/ColorsPage";

@@ -499,13 +499,7 @@ const WorkerPayment = ({ visible, onHide, worker, onPaid }: Props) => {
                     <Button
                       label="Agregar"
                       icon="pi pi-plus"
-                      outlined
-                      className="w-full"
-                      size="small"
-                      style={{
-                        borderColor: "var(--sf-moss)",
-                        color: "var(--sf-moss)",
-                      }}
+                      className="w-full sf-btn--moss sf-btn--soft"
                       loading={savingAdjustment}
                       onClick={handleAddAdjustment}
                     />

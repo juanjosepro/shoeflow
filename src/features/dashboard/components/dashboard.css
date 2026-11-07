@@ -1,0 +1,253 @@
+/* Dashboard: solo usa tus tokens --sf-* (con respaldo) y color-mix, así sigue el tema claro/oscuro */
+.sfd {
+  --sfd-moss: var(--sf-moss, #5f8f4e);
+  --sfd-amber: var(--sf-amber, #d99a2b);
+  --sfd-clay: var(--sf-clay, #c2704a);
+  --sfd-red: var(--sf-red, #d9534f);
+  --sfd-muted: var(--sf-stone, color-mix(in srgb, currentColor 60%, transparent));
+  --sfd-card: color-mix(in srgb, currentColor 5%, transparent);
+  --sfd-line: color-mix(in srgb, currentColor 14%, transparent);
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.sfd-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+.sfd-title {
+  margin: 0;
+  font-size: 1.35rem;
+}
+.sfd-sub {
+  font-size: 0.85rem;
+  color: var(--sfd-muted);
+}
+
+/* Tarjetas: se acomodan solas (2 en celular, hasta 4 en pantalla ancha) */
+.sfd-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(165px, 1fr));
+  gap: 0.75rem;
+}
+.sfd-card {
+  background: var(--sfd-card);
+  border: 1px solid var(--sfd-line);
+  border-radius: 12px;
+  padding: 0.9rem 1rem;
+  min-width: 0;
+}
+.sfd-card-label {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.78rem;
+  color: var(--sfd-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.sfd-card-value {
+  margin-top: 0.35rem;
+  font-size: 1.5rem;
+  font-weight: 700;
+  line-height: 1.1;
+  white-space: nowrap; /* "S/ 1,240.00" no se parte en dos líneas */
+  font-variant-numeric: tabular-nums;
+}
+.sfd-card-unit {
+  font-size: 0.8rem;
+  font-weight: 400;
+  color: var(--sfd-muted);
+  margin-left: 0.25rem;
+}
+.sfd-card-note {
+  margin-top: 0.3rem;
+  font-size: 0.78rem;
+  color: var(--sfd-muted);
+}
+.sfd-card.moss .sfd-card-value { color: var(--sfd-moss); }
+.sfd-card.amber .sfd-card-value { color: var(--sfd-amber); }
+.sfd-card.clay .sfd-card-value { color: var(--sfd-clay); }
+.sfd-up { color: var(--sfd-moss); }
+.sfd-down { color: var(--sfd-red); }
+
+/* Paneles de gráficos */
+.sfd-grid {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+.sfd-panel {
+  grid-column: span 12;
+  background: var(--sfd-card);
+  border: 1px solid var(--sfd-line);
+  border-radius: 12px;
+  padding: 1rem;
+  min-width: 0;
+}
+@media (min-width: 900px) {
+  .sfd-span-8 { grid-column: span 8; }
+  .sfd-span-7 { grid-column: span 7; }
+  .sfd-span-6 { grid-column: span 6; }
+  .sfd-span-5 { grid-column: span 5; }
+  .sfd-span-4 { grid-column: span 4; }
+}
+.sfd-panel h3 {
+  margin: 0 0 0.15rem;
+  font-size: 1rem;
+}
+.sfd-panel-sub {
+  margin: 0 0 0.9rem;
+  font-size: 0.8rem;
+  color: var(--sfd-muted);
+}
+
+/* Barras verticales por semana */
+.sfd-bars {
+  display: flex;
+  align-items: flex-end;
+  gap: 4px;
+  height: 180px;
+  border-bottom: 1px solid var(--sfd-line);
+}
+.sfd-bar-group {
+  flex: 1 1 0;
+  min-width: 0;
+  height: 100%;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 2px;
+}
+.sfd-bar {
+  flex: 1 1 0;
+  max-width: 22px;
+  min-height: 2px;
+  border-radius: 4px 4px 0 0;
+  transition: height 0.35s ease;
+}
+.sfd-bar.a { background: var(--sfd-clay); }
+.sfd-bar.b { background: var(--sfd-moss); }
+.sfd-bar.c { background: var(--sfd-amber); }
+.sfd-xlabels {
+  display: flex;
+  gap: 4px;
+  margin-top: 4px;
+}
+.sfd-xlabels span {
+  flex: 1 1 0;
+  min-width: 0;
+  font-size: 0.68rem;
+  color: var(--sfd-muted);
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+}
+.sfd-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.9rem;
+  margin-top: 0.7rem;
+  font-size: 0.8rem;
+}
+.sfd-dot {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 3px;
+  margin-right: 0.35rem;
+}
+
+/* Barras horizontales (embudo, modelos, trabajadores) */
+.sfd-hlist {
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+}
+.sfd-hrow-top {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.5rem;
+  font-size: 0.85rem;
+}
+.sfd-hrow-top b {
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.sfd-hrow-name {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.sfd-track {
+  height: 8px;
+  margin-top: 4px;
+  border-radius: 99px;
+  background: var(--sfd-line);
+  overflow: hidden;
+}
+.sfd-fill {
+  height: 100%;
+  border-radius: 99px;
+  transition: width 0.35s ease;
+}
+.sfd-fill.moss { background: var(--sfd-moss); }
+.sfd-fill.amber { background: var(--sfd-amber); }
+.sfd-fill.clay { background: var(--sfd-clay); }
+.sfd-hrow-sub {
+  margin-top: 2px;
+  font-size: 0.75rem;
+  color: var(--sfd-muted);
+}
+
+/* Barra apilada (prioridades) */
+.sfd-stack {
+  display: flex;
+  height: 14px;
+  border-radius: 99px;
+  overflow: hidden;
+  background: var(--sfd-line);
+}
+.sfd-stack > span { min-width: 3px; }
+
+/* Alertas */
+.sfd-alerts {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+.sfd-alert {
+  display: flex;
+  gap: 0.6rem;
+  align-items: flex-start;
+  padding: 0.65rem 0.8rem;
+  border-radius: 10px;
+  font-size: 0.88rem;
+  border: 1px solid var(--sfd-line);
+  background: var(--sfd-card);
+}
+.sfd-alert.warn { border-color: color-mix(in srgb, var(--sfd-amber) 55%, transparent); }
+.sfd-alert.danger { border-color: color-mix(in srgb, var(--sfd-red) 55%, transparent); }
+.sfd-alert.warn i { color: var(--sfd-amber); }
+.sfd-alert.danger i { color: var(--sfd-red); }
+.sfd-alert.info i { color: var(--sfd-clay); }
+
+.sfd-empty {
+  padding: 1.5rem 0;
+  text-align: center;
+  font-size: 0.85rem;
+  color: var(--sfd-muted);
+}
+.sfd-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  min-height: 50vh;
+}

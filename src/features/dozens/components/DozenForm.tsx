@@ -1,5 +1,5 @@
-import { useEffect, useTransition } from "react";
-import { useNavigate } from "react-router-dom";
+import { useEffect, useState, useTransition } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import type { Dozen, CatalogOptions, DozenMetadata } from "../types/dozen";
@@ -10,6 +10,7 @@ import {
   type DozenFormData,
 } from "../schemas/dozenSchema";
 import type { Model } from "@/features/models/types/model";
+import SizeRunEditor from "./SizeRunEditor";
 import CheckRadio from "@/shared/components/CheckRadio";
 import { Button } from "primereact/button";
 import { InputNumber } from "primereact/inputnumber";
@@ -30,6 +31,7 @@ interface ChipOption {
   hex?: string;
   value: number | string;
   label: string;
+  description?: string;
 }
 
 interface OptionChipsProps {
@@ -62,6 +64,7 @@ const OptionChips = ({
         <CheckRadio
           key={option.value}
           label={option.label}
+          description={option.description}
           valueCheck={option.value}
           name={name}
           value={selected}
@@ -84,6 +87,8 @@ const DozenForm = ({
 }: DozenFormProps) => {
   const navigate = useNavigate();
   const [pending, startTransition] = useTransition();
+  // Cambia al cargar/limpiar el formulario para reiniciar el editor de la serie de tallas
+  const [runKey, setRunKey] = useState(0);
 
   const {
     register,
@@ -131,6 +136,7 @@ const DozenForm = ({
       }
 
       reset(getDefaultDozenFormValues());
+      setRunKey((k) => k + 1);
     });
   };
 
@@ -244,6 +250,21 @@ const DozenForm = ({
           </div>
         </div>
 
+        {/* Serie de tallas: opcional, solo informativa (ficha y detalle) */}
+        <Controller
+          name="size_run"
+          control={control}
+          render={({ field }) => (
+            <SizeRunEditor
+              key={runKey}
+              value={field.value}
+              totalPairs={pairsVal ?? 12}
+              onChange={field.onChange}
+              error={errors.size_run?.message}
+            />
+          )}
+        />
+
         <OptionChips
           title="Modelo"
           name="model_id"
@@ -261,7 +282,9 @@ const DozenForm = ({
           name="size_id"
           options={options.sizes.map((s) => ({
             value: s.id,
-            label: s.description ? `${s.name} (${s.description})` : s.name,
+            label: s.name,
+            description: s.description,
+            // label: s.description ? `${s.name} <em>(${s.description})</em>` : s.name,
           }))}
           selected={watch("size_id")}
           onSelect={(value) =>
@@ -348,7 +371,14 @@ const DozenForm = ({
       </div>
 
       {/* Botón guardar */}
-      <div className="flex justify-content-end mb-5">
+      <div className="flex justify-content-end mb-5 gap-2">
+        <Link to="/production/dozens">
+          <Button
+            label="Cancelar"
+            icon="pi pi-times"
+            className="sf-btn--ink sf-btn--soft"
+          />
+        </Link>
         <Button
           type="submit"
           severity="success"

@@ -7,6 +7,7 @@ import { toast } from "@/shared/lib/toast";
 import type { Model } from "../types/model";
 import { type ModelFormData } from "../schemas/model-form.schema";
 import { Button } from "primereact/button";
+import { Loading } from "@/shared/components/Loading";
 
 export const ModelsPage = () => {
   const { models, loading, addModel, updateModel, toggleModelStatus } =
@@ -72,16 +73,7 @@ export const ModelsPage = () => {
     }
   };
 
-  if (loading) {
-    return (
-      <div
-        className="flex align-items-center justify-content-center"
-        style={{ height: "100vh" }}
-      >
-        <i className="pi pi-spin pi-spinner" style={{ fontSize: "2.5rem" }} />
-      </div>
-    );
-  }
+  if (loading) return <Loading />;
 
   return (
     <>
@@ -89,11 +81,10 @@ export const ModelsPage = () => {
         <Button
           label="Nuevo"
           icon="pi pi-plus"
-          className={`sf-btn p-button-sm`}
+          severity="success"
           onClick={() => openCreate()}
         />
       </div>
-
       <div className="grid">
         {models.map((brand) => (
           <div className="col-12 sm:col-6 md:col-4 lg:col-3" key={brand.id}>
@@ -105,7 +96,6 @@ export const ModelsPage = () => {
           </div>
         ))}
       </div>
-
       <ModelForm
         visible={isModalOpen}
         onHide={() => {
@@ -116,7 +106,6 @@ export const ModelsPage = () => {
         onSubmit={handleSubmit}
         isLoading={isSubmitting}
       />
-
       {/* Modal confirmación desactivar */}
       <ConfirmDialog
         open={isConfirmOpen}

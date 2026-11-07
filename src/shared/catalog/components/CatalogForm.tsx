@@ -1,25 +1,19 @@
 import { useEffect } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
 import { Dialog } from "primereact/dialog";
 import { Button } from "primereact/button";
 import { InputText } from "primereact/inputtext";
 import { InputTextarea } from "primereact/inputtextarea";
 import { InputSwitch } from "primereact/inputswitch";
-import type { CatalogFormData, CatalogItem } from "./../types/catalog";
-
-const schema = z.object({
-  name: z
-    .string()
-    .trim()
-    .min(1, "El nombre es obligatorio")
-    .max(100, "Máximo 100 caracteres"),
-  description: z.string(),
-  is_active: z.boolean(),
-});
-
-const EMPTY: CatalogFormData = { name: "", description: "", is_active: true };
+import type { CatalogItem } from "./../types/catalog";
+import { applyBackendErrors } from "@/shared/lib/applyBackendErrors";
+import {
+  catalogSchema,
+  getDefaultSpecialtyFormValues,
+  type CatalogFormData,
+  type CatalogFormInput,
+} from "../schema/catalogSchema";
 
 interface Props {
   item?: CatalogItem | null;
@@ -48,10 +42,11 @@ export const CatalogForm = ({
     handleSubmit,
     control,
     reset,
+    setError,
     formState: { errors },
-  } = useForm<CatalogFormData>({
-    resolver: zodResolver(schema),
-    defaultValues: EMPTY,
+  } = useForm<CatalogFormInput>({
+    resolver: zodResolver(catalogSchema),
+    defaultValues: getDefaultSpecialtyFormValues(),
   });
 
   // Al abrir: datos del registro a editar, o formulario vacío
@@ -64,13 +59,19 @@ export const CatalogForm = ({
             description: item.description ?? "",
             is_active: item.is_active ?? true,
           }
-        : EMPTY,
+        : getDefaultSpecialtyFormValues(),
     );
   }, [visible, item, reset]);
 
   // Categorías y tallas no tienen is_active: no se envía
   const submit = handleSubmit(async ({ is_active, ...data }) => {
-    await onSubmit(hasActive ? { ...data, is_active } : data);
+    try {
+      await onSubmit(
+        hasActive ? { ...data, is_active } : (data as CatalogFormData),
+      );
+    } catch (e) {
+      if (!applyBackendErrors(e, setError, data)) throw e;
+    }
   });
 
   const footer = (
@@ -154,7 +155,7 @@ export const CatalogForm = ({
                 </div>
               )}
             />
-            <small className="text-color-secondary">
+            <small style={{ color: "var(--sf-ink-2)" }} className="mt-2">
               Los inactivos dejan de ofrecerse al registrar docenas y tarifas,
               pero no se pierde el historial.
             </small>

@@ -30,7 +30,15 @@
   color: var(--sf-ink-2);
 }
 
-/* Dropdown — el trigger vive dentro del diálogo, el panel se abre por portal */
+
+.p-password .p-password-input {
+  width: 100%;
+}
+
+
+/* ============================================================
+   Dropdown — el trigger vive dentro del diálogo, el panel se abre por portal
+   ============================================================ */
 .p-dropdown {
   background: var(--sf-paper-2);
   border: 1px solid var(--sf-line);
@@ -65,7 +73,10 @@
   background: var(--sf-paper-2);
 }
 
-/* Botones del footer del formulario */
+
+/* ============================================================
+   Botones del footer del formulario
+   ============================================================ */
 .p-button.p-button-success {
   background: var(--sf-clay);
   border-color: var(--sf-clay);
@@ -84,7 +95,10 @@
   background: var(--sf-paper-2);
 }
 
-/* Panel del Dropdown — se monta en <body>, por eso va fuera de .sf-dialog */
+
+/* ============================================================
+   Panel del Dropdown — se monta en <body>, por eso va fuera de .sf-dialog
+   ============================================================ */
 .p-dropdown-panel {
   background: var(--sf-paper) !important;
   border: 1px solid var(--sf-line) !important;
@@ -112,27 +126,6 @@
   }
 }
 
-.sf-btn.p-button {
-    background: var(--sf-clay);
-    border-color: var(--sf-clay);
-    font-family: var(--sf-font-sans);
-    font-weight: 600;
-    font-size: 12.5px;
-    border-radius: 8px;
-
-    &:enabled:hover {
-        opacity: 0.9;
-        background: var(--sf-clay);
-        border-color: var(--sf-clay);
-    }
-
-    &.ghost {
-        background: transparent;
-        color: var(--sf-ink-2);
-        border-color: var(--sf-line);
-    }
-}
-
 .sf-tag {
   border-radius: 20px;
   font-weight: 500;
@@ -145,6 +138,11 @@
     color: var(--sf-amber);
   }
 
+  &.red {
+    background: var(--sf-red-light);
+    color: var(--sf-red);
+  }
+
   &.moss {
     background: var(--sf-moss-light);
     color: var(--sf-moss);
@@ -153,6 +151,21 @@
   &.clay {
     background: var(--sf-clay-light);
     color: var(--sf-clay);
+  }
+  
+  &.slate {
+    background: var(--sf-slate-light);
+    color: var(--sf-slate);
+  }
+  
+  &.plum {
+    background: var(--sf-plum-light);
+    color: var(--sf-plum);
+  }
+  
+  &.teal {
+    background: var(--sf-teal-light);
+    color: var(--sf-teal);
   }
 }
 
@@ -232,6 +245,10 @@
   background: transparent;
   border: none;
   padding: 0 0 18px;
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  gap: 1rem;
 }
 .sf-table .p-datatable-header .p-inputtext {
   background: var(--sf-paper-2);
@@ -384,11 +401,10 @@
 .sf-timeline-worker.unassigned { color: var(--sf-stone); font-style: italic; }
 .sf-timeline-meta { font-size: 11.5px; color: var(--sf-stone); margin-top: 5px; display: flex; gap: 14px; flex-wrap: wrap; align-items: center; justify-content: space-between; }
 .sf-timeline-payment { font-family: var(--sf-font-mono); font-size: 12.5px; color: var(--sf-moss); font-weight: 600; }
- 
-@media (max-width: 560px) {
-  .sf-detail-grid { grid-template-columns: 1fr; }
-}
 
+// @media (max-width: 560px) {
+//   .sf-detail-grid { grid-template-columns: 1fr; }
+// }
 
 /* ============================================================
    Form Dozen
@@ -472,11 +488,11 @@
 .sf-breadcrumb-link:hover { text-decoration: underline; }
 
 /* ============================
-   MultiSelect (sf-multiselect)
+   MultiSelect
    ============================ */
 
 /* Input / trigger box */
-.sf-multiselect.p-multiselect {
+.p-multiselect {
   background: var(--sf-paper);
   border: 1px solid var(--sf-line);
   border-radius: var(--sf-radius);
@@ -484,42 +500,42 @@
   transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }
 
-.sf-multiselect.p-multiselect:not(.p-disabled):hover {
+.p-multiselect:not(.p-disabled):hover {
   border-color: var(--sf-clay);
 }
 
-.sf-multiselect.p-multiselect.p-focus {
+.p-multiselect.p-focus {
   border-color: var(--sf-clay);
   box-shadow: 0 0 0 2px var(--sf-clay-light);
 }
 
-.sf-multiselect.p-multiselect.p-invalid.p-component {
+.p-multiselect.p-invalid.p-component {
   border-color: var(--sf-amber);
 }
 
 /* Label area (placeholder / chips text) */
-.sf-multiselect .p-multiselect-label {
+.p-multiselect .p-multiselect-label {
   color: var(--sf-ink);
   padding: 0.6rem 0.75rem;
 }
 
-.sf-multiselect .p-multiselect-label.p-placeholder {
+.p-multiselect .p-multiselect-label.p-placeholder {
   color: var(--sf-stone);
 }
 
 /* Trigger (chevron) icon */
-.sf-multiselect .p-multiselect-trigger {
+.p-multiselect .p-multiselect-trigger {
   color: var(--sf-stone);
   width: 2.5rem;
 }
 
 /* Clear ("x") icon when filter has a value */
-.sf-multiselect .p-multiselect-clear-icon {
+.p-multiselect .p-multiselect-clear-icon {
   color: var(--sf-stone);
 }
 
 /* Chips rendered inside the input when display="chip" */
-.sf-multiselect .p-multiselect-token {
+.p-multiselect .p-multiselect-token {
   background: var(--sf-clay-light);
   color: var(--sf-clay);
   border-radius: 999px;
@@ -529,12 +545,12 @@
   gap: 0.4rem;
 }
 
-.sf-multiselect .p-multiselect-token-icon {
+.p-multiselect .p-multiselect-token-icon {
   color: var(--sf-clay);
   opacity: 0.8;
 }
 
-.sf-multiselect .p-multiselect-token-icon:hover {
+.p-multiselect .p-multiselect-token-icon:hover {
   opacity: 1;
 }
 
@@ -747,11 +763,31 @@
 
 
 .p-selectbutton .p-button {
-  padding: 0.6rem 1.25rem;
-  font-size: 12.5px;
 
   &.p-highlight {
-    background: var(--sf-moss);
-    border-color: var(--sf-moss);
+    background: var(--sf-stone);
+    border-color: var(--sf-stone);
   }
+}
+
+.p-togglebutton {
+  border-radius: 6px;
+}
+
+.p-togglebutton.p-highlight .p-button {
+  background: var(--sf-moss)!important;
+}
+.p-togglebutton .p-button .p-button-icon{
+  color: #fff;
+}
+// switch
+.p-inputswitch.p-highlight .p-inputswitch-slider {
+  background: var(--sf-clay);
+}
+
+.sf-filters-panel {
+  padding: 0.5rem 0;
+  background: var(--sf-paper);
+  border: 1px solid var(--sf-stone-light);
+  border-radius: 8px;
 }

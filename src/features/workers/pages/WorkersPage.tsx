@@ -5,8 +5,8 @@ import { WorkerForm } from "../components/WorkerForm";
 import { ConfirmDialog } from "@/shared/components/ConfirmDialog";
 import type { WorkerFormData, Worker, WorkerPayload } from "../types/worker";
 import { toast } from "@/shared/lib/toast";
-import { Button } from "primereact/button";
 import { useDebounce } from "@/shared/hooks/useDebounce";
+import Loading from "@/shared/components/Loading";
 
 export const WorkersPage = () => {
   const [search, setSearch] = useState("");
@@ -85,16 +85,7 @@ export const WorkersPage = () => {
     }
   };
 
-  if (loading && !hasLoaded.current) {
-    return (
-      <div
-        className="flex align-items-center justify-content-center"
-        style={{ height: "100vh" }}
-      >
-        <i className="pi pi-spin pi-spinner" style={{ fontSize: "2.5rem" }} />
-      </div>
-    );
-  }
+  if (loading && !hasLoaded.current) return <Loading />;
 
   return (
     <>
@@ -107,6 +98,7 @@ export const WorkersPage = () => {
         totalRecords={count}
         first={(page - 1) * PAGE_SIZE}
         onPageChange={(newPage) => getPaginated(newPage)}
+        openCreate={openCreate}
       />
 
       <WorkerForm
@@ -128,20 +120,6 @@ export const WorkersPage = () => {
         description={`El trabajador "${confirmWorker?.names}" será inhabilitado.`}
         onConfirm={() => handleToggleConfirm()}
         isLoading={isToggling}
-      />
-
-      <Button
-        rounded
-        size="large"
-        severity="success"
-        icon="pi pi-plus"
-        onClick={() => openCreate()}
-        style={{
-          position: "fixed",
-          right: 24,
-          bottom: 24,
-          padding: "1.8rem 1.9rem",
-        }}
       />
     </>
   );

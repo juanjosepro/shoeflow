@@ -30,6 +30,8 @@ const EMPTY: Partial<RateFormData> = {
 
 interface Props {
   rate?: Rate | null;
+  // Crear la tarifa base de esta etapa: etapa fija y sin condiciones
+  baseFor?: number | null;
   visible: boolean;
   onHide: () => void;
   onSubmit: (data: RateFormData) => Promise<void>;
@@ -39,6 +41,7 @@ interface Props {
 
 export const RateForm = ({
   rate = null,
+  baseFor = null,
   visible,
   onHide,
   onSubmit,
@@ -69,9 +72,12 @@ export const RateForm = ({
         price: Number(rate.price),
       });
     } else {
-      reset(EMPTY);
+      reset({ ...EMPTY, specialty: baseFor ?? undefined });
     }
-  }, [visible, rate, reset]);
+  }, [visible, rate, baseFor, reset]);
+
+  // La base (la que se edita o la que se va a crear) no admite condiciones ni cambiar de etapa
+  const isBase = !!rate?.is_base || baseFor != null;
 
   // Resumen en vivo de a qué docenas se aplicaría la regla
   const values = watch();
@@ -178,8 +184,9 @@ export const RateForm = ({
 
         {/* Condiciones: todas opcionales */}
         <small className="text-color-secondary">
-          Deja una condición en "Cualquiera" si la tarifa no depende de ella.
-          Sin ninguna condición, es la tarifa general de la etapa.
+          {isBase
+            ? "Tarifa base: se aplica a cualquier docena de la etapa cuando ninguna otra tarifa aplica. Solo puedes cambiar su precio, y no se puede eliminar."
+            : 'Deja una condición en "Cualquiera" si la tarifa no depende de ella. Sin ninguna condición, es la tarifa base de la etapa.'}
         </small>
         <div className="grid">
           <div className="col-12 md:col-6">

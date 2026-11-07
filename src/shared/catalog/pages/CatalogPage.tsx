@@ -8,11 +8,9 @@ import { toast } from "./../../lib/toast";
 import { getApiError } from "../../utils/getApiError";
 import { CatalogForm } from "./../components/CatalogForm";
 import { useCatalog } from "./../hooks/useCatalog";
-import type {
-  CatalogFormData,
-  CatalogItem,
-  CatalogService,
-} from "./../types/catalog";
+import type { CatalogItem, CatalogService } from "./../types/catalog";
+import type { CatalogFormData } from "../schema/catalogSchema";
+import Loading from "@/shared/components/Loading";
 
 interface Labels {
   singular: string; // "material"
@@ -81,10 +79,11 @@ export const CatalogPage = <T extends CatalogItem>({
         toast.success(done("cread"));
       }
       setIsModalOpen(false);
-    } catch (error) {
+    } catch (e: any) {
+      if (e.response?.status === 400) throw e;
       toast.error(
         getApiError(
-          error,
+          e,
           `Error al guardar ${labels.feminine ? "la" : "el"} ${labels.singular}.`,
         ),
       );
@@ -165,7 +164,7 @@ export const CatalogPage = <T extends CatalogItem>({
   );
 
   const header = (
-    <div className="flex justify-content-start">
+    <>
       <span className="p-input-icon-left">
         <i className="pi pi-search pl-2" />
         <InputText
@@ -176,19 +175,16 @@ export const CatalogPage = <T extends CatalogItem>({
           style={{ width: "250px" }}
         />
       </span>
-    </div>
+      <Button
+        label="Nuevo"
+        icon="pi pi-plus"
+        severity="success"
+        onClick={() => openCreate()}
+      />
+    </>
   );
 
-  if (loading && !hasLoaded.current) {
-    return (
-      <div
-        className="flex align-items-center justify-content-center"
-        style={{ height: "100vh" }}
-      >
-        <i className="pi pi-spin pi-spinner" style={{ fontSize: "2.5rem" }} />
-      </div>
-    );
-  }
+  if (loading && !hasLoaded.current) return <Loading />
 
   return (
     <>
@@ -236,7 +232,7 @@ export const CatalogPage = <T extends CatalogItem>({
 
       <ConfirmDialog
         open={!!itemToDelete}
-        onOpenChange={(open) => {
+        onOpenChange={(open: boolean) => {
           if (!open) setItemToDelete(null);
         }}
         title={`¿Eliminar ${labels.singular}?`}
@@ -246,20 +242,6 @@ export const CatalogPage = <T extends CatalogItem>({
         onConfirm={handleDelete}
         isLoading={isDeleting}
         textButton="Eliminar"
-      />
-
-      <Button
-        rounded
-        size="large"
-        severity="success"
-        icon="pi pi-plus"
-        onClick={openCreate}
-        style={{
-          position: "fixed",
-          right: 24,
-          bottom: 24,
-          padding: "1.8rem 1.9rem",
-        }}
       />
     </>
   );

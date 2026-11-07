@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Button } from "primereact/button";
 import { ConfirmDialog } from "@/shared/components/ConfirmDialog";
 import { toast } from "@/shared/lib/toast";
@@ -7,7 +7,11 @@ import { useRateOptions } from "../hooks/useRateOptions";
 import { RateList } from "../components/RateList";
 import { RateForm } from "../components/RateForm";
 import RateFilters from "../components/RateFilters";
-import type { Rate, RateFormData, RateQueryParams } from "../types/rate";
+import { rateService } from "../services/rateService";
+import type { MissingBaseSpecialty, Rate, RateFormData, RateQueryParams } from "../types/rate";
+// import RateCoverageDialog from "../components/RateCoverageDialog";
+import Loading from "@/shared/components/Loading";
+import { Message } from "primereact/message";
 
 const EMPTY_FILTERS: RateQueryParams = {
   specialty: null,
@@ -49,6 +53,23 @@ export const RatesPage = () => {
   const [rateToDelete, setRateToDelete] = useState<Rate | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
 
+  // const [isCoverageOpen, setIsCoverageOpen] = useState(false);
+    // Etapas antiguas que todavía no tienen tarifa base (las nuevas la traen desde que se crean)
+  const [missingBase, setMissingBase] = useState<MissingBaseSpecialty[]>([]);
+  // Si no es null, el formulario crea la tarifa base de esa etapa
+  const [baseFor, setBaseFor] = useState<number | null>(null);
+
+  const loadMissingBase = useCallback(() => {
+    rateService
+      .getMissingBase()
+      .then(setMissingBase)
+      .catch(() => setMissingBase([])); // el aviso es de ayuda: si falla, no estorba
+  }, []);
+
+  useEffect(() => {
+    loadMissingBase();
+  }, [loadMissingBase]);
+
   // Spinner de pantalla completa solo la primera vez
   const hasLoaded = useRef(false);
   if (!loading) hasLoaded.current = true;
@@ -59,11 +80,19 @@ export const RatesPage = () => {
 
   const openCreate = () => {
     setModalRate(null);
+    setBaseFor(null);
+    setIsModalOpen(true);
+  };
+
+  const openCreateBase = (specialtyId: number) => {
+    setModalRate(null);
+    setBaseFor(specialtyId);
     setIsModalOpen(true);
   };
 
   const openEdit = (rate: Rate) => {
     setModalRate(rate);
+    setBaseFor(null);
     setIsModalOpen(true);
   };
 
@@ -78,6 +107,7 @@ export const RatesPage = () => {
         toast.success("Tarifa creada");
       }
       setIsModalOpen(false);
+      loadMissingBase();
     } catch (error) {
       toast.error(getApiError(error, "Error al guardar la tarifa."));
     } finally {
@@ -92,6 +122,7 @@ export const RatesPage = () => {
       await deleteRate(rateToDelete.id);
       toast.success("Tarifa eliminada");
       setRateToDelete(null);
+      loadMissingBase();
     } catch (error) {
       toast.error(getApiError(error, "No se pudo eliminar la tarifa."));
     } finally {
@@ -99,51 +130,42 @@ export const RatesPage = () => {
     }
   };
 
-  if (loading && !hasLoaded.current) {
-    return (
-      <div
-        className="flex align-items-center justify-content-center"
-        style={{ height: "100vh" }}
-      >
-        <i className="pi pi-spin pi-spinner" style={{ fontSize: "2.5rem" }} />
-      </div>
-    );
-  }
+  if (loading && !hasLoaded.current) return <Loading />
 
   return (
     <>
       {/* <Message
-        severity="secondary"
+        severity="info"
         className="w-full justify-content-start mb-3"
         text="Para cada docena se usa la tarifa más específica que le corresponda (la que cumple más condiciones). Si hay empate, pesa más material, luego planta, luego talla y luego modelo. Si ninguna aplica, la docena no se puede asignar."
       /> */}
-      <div className="card flex justify-content-between mb-4">
-        <div>
-          <Button
-            icon="pi pi-question"
-            rounded
-            aria-label="Bookmark"
-            size="small"
-            className="p-0"
-            style={{
-              width: "24px",
-              height: "24px",
-              background: "var(--sf-moss-light)",
-              borderColor: "var(--sf-moss-light)",
-              color: "var(--sf-moss)",
-            }}
-            tooltip="Para cada docena se usa la tarifa más específica que le corresponda (la que cumple más condiciones). Si hay empate, pesa más material, luego planta, luego talla y luego modelo. Si ninguna aplica, la docena no se puede asignar."
-          />
-        </div>
-        <div>
-          <Button
-            label="Nuevo"
-            icon="pi pi-plus"
-            className="sf-btn p-button-sm"
-            onClick={openCreate}
-          />
-        </div>
-      </div>
+
+      {/* Etapas antiguas sin base: sin ella, una docena que no cumpla otra tarifa no se podría asignar */}
+      {missingBase.length > 0 && (
+        <Message
+          severity="warn"
+          className="w-full justify-content-start mb-3"
+          content={
+            <div className="flex flex-column gap-2">
+              <span style={{ color: "#765016" }}>
+                {missingBase.length === 1 ? "Esta etapa no tiene" : "Estas etapas no tienen"} tarifa base. Sin ella,
+                las docenas que no cumplan otra tarifa no se podrán asignar.
+              </span>
+              <div className="flex flex-wrap gap-2">
+                {missingBase.map((specialty) => (
+                  <Button
+                    key={specialty.id}
+                    label={`Crear base de ${specialty.name}`}
+                    icon="pi pi-plus"
+                    className="p-button-sm sf-btn--amber sf-btn--soft"
+                    onClick={() => openCreateBase(specialty.id)}
+                  />
+                ))}
+              </div>
+            </div>
+          }
+        />
+      )}
 
       <RateList
         rates={rates}
@@ -157,6 +179,7 @@ export const RatesPage = () => {
             }
             clearFilters={() => setFilters(EMPTY_FILTERS)}
             hasActiveFilters={hasActiveFilters}
+            openCreate={openCreate}
           />
         }
         onEdit={openEdit}
@@ -173,10 +196,13 @@ export const RatesPage = () => {
           setIsModalOpen(false);
         }}
         rate={modalRate}
+        baseFor={baseFor}
         onSubmit={handleSubmit}
         isLoading={isSubmitting}
         options={options}
       />
+
+      {/* <RateCoverageDialog visible={isCoverageOpen} onHide={() => setIsCoverageOpen(false)} /> */}
 
       <ConfirmDialog
         open={!!rateToDelete}

@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import {
   getDozenMetadata,
   type DozenMetadata,
-} from "@/shared/services/metadata.service";
+} from "@/shared/services/metadataService";
 
 export function useDozenMetadata() {
   const [metadata, setMetadata] = useState<DozenMetadata | null>(null);

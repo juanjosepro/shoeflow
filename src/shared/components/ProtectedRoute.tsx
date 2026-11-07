@@ -6,8 +6,11 @@ export const AdminRoute = ({ children }) => {
 
   if (loading) {
     return (
-      <div className="flex h-screen w-full items-center justify-center">
-        <i className="pi pi-spin pi-spinner text-primary" style={{ fontSize: '2.5rem' }} />
+      <div
+        className="flex align-items-center justify-content-center"
+        style={{ height: "100vh" }}
+      >
+        <i className="pi pi-spin pi-spinner" style={{ fontSize: "2.5rem" }} />
       </div>
     );
   }

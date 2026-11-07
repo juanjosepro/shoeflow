@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import api from "@/shared/lib/axios";
-import type { Size } from "@/shared/types";
+import type { CatalogItem } from "@/shared/catalog/types/catalog";
 import type { CatalogOptions, ColorOption, NamedOption, StageOption } from "@/features/dozens/types/dozen";
 
 const EMPTY_OPTIONS: CatalogOptions = {
@@ -25,7 +25,7 @@ export const useCatalogOptions = () => {
           api.get<NamedOption[]>(`catalog/material-types/${QUERY}`),
           api.get<ColorOption[]>(`catalog/colors/${QUERY}`),
           api.get<NamedOption[]>(`catalog/plant-types/${QUERY}`),
-          api.get<Size[]>("catalog/sizes/?no_pagination=true"),
+          api.get<CatalogItem[]>("catalog/sizes/?no_pagination=true"),
           api.get<StageOption[]>("staff/specialties/?is_active=true&no_pagination=true")
         ]);
         setOptions({

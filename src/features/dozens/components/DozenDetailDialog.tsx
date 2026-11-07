@@ -8,7 +8,7 @@ import { Button } from "primereact/button";
 import { Dialog } from "primereact/dialog";
 
 interface Props {
-  dozen: Dozen | null;
+  dozen: Dozen | null;  
   stages: StageOption[]; // etapas activas de la fábrica (especialidades activas)
   visible: boolean;
   onHide: () => void;
@@ -166,6 +166,18 @@ const DozenDetailDialog = ({ dozen, stages, visible, onHide }: Props) => {
               <p className="sf-detail-value">{quantityLabel}</p>
             </div>
 
+            {dozen.size_run && Object.keys(dozen.size_run).length > 0 && (
+              <div className="full">
+                <p className="sf-detail-label">Serie de tallas</p>
+                <p className="sf-detail-value mono">
+                  {Object.entries(dozen.size_run)
+                    .sort(([a], [b]) => Number(a) - Number(b))
+                    .map(([size, pairs]) => `${pairs}×${size}`)
+                    .join(" · ")}
+                </p>
+              </div>
+            )}
+
             <div>
               <p className="sf-detail-label">Registrado el</p>
               <p className="sf-detail-value">
@@ -191,7 +203,10 @@ const DozenDetailDialog = ({ dozen, stages, visible, onHide }: Props) => {
               );
 
               const statusClass = getStatusClass(assignment);
-
+              const excludes = (stage as { excludes?: number[] }).excludes ?? [];
+              const notApplicable =
+                !assignment &&
+                (dozen.assignments ?? []).some((a) => excludes.includes(a.specialty.id));
               return (
                 <div className="sf-timeline-item" key={stage.id}>
                   <span className={`sf-stage-icon ${statusClass}`}>
@@ -216,7 +231,8 @@ const DozenDetailDialog = ({ dozen, stages, visible, onHide }: Props) => {
                         !assignment ? "unassigned" : ""
                       }`}
                     >
-                      {assignment?.worker?.names || "Sin asignar todavía"}
+                      {assignment?.worker?.names ||
+                        (notApplicable ? "No aplica" : "Sin asignar todavía")}
                     </p>
 
                     {assignment && (

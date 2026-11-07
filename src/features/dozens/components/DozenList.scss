@@ -1,0 +1,125 @@
+.dozen-row {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    align-items: start;
+    gap: 14px;
+    padding: 12px 18px;
+  
+    &-leading {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+  
+    &-number {
+      font-size: 12px;
+      color: var(--sf-stone);
+      font-weight: 600;
+    }
+  
+    &-color {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+  
+    &-main {
+      min-width: 0;
+    }
+  
+    &-title {
+      font-size: 13.5px;
+      font-weight: 500;
+      cursor: pointer;
+    }
+  
+    &-code {
+      font-size: 12px;
+      color: var(--sf-stone);
+      font-weight: 400;
+    }
+  
+    &-details {
+      font-size: 12px;
+      color: var(--sf-stone);
+    }
+  
+    &-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-shrink: 0;
+    }
+  }
+
+@media (max-width: 640px) {
+    .dozen-row {
+        grid-template-columns: auto minmax(0, 1fr);
+        gap: 8px 10px;
+        padding: 12px 8px;
+
+        &-leading {
+        grid-column: 1;
+        grid-row: 1;
+        }
+
+        &-main {
+        grid-column: 2;
+        grid-row: 1;
+        }
+
+        &-actions {
+        grid-column: 2;
+        grid-row: 2;
+        flex-wrap: wrap;
+        justify-content: space-between;
+        gap: 6px;
+        }
+
+        &-details {
+        line-height: 1.5;
+        overflow-wrap: break-word;
+        }
+    }
+}
+
+.sf-chip-scroll-2 {
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding: 8px 2px;
+    width: 100%;
+  
+    // Contenedor interno de PrimeReact
+    .p-selectbutton {
+      display: flex;
+      flex-wrap: nowrap;
+      width: max-content;
+      white-space: nowrap;
+    }
+  
+    // Evita que los botones se reduzcan o salten de línea
+    .p-button {
+      flex: 0 0 auto;
+      white-space: nowrap;
+    }
+  
+    // Ocultar scrollbar (opcional)
+    scrollbar-width: none;
+  
+    &::-webkit-scrollbar {
+      display: none;
+    }
+  }
+
+  @media screen and (min-width: 768px) {
+    .md-order-2 {
+      order: 2;
+    }
+  
+    .md-order-3 {
+      order: 3;
+    }
+  }

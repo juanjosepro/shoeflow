@@ -12,7 +12,7 @@ export const useModels = ({ noPagination = false } = {}) => {
       const data = await modelService.getAll(noPagination);
       setModels(data);
     } finally {
-      setLoading(false);
+        setLoading(false);
     }
   };
 

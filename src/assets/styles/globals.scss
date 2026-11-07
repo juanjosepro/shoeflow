@@ -16,3 +16,170 @@
   color: var(--sf-clay) !important;
   font-weight: 700;
 }
+
+/* ============================================================
+   BOTONES DE COLOR — usan solo tus tokens --sf-*, así que siguen solos el tema oscuro/claro.
+   Requiere sf-colors-new.scss (slate, plum, teal, amber-deep).
+
+     <Button label="Pagar"    className="sf-btn--moss" />                      sólido
+     <Button label="Imprimir" className="sf-btn--slate sf-btn--soft" />          suave
+     <Button label="Rechazar" className="sf-btn--red sf-btn--outline" />         con borde
+
+   Colores: clay, moss, amber, red (los tuyos) + slate, plum, teal (nuevos) + ink (neutro).
+   ============================================================ */
+
+   .p-button {
+      font-family: var(--sf-font-sans);
+      font-weight: 600;
+      font-size: 12.5px;
+  }
+   .p-button.sf-btn--clay {
+    --c: var(--sf-clay);
+    --c-text: var(--sf-clay);
+    --c-tint: var(--sf-clay-light);
+  }
+  .p-button.sf-btn--moss {
+    --c: var(--sf-moss);
+    --c-text: var(--sf-moss);
+    --c-tint: var(--sf-moss-light);
+  }
+  .p-button.sf-btn--amber {
+    --c: var(--sf-amber-deep);
+    --c-text: var(--sf-amber-deep);
+    --c-tint: var(--sf-amber-light);
+  }
+  .p-button.sf-btn--red {
+    --c: var(--sf-red-dark);
+    --c-text: var(--sf-red-dark);
+    --c-tint: var(--sf-red-light);
+  }
+  .p-button.sf-btn--slate {
+    --c: var(--sf-slate);
+    --c-text: var(--sf-slate);
+    --c-tint: var(--sf-slate-light);
+  }
+  .p-button.sf-btn--plum {
+    --c: var(--sf-plum);
+    --c-text: var(--sf-plum);
+    --c-tint: var(--sf-plum-light);
+  }
+  .p-button.sf-btn--teal {
+    --c: var(--sf-teal);
+    --c-text: var(--sf-teal);
+    --c-tint: var(--sf-teal-light);
+  }
+  .p-button.sf-btn--ink {
+    --c: var(--sf-ink);
+    --c-text: var(--sf-ink);
+    --c-tint: var(--sf-paper-2);
+  }
+  
+  /* El rojo sólido: en oscuro usa el tono claro (--sf-red-dark) para que la letra se lea;
+     en claro, tu --sf-red normal. */
+  :root[data-theme="light"] .p-button.sf-btn--red {
+    --c: var(--sf-red);
+  }
+  
+  /* ── Sólido (por defecto) ───────────────────────────────── */
+  .p-button.sf-btn--clay,
+  .p-button.sf-btn--moss,
+  .p-button.sf-btn--amber,
+  .p-button.sf-btn--red,
+  .p-button.sf-btn--slate,
+  .p-button.sf-btn--plum,
+  .p-button.sf-btn--teal,
+  .p-button.sf-btn--ink {
+    background: var(--c);
+    border-color: var(--c);
+    color: var(--sf-paper);
+  }
+  .p-button.sf-btn--clay:enabled:hover,
+  .p-button.sf-btn--moss:enabled:hover,
+  .p-button.sf-btn--amber:enabled:hover,
+  .p-button.sf-btn--red:enabled:hover,
+  .p-button.sf-btn--slate:enabled:hover,
+  .p-button.sf-btn--plum:enabled:hover,
+  .p-button.sf-btn--teal:enabled:hover,
+  .p-button.sf-btn--ink:enabled:hover {
+    background: color-mix(in srgb, var(--c) 86%, var(--sf-ink));
+    border-color: color-mix(in srgb, var(--c) 86%, var(--sf-ink));
+    color: var(--sf-paper);
+  }
+  
+  /* ── Suave: fondo tenue (el mismo estilo que tus .sf-tag) ── */
+  .p-button.sf-btn--clay.sf-btn--soft,
+  .p-button.sf-btn--moss.sf-btn--soft,
+  .p-button.sf-btn--amber.sf-btn--soft,
+  .p-button.sf-btn--red.sf-btn--soft,
+  .p-button.sf-btn--slate.sf-btn--soft,
+  .p-button.sf-btn--plum.sf-btn--soft,
+  .p-button.sf-btn--teal.sf-btn--soft,
+  .p-button.sf-btn--ink.sf-btn--soft {
+    background: var(--c-tint);
+    border-color: transparent;
+    color: var(--c-text);
+  }
+  .p-button.sf-btn--clay.sf-btn--soft:enabled:hover,
+  .p-button.sf-btn--moss.sf-btn--soft:enabled:hover,
+  .p-button.sf-btn--amber.sf-btn--soft:enabled:hover,
+  .p-button.sf-btn--red.sf-btn--soft:enabled:hover,
+  .p-button.sf-btn--slate.sf-btn--soft:enabled:hover,
+  .p-button.sf-btn--plum.sf-btn--soft:enabled:hover,
+  .p-button.sf-btn--teal.sf-btn--soft:enabled:hover,
+  .p-button.sf-btn--ink.sf-btn--soft:enabled:hover {
+    background: color-mix(in srgb, var(--c) 16%, var(--c-tint));
+    border-color: transparent;
+    color: var(--c-text);
+  }
+  
+  /* ── Con borde ──────────────────────────────────────────── */
+  .p-button.sf-btn--clay.sf-btn--outline,
+  .p-button.sf-btn--moss.sf-btn--outline,
+  .p-button.sf-btn--amber.sf-btn--outline,
+  .p-button.sf-btn--red.sf-btn--outline,
+  .p-button.sf-btn--slate.sf-btn--outline,
+  .p-button.sf-btn--plum.sf-btn--outline,
+  .p-button.sf-btn--teal.sf-btn--outline,
+  .p-button.sf-btn--ink.sf-btn--outline {
+    background: transparent;
+    border-color: var(--c);
+    color: var(--c-text);
+  }
+  .p-button.sf-btn--clay.sf-btn--outline:enabled:hover,
+  .p-button.sf-btn--moss.sf-btn--outline:enabled:hover,
+  .p-button.sf-btn--amber.sf-btn--outline:enabled:hover,
+  .p-button.sf-btn--red.sf-btn--outline:enabled:hover,
+  .p-button.sf-btn--slate.sf-btn--outline:enabled:hover,
+  .p-button.sf-btn--plum.sf-btn--outline:enabled:hover,
+  .p-button.sf-btn--teal.sf-btn--outline:enabled:hover,
+  .p-button.sf-btn--ink.sf-btn--outline:enabled:hover {
+    background: var(--c-tint);
+    border-color: var(--c);
+    color: var(--c-text);
+  }
+  
+  /* ── Foco con teclado ───────────────────────────────────── */
+  .p-button.sf-btn--clay:focus-visible,
+  .p-button.sf-btn--moss:focus-visible,
+  .p-button.sf-btn--amber:focus-visible,
+  .p-button.sf-btn--red:focus-visible,
+  .p-button.sf-btn--slate:focus-visible,
+  .p-button.sf-btn--plum:focus-visible,
+  .p-button.sf-btn--teal:focus-visible,
+  .p-button.sf-btn--ink:focus-visible {
+    box-shadow: none;
+    outline: 2px solid var(--c);
+    outline-offset: 2px;
+  }
+
+.hide-for-mobile {
+  @media (max-width: 599.99px) {
+    display: none!important
+  }
+}
+
+.hide-for-tablet {
+  @media (min-width: 600px) {
+    display: none!important
+  }
+}

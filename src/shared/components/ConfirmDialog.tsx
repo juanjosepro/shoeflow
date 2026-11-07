@@ -8,7 +8,7 @@ export const ConfirmDialog = ({
   description,
   onConfirm,
   isLoading,
-  textButton,
+  textButton = "Desactivar",
 }) => {
   const footerContent = (
     <div className="flex justify-content-end">
@@ -27,7 +27,7 @@ export const ConfirmDialog = ({
         onClick={onConfirm}
         disabled={isLoading}
       >
-        {textButton || "Desactivar"}
+        {textButton}
       </Button>
     </div>
   );

@@ -10,6 +10,7 @@ import { dozenService } from "../services/dozenService";
 import type { Dozen } from "../types/dozen";
 import type { DozenFormData, DozenPayload } from "../schemas/dozenSchema";
 import { useDozenMetadata } from "@/shared/hooks/useDozenMetadata";
+import Loading from "@/shared/components/Loading";
 
 // La fecha viaja como texto ISO; el resto del formulario va igual
 const toPayload = (data: DozenFormData): DozenPayload => ({
@@ -83,17 +84,7 @@ export const DozensFormPage = () => {
   };
 
   if (dozenLoading) {
-    return (
-      <div
-        className="flex align-items-center justify-content-center"
-        style={{ height: "100vh" }}
-      >
-        <i
-          className="pi pi-spin pi-spinner"
-          style={{ fontSize: "2.5rem", color: "var(--sf-clay)" }}
-        />
-      </div>
-    );
+    return <Loading />;
   }
 
   return (

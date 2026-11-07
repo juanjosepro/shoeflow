@@ -27,6 +27,9 @@ export const dozenSchema = z.object({
     .min(1, "Mínimo 1 par")
     .max(12, "Máximo 12 pares"),
 
+  // Serie de tallas opcional: { "38": 2, "39": 3 } (talla -> pares). Si existe, debe sumar los pares.
+  size_run: z.record(z.string(), z.number().int().min(1)).nullable().optional(),
+
   model_id: requiredId("El modelo es requerido"),
   size_id: requiredId("La talla es requerida"),
   material_type_id: requiredId("El material es requerido"),
@@ -40,6 +43,17 @@ export const dozenSchema = z.object({
   is_active: z.boolean().default(true),
 
   status: z.string().default("PENDIENTE"),
+}).superRefine((data, ctx) => {
+  const run = data.size_run;
+  if (!run || Object.keys(run).length === 0) return;
+  const total = Object.values(run).reduce((sum, n) => sum + n, 0);
+  if (total !== data.pairs) {
+    ctx.addIssue({
+      code: "custom",
+      path: ["size_run"],
+      message: `La serie suma ${total} pares y la docena tiene ${data.pairs}.`,
+    });
+  }
 });
 
 export type DozenFormInput = z.input<typeof dozenSchema>;
@@ -54,6 +68,7 @@ export const getDefaultDozenFormValues = (): DozenFormInput => ({
   registered_at: new Date(),
   count: 1,
   pairs: 12,
+  size_run: null,
   model_id: null,
   size_id: null,
   material_type_id: null,

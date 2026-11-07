@@ -200,12 +200,24 @@ const DozenListTable = ({
   );
 
   const sizeTemplate = (rowData: Dozen) => (
-    <span>
-      {rowData.size.name}{" "}
-      <small style={{ color: "var(--sf-stone)" }}>
-        ({rowData.size.description})
-      </small>
-    </span>
+    <div className="flex flex-column gap-2">
+      <span>
+        {rowData.size.name}{" "}
+        <small style={{ color: "var(--sf-stone)" }}>
+          ({rowData.size.description})
+        </small>
+      </span>
+  
+      {rowData.size_run && (
+        <div className="flex flex-wrap gap-1">
+          {Object.entries(rowData.size_run).map(([size, quantity]) => (
+            <span key={size} className="sf-tag clay">
+              {quantity}x{size}
+            </span>
+          ))}
+        </div>
+      )}
+    </div>
   );
 
   /*
@@ -269,7 +281,7 @@ const DozenListTable = ({
         <Column
           header="Talla"
           body={sizeTemplate}
-          style={{ minWidth: "10rem" }}
+          style={{ minWidth: "12rem" }}
         />
 
         <Column

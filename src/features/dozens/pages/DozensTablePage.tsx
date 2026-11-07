@@ -51,7 +51,7 @@ export const DozensTablePage = () => {
   return (
     <>
       <div className="flex align-items-center justify-content-end pb-4">
-        <div className="flex align-items-center gap-3 pr-3">
+        {/* <div className="flex align-items-center gap-3 pr-3">
           <Dropdown
             value={selectedOption}
             onChange={(e) => setSelectedOption(e.value)}
@@ -62,14 +62,14 @@ export const DozensTablePage = () => {
             itemTemplate={optionTemplate}
             className="w-full"
           />
-        </div>
-        <Link to="/production/dozens/new">
+        </div> */}
+        {/* <Link to="/production/dozens/new">
           <Button
             label="Nuevo"
             icon="pi pi-plus"
-            className="sf-btn p-button-sm"
+            severity="success"
           />
-        </Link>
+        </Link> */}
       </div>
 
       <DozenListTable

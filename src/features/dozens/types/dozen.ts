@@ -1,4 +1,4 @@
-import type { Size } from "@/shared/types";
+import type { CatalogItem } from "@/shared/catalog/types/catalog";
 
 // --- Piezas que vienen anidadas dentro de una docena ------------------------
 
@@ -41,11 +41,12 @@ export interface Dozen {
   code: string;
   created_at: string;
   model: ModelBasic;
-  size: Size;
+  size: CatalogItem;
   material_type: NamedOption;
   color: ColorOption;
   plant_type: NamedOption;
   pairs: number; // 1 a 12
+  size_run?: Record<string, number> | null;
   fraction: string; // pares / 12, ej. "0.5000"
   priority: string;
   status: string;
@@ -97,7 +98,7 @@ export interface CatalogOptions {
   materialTypes: NamedOption[];
   colors: ColorOption[];
   plantTypes: NamedOption[];
-  sizes: Size[];
+  sizes: CatalogItem[];
   specialties: StageOption[];
 }
 
@@ -122,6 +123,8 @@ export interface StageRow {
   missing_rate: boolean;
   workers: StageWorkerOption[];
   assignment: StageAssignmentInfo | null;
+  excludes?: number[];
+  not_applicable?: boolean;
 }
 export interface AssignStagesPayload {
   assignments: {

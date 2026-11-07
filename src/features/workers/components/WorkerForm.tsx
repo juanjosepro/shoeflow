@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
 import { Dialog } from "primereact/dialog";
 import { Button } from "primereact/button";
 import { MultiSelect } from "primereact/multiselect";
@@ -10,30 +9,12 @@ import { InputNumber } from "primereact/inputnumber";
 import api from "@/shared/lib/axios";
 import type { Worker, Specialty } from "../types/worker";
 import { InputSwitch } from "primereact/inputswitch";
-
-const schema = z.object({
-  specialties_ids: z.array(z.number()),
-  names: z.string().min(1, "El nombre es obligatorio"),
-  dni: z.string().min(8, "El DNI es obligatorio"),
-  phone: z.string().optional().or(z.literal("")),
-  address: z.string().optional().or(z.literal("")),
-  email: z.string().email("Email inválido").optional().or(z.literal("")),
-  password: z
-    .string()
-    .min(6, "La contraseña debe tener al menos 6 caracteres")
-    .optional()
-    .or(z.literal("")),
-  is_active: z.boolean(),
-  // Extra por docena de cada etapa, por id de especialidad (vacío o 0 = sin extra; puede ser negativo)
-  extras: z.record(z.string(), z.number().nullable()),
-});
-
-type FormData = z.infer<typeof schema>;
-
-// Lo que el formulario entrega: los extras ya en el formato del backend
-export type WorkerSubmitData = Omit<FormData, "extras"> & {
-  specialty_extras: { specialty: number; extra_price: number }[];
-};
+import {
+  getDefaultWorkerFormValues,
+  workerSchema,
+  type WorkerFormData,
+  type WorkerSubmitData,
+} from "../schemas/workerSchema";
 
 interface Props {
   worker?: Worker | null;
@@ -60,19 +41,9 @@ export const WorkerForm = ({
     reset,
     watch,
     formState: { errors },
-  } = useForm<FormData>({
-    resolver: zodResolver(schema),
-    defaultValues: {
-      specialties_ids: [],
-      names: "",
-      dni: "",
-      phone: "",
-      address: "",
-      email: "",
-      password: "",
-      is_active: true,
-      extras: {},
-    },
+  } = useForm<WorkerFormData>({
+    resolver: zodResolver(workerSchema),
+    defaultValues: getDefaultWorkerFormValues(),
   });
 
   useEffect(() => {
@@ -85,7 +56,7 @@ export const WorkerForm = ({
 
       try {
         const response = await api.get<Specialty[]>(
-          "staff/specialties/?no_pagination=true",
+          "staff/specialties/?no_pagination=true&is_active=true",
         );
 
         setSpecialties(response.data);
@@ -100,6 +71,7 @@ export const WorkerForm = ({
   }, [visible]);
 
   useEffect(() => {
+    if (!visible) return;
     if (worker) {
       reset({
         specialties_ids: worker.specialties.map((specialty) => specialty.id),
@@ -118,19 +90,9 @@ export const WorkerForm = ({
         ),
       });
     } else {
-      reset({
-        specialties_ids: [],
-        names: "",
-        dni: "",
-        phone: "",
-        address: "",
-        email: "",
-        password: "",
-        is_active: true,
-        extras: {},
-      });
+      reset(getDefaultWorkerFormValues());
     }
-  }, [worker, reset]);
+  }, [visible, worker, reset]);
 
   // Etapas elegidas ahora mismo: de ellas salen las filas de extra
   const selectedIds = watch("specialties_ids");
@@ -214,7 +176,7 @@ export const WorkerForm = ({
                   placeholder="Seleccione una o varias especialidades"
                   display="chip"
                   filter
-                  className="sf-multiselect w-full"
+                  className="w-full"
                   invalid={!!errors.specialties_ids}
                   maxSelectedLabels={3}
                   selectedItemsLabel="{0} especialidades seleccionadas"
@@ -350,7 +312,11 @@ export const WorkerForm = ({
               name="email"
               control={control}
               render={({ field }) => (
-                <InputText {...field} invalid={!!errors.email} />
+                <InputText
+                  {...field}
+                  invalid={!!errors.email}
+                  autoComplete="off"
+                />
               )}
             />
             {errors.email && (
@@ -360,7 +326,7 @@ export const WorkerForm = ({
 
           {/* Contraseña */}
           <div className="flex flex-column gap-1">
-            <label className="font-bold">Contraseña</label>
+            <label className="font-bold">PIN</label>
             <Controller
               name="password"
               control={control}
@@ -369,6 +335,7 @@ export const WorkerForm = ({
                   {...field}
                   type="password"
                   invalid={!!errors.password}
+                  autoComplete="off"
                 />
               )}
             />

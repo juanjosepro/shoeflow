@@ -3,13 +3,8 @@ import { useForm, useFieldArray, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import api from "@/shared/lib/axios";
 import { modelService } from "../services/modelService";
-import type {
-  Model,
-  ModelSizeRate,
-  SizeOption,
-  SpecialtyOption,
-} from "../types/model";
-import type { Category } from "@/shared/types";
+import type { Model, ModelSizeRate } from "../types/model";
+import type { CatalogItem } from "@/shared/catalog/types/catalog";
 import {
   modelSchema,
   getDefaultModelFormValues,
@@ -25,6 +20,7 @@ import { InputTextarea } from "primereact/inputtextarea";
 import { InputNumber } from "primereact/inputnumber";
 import { Accordion, AccordionTab } from "primereact/accordion";
 import { Divider } from "primereact/divider";
+import type { Specialty } from "@/features/specialties/types/specialty";
 
 interface Props {
   model?: Model | null;
@@ -41,10 +37,9 @@ export const ModelForm = ({
   onSubmit,
   isLoading,
 }: Props) => {
-  // Catálogos que alimentan el formulario
-  const [categories, setCategories] = useState<Category[]>([]);
-  const [specialties, setSpecialties] = useState<SpecialtyOption[]>([]);
-  const [sizes, setSizes] = useState<SizeOption[]>([]);
+  const [categories, setCategories] = useState<CatalogItem[]>([]);
+  const [specialties, setSpecialties] = useState<Specialty[]>([]);
+  const [sizes, setSizes] = useState<CatalogItem[]>([]);
 
   const [loadingData, setLoadingData] = useState(true); // catálogos
   const [loadingDetail, setLoadingDetail] = useState(false); // precios del modelo a editar
@@ -66,18 +61,25 @@ export const ModelForm = ({
 
   // Una fila por cada combinación especialidad + talla: { specialty, size, price }
   const { fields } = useFieldArray({ control, name: "size_rates" });
+
   const rates = watch("size_rates");
 
   // 1. Cargar catálogos una sola vez
   useEffect(() => {
+    if (!visible) return;
+
     const load = async () => {
       try {
         const [catsRes, specsRes, sizesRes] = await Promise.all([
-          api.get<Category[]>("catalog/categories/?no_pagination=true"),
-          api.get<SpecialtyOption[]>(
+          api.get<CatalogItem[]>(
+            "catalog/categories/?is_active=true&no_pagination=true",
+          ),
+          api.get<Specialty[]>(
             "staff/specialties/?is_active=true&no_pagination=true",
           ),
-          api.get<SizeOption[]>("catalog/sizes/?no_pagination=true"),
+          api.get<CatalogItem[]>(
+            "catalog/sizes/?is_active=true&no_pagination=true",
+          ),
         ]);
         setCategories(catsRes.data);
         setSpecialties(specsRes.data);
@@ -87,7 +89,7 @@ export const ModelForm = ({
       }
     };
     load();
-  }, []);
+  }, [visible]);
 
   // 2. Cada vez que se abre el formulario, armar sus valores
   useEffect(() => {
@@ -207,7 +209,7 @@ export const ModelForm = ({
         <div className="flex flex-column gap-3 pt-2">
           {/* Categoría */}
           <div className="flex flex-column gap-1">
-            <label className="font-bold">Línea de Calzado</label>
+            <label className="font-bold">Línea de Calzado *</label>
             <Controller
               name="category_id"
               control={control}
@@ -230,7 +232,7 @@ export const ModelForm = ({
 
           {/* Nombre */}
           <div className="flex flex-column gap-1">
-            <label className="font-bold">Nombre</label>
+            <label className="font-bold">Nombre *</label>
             <InputText
               {...register("name")}
               invalid={!!errors.name}
@@ -244,7 +246,7 @@ export const ModelForm = ({
 
           {/* Codigo de serie */}
           <div className="flex flex-column gap-1">
-            <label className="font-bold">Codigo de serie</label>
+            <label className="font-bold">Codigo de serie *</label>
             <Controller
               name="code_prefix"
               control={control}
@@ -284,7 +286,10 @@ export const ModelForm = ({
             <Divider className="sf-divider" align="left">
               <div className="inline-flex align-items-center">
                 <i className="pi pi-tag mr-2"></i>
-                <b>Precios por especialidad y talla</b>
+                <b>
+                  Precios por especialidad y talla{" "}
+                  <strong className="text-orange-300">(Opcional)</strong>
+                </b>
               </div>
             </Divider>
             <small className="mb-4" style={{ color: "var(--sf-ink-2)" }}>
@@ -330,10 +335,8 @@ export const ModelForm = ({
                           label="Igualar todas las tallas"
                           icon="pi pi-copy"
                           size="small"
-                          style={{
-                            color: "var(--sf-moss)",
-                          }}
                           text
+                          className="sf-btn--slate sf-btn--soft"
                           onClick={() => copyFirstPriceToAllSizes(specialty.id)}
                         />
                       </div>

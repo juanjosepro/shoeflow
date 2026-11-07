@@ -1,3 +1,4 @@
+import { useState } from "react";
 import type { Model } from "@/features/models/types/model";
 import useMediaQuery from "@/shared/hooks/useMediaQuery";
 
@@ -11,6 +12,7 @@ import type {
   DozenMetadata,
   DozenQueryParams,
 } from "../types/dozen";
+import { Link } from "react-router-dom";
 
 type FilterField =
   | "model"
@@ -69,126 +71,175 @@ const DozenTableFilters = ({
 }: Props) => {
   const isLaptopUp = useMediaQuery("(min-width: 1024px)");
 
+  // Cuenta únicamente los filtros, no el buscador.
+const activeFilterCount = [
+  queryParams.model,
+  queryParams.size,
+  queryParams.material_type,
+  queryParams.color,
+  queryParams.plant_type,
+  queryParams.priority,
+  queryParams.status,
+].filter((value) => value !== undefined && value !== null && value !== "")
+  .length;
+
+  const [showFilters, setShowFilters] = useState(activeFilterCount > 0);
+
   return (
-    <div className="sf-table-header">
-      <div className="flex align-items-center gap-2 flex-wrap">
-        {/* SEARCH */}
-        <span className="p-input-icon-left block">
-          <i className="pi pi-search pl-2" />
-
-          <InputText
-            value={queryParams.search}
-            onChange={(e) => onSearchChange(e.target.value)}
-            placeholder="ej. AIR-0012"
-            className="sf-search-input pl-5 w-full"
-          />
-        </span>
-
-        {/* MODEL */}
-        <Dropdown
-          value={queryParams.model}
-          options={models}
-          optionLabel="name"
-          optionValue="id"
-          onChange={(e) => onFilterChange("model", e.value)}
-          placeholder="Modelo"
-          showClear
-          className="sf-filter"
-        />
-
-        {/* SIZE */}
-        <Dropdown
-          value={queryParams.size}
-          options={options.sizes}
-          optionLabel="name"
-          optionValue="id"
-          onChange={(e) => onFilterChange("size", e.value)}
-          placeholder="Talla"
-          showClear
-          className="sf-filter"
-        />
-
-        {/* MATERIAL */}
-        <Dropdown
-          value={queryParams.material_type}
-          options={options.materialTypes}
-          optionLabel="name"
-          optionValue="id"
-          onChange={(e) => onFilterChange("material_type", e.value)}
-          placeholder="Material"
-          showClear
-          className="sf-filter"
-        />
-
-        {/* COLOR */}
-        <Dropdown
-          value={queryParams.color}
-          options={options.colors}
-          optionLabel="name"
-          optionValue="id"
-          onChange={(e) => onFilterChange("color", e.value)}
-          placeholder="Color"
-          itemTemplate={(color: ColorOption) => colorTemplate(color)}
-          valueTemplate={(color: ColorOption | null, props) =>
-            colorTemplate(color, props.placeholder)
-          }
-          showClear
-          className="sf-filter"
-        />
-
-        {/* TYPE OF PLANT */}
-        <Dropdown
-          value={queryParams.plant_type}
-          options={options.plantTypes}
-          optionLabel="name"
-          optionValue="id"
-          onChange={(e) => onFilterChange("plant_type", e.value)}
-          placeholder="Planta"
-          showClear
-          className="sf-filter"
-        />
-
-        {/* PRIORITY */}
-        <Dropdown
-          value={queryParams.priority}
-          options={metadata?.priorities ?? []}
-          optionLabel="label"
-          optionValue="key"
-          onChange={(e) => onFilterChange("priority", e.value)}
-          placeholder="Prioridad"
-          showClear
-          className="sf-filter"
-        />
-
-        {/* STATUS */}
-        <Dropdown
-          value={queryParams.status}
-          options={metadata?.statuses ?? []}
-          optionLabel="label"
-          optionValue="key"
-          onChange={(e) => onFilterChange("status", e.value)}
-          placeholder="Estado"
-          showClear
-          className="sf-filter"
-        />
-
-        {/* CLEAR */}
-        {hasActiveFilters && (
+    <div className="flex flex-column gap-3 w-full">
+  
+      {/* TOOLBAR */}
+      <div className="flex align-items-center justify-content-between flex-wrap gap-2">
+  
+        <div className="flex align-items-center gap-2 flex-wrap">
+  
+          {/* SEARCH */}
+          <span className="p-input-icon-left block">
+            <i className="pi pi-search pl-2" />
+            <InputText
+              value={queryParams.search}
+              onChange={(e) => onSearchChange(e.target.value)}
+              placeholder="ej. AIR-0012"
+              className="sf-search-input pl-5 w-full"
+            />
+          </span>
+  
+          {/* TOGGLE FILTERS */}
           <Button
             type="button"
-            icon="pi pi-filter-slash"
-            className="sf-btn p-button-sm"
-            style={{
-              background: "var(--sf-moss)",
-              borderColor: "var(--sf-moss)",
-              color: "var(--sf-clay-light)",
-            }}
-            label={isLaptopUp ? "Limpiar" : undefined}
-            text
-            onClick={clearFilters}
+            icon="pi pi-filter"
+            label={
+              activeFilterCount > 0
+                ? `Filtros (${activeFilterCount})`
+                : "Filtros"
+            }
+            iconPos="left"
+            className="p-button-sm sf-btn--ink sf-btn--soft"
+            onClick={() => setShowFilters((prev) => !prev)}
           />
-        )}
+  
+          {/* CLEAR */}
+          {hasActiveFilters && (
+            <Button
+              type="button"
+              icon="pi pi-filter-slash"
+              label="Limpiar"
+              className="p-button-sm sf-btn--amber sf-btn--soft"
+              text
+              onClick={clearFilters}
+            />
+          )}
+  
+        </div>
+  
+        {/* NEW */}
+        <Link to="/production/dozens/new">
+          <Button
+            label="Nuevo"
+            icon="pi pi-plus"
+            severity="success"
+          />
+        </Link>
+  
       </div>
+  
+      {/* FILTER PANEL */}
+      {showFilters && (
+        <div className="sf-filters-panel">  
+          <div className="flex align-items-center gap-2 flex-wrap">
+  
+            {/* MODEL */}
+            <Dropdown
+              value={queryParams.model}
+              options={models}
+              optionLabel="name"
+              optionValue="id"
+              onChange={(e) => onFilterChange("model", e.value)}
+              placeholder="Modelo"
+              showClear
+              className="sf-filter"
+            />
+  
+            {/* SIZE */}
+            <Dropdown
+              value={queryParams.size}
+              options={options.sizes}
+              optionLabel="name"
+              optionValue="id"
+              onChange={(e) => onFilterChange("size", e.value)}
+              placeholder="Talla"
+              showClear
+              className="sf-filter"
+            />
+  
+            {/* MATERIAL */}
+            <Dropdown
+              value={queryParams.material_type}
+              options={options.materialTypes}
+              optionLabel="name"
+              optionValue="id"
+              onChange={(e) => onFilterChange("material_type", e.value)}
+              placeholder="Material"
+              showClear
+              className="sf-filter"
+            />
+  
+            {/* COLOR */}
+            <Dropdown
+              value={queryParams.color}
+              options={options.colors}
+              optionLabel="name"
+              optionValue="id"
+              onChange={(e) => onFilterChange("color", e.value)}
+              placeholder="Color"
+              itemTemplate={(color: ColorOption) => colorTemplate(color)}
+              valueTemplate={(color: ColorOption | null, props) =>
+                colorTemplate(color, props.placeholder)
+              }
+              showClear
+              className="sf-filter"
+            />
+  
+            {/* PLANT */}
+            <Dropdown
+              value={queryParams.plant_type}
+              options={options.plantTypes}
+              optionLabel="name"
+              optionValue="id"
+              onChange={(e) => onFilterChange("plant_type", e.value)}
+              placeholder="Planta"
+              showClear
+              className="sf-filter"
+            />
+  
+            {/* PRIORITY */}
+            <Dropdown
+              value={queryParams.priority}
+              options={metadata?.priorities ?? []}
+              optionLabel="label"
+              optionValue="key"
+              onChange={(e) => onFilterChange("priority", e.value)}
+              placeholder="Prioridad"
+              showClear
+              className="sf-filter"
+            />
+  
+            {/* STATUS */}
+            <Dropdown
+              value={queryParams.status}
+              options={metadata?.statuses ?? []}
+              optionLabel="label"
+              optionValue="key"
+              onChange={(e) => onFilterChange("status", e.value)}
+              placeholder="Estado"
+              showClear
+              className="sf-filter"
+            />
+  
+          </div>
+        </div>
+      )}
+  
     </div>
   );
 };

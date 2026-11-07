@@ -9,6 +9,8 @@ import { getApiError } from "@/shared/utils/getApiError";
 import { useSpecialties } from "../hooks/useSpecialties";
 import { SpecialtyForm } from "../components/SpecialtyForm";
 import type { Specialty, SpecialtyFormData } from "../types/specialty";
+import { Tooltip } from "primereact/tooltip";
+import Loading from "@/shared/components/Loading";
 
 export const SpecialtiesPage = () => {
   const {
@@ -62,8 +64,9 @@ export const SpecialtiesPage = () => {
         toast.success("Especialidad creada");
       }
       setIsModalOpen(false);
-    } catch (error) {
-      toast.error(getApiError(error, "Error al guardar la especialidad."));
+    } catch (e) {
+      if (e.response?.status === 400) throw e;
+      toast.error(getApiError(e, "Error al guardar la especialidad."));
     } finally {
       setIsSubmitting(false);
     }
@@ -83,6 +86,11 @@ export const SpecialtiesPage = () => {
   const handleReorder = async (
     event: DataTableRowReorderEvent<Specialty[]>,
   ) => {
+    const confirmed = window.confirm(
+      "¿Seguro que quieres cambiar el orden de las etapas de producción?\n\nEsto afecta el orden en que se muestran y se asignan las etapas.",
+    );
+    if (!confirmed) return; // cancelar: no se guarda nada
+
     try {
       await reorder(event.value);
     } catch (error) {
@@ -109,7 +117,22 @@ export const SpecialtiesPage = () => {
     <div className="flex flex-column">
       <strong>{item.name}</strong>
       {item.description && (
-        <small className="text-color-secondary">{item.description}</small>
+        <small className="text-gray-300 text-xs mt-1">{item.description}</small>
+      )}
+      {(item.excludes?.length ?? 0) > 0 && (
+        <small className="text-red-300 flex gap-2 mt-2 text-xs font-semibold">
+          {/* No se usa junto con: <span className="sf-tag clay">{item.excludes.map((id) => items.find((i) => i.id === id)?.name ?? id).join(", ")}</span> */}
+          No se usa junto con:
+          {item.excludes.map((id) => {
+            const name = items.find((i) => i.id === id)?.name ?? id;
+
+            return (
+              <span key={id} className="sf-tag red">
+                {name}
+              </span>
+            );
+          })}
+        </small>
       )}
     </div>
   );
@@ -160,38 +183,45 @@ export const SpecialtiesPage = () => {
   );
 
   const header = (
-    <div className="flex align-items-center justify-content-between flex-wrap gap-2">
-      <span className="p-input-icon-left">
-        <i className="pi pi-search pl-2" />
-        <InputText
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          placeholder="Buscar especialidades..."
-          className="pr-2 pl-5"
-          style={{ width: "250px" }}
+    <>
+      <div className="flex flex-column gap-1">
+        <span className="p-input-icon-left">
+          <i className="pi pi-search pl-2" />
+          <InputText
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Buscar especialidades..."
+            className="pr-2 pl-5"
+            style={{ width: "250px" }}
+          />
+        </span>
+        <small className="text-gray-200 font-light">
+          {canReorder
+            ? "Arrastra las filas para cambiar el orden del proceso."
+            : "Limpia la búsqueda para reordenar."}
+        </small>
+      </div>
+      <div>
+        <Button
+          label="Nuevo"
+          icon="pi pi-plus"
+          severity="success"
+          onClick={() => openCreate()}
         />
-      </span>
-      <small className="text-color-secondary">
-        {canReorder
-          ? "Arrastra las filas para cambiar el orden del proceso."
-          : "Limpia la búsqueda para reordenar."}
-      </small>
-    </div>
+      </div>
+    </>
   );
 
-  if (loading && !hasLoaded.current) {
-    return (
-      <div
-        className="flex align-items-center justify-content-center"
-        style={{ height: "100vh" }}
-      >
-        <i className="pi pi-spin pi-spinner" style={{ fontSize: "2.5rem" }} />
-      </div>
-    );
-  }
+  if (loading && !hasLoaded.current) return <Loading />;
 
   return (
     <>
+      <Tooltip
+        target=".p-datatable-reorderablerow-handle"
+        content="Arrastra para reordenar las etapas de producción"
+        position="top"
+      />
+
       <DataTable
         value={items}
         loading={loading}
@@ -204,7 +234,13 @@ export const SpecialtiesPage = () => {
         emptyMessage="No se encontraron especialidades."
         className="sf-table"
       >
-        {canReorder && <Column rowReorder style={{ width: "3rem" }} />}
+        {canReorder && (
+          <Column
+            header={<span title="Arrastra para reordenar">↕</span>}
+            rowReorder
+            style={{ width: "3rem" }}
+          />
+        )}
         <Column
           header="Orden"
           style={{ width: "6rem" }}
@@ -225,6 +261,7 @@ export const SpecialtiesPage = () => {
         visible={isModalOpen}
         onHide={() => setIsModalOpen(false)}
         specialty={modalItem}
+        others={items.filter((item) => item.id !== modalItem?.id)}
         nextOrder={nextOrder}
         onSubmit={handleSubmit}
         isLoading={isSubmitting}
@@ -239,20 +276,6 @@ export const SpecialtiesPage = () => {
         description={`Se eliminará "${itemToDelete?.name ?? ""}" junto con sus tarifas y los extras de trabajadores en esta etapa. Si ya tiene etapas asignadas en docenas no se podrá eliminar; puedes desactivarla en su lugar.`}
         onConfirm={handleDelete}
         isLoading={isDeleting}
-      />
-
-      <Button
-        rounded
-        size="large"
-        severity="success"
-        icon="pi pi-plus"
-        onClick={openCreate}
-        style={{
-          position: "fixed",
-          right: 24,
-          bottom: 24,
-          padding: "1.8rem 1.9rem",
-        }}
       />
     </>
   );

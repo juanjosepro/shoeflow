@@ -1,7 +1,7 @@
 import { useNavigate, useLocation } from "react-router-dom";
-
 import { Sidebar as SidebarPrime } from "primereact/sidebar";
 import "./Sidebar.scss";
+import { useAuthStore } from "@/store/authStore";
 
 const NAV_SECTIONS = [
   {
@@ -10,7 +10,7 @@ const NAV_SECTIONS = [
       {
         label: "Dashboard",
         icon: "pi pi-microsoft",
-        path: "/catalog/models",
+        path: "/dashboard",
       },
     ],
   },
@@ -24,8 +24,13 @@ const NAV_SECTIONS = [
       },
       {
         label: "Procesos de producción",
-        icon: "pi pi-sync",
+        icon: "pi pi-list",
         path: "/production/dozens/process",
+      },
+      {
+        label: "En Proceso",
+        icon: "pi pi-list-check",
+        path: "/production/dozens/in-progress",
       },
     ],
   },
@@ -96,6 +101,7 @@ const NAV_SECTIONS = [
 export const Sidebar = ({ drawerOpen, setDrawerOpen, toggleTheme, isDark }) => {
   const navigate = useNavigate();
   const location = useLocation();
+  const { user } = useAuthStore();
 
   const goTo = (path) => {
     navigate(path);
@@ -105,8 +111,10 @@ export const Sidebar = ({ drawerOpen, setDrawerOpen, toggleTheme, isDark }) => {
   const sidebarContent = (
     <>
       <div className="brand-row">
-        <span className="brand-mark">T</span>
-        <strong>Taller</strong>
+        <span className="brand-mark">
+          {user?.tenant?.business_name.slice(0, 1)}
+        </span>
+        <strong>{user?.tenant?.business_name}</strong>
         <i className="pi pi-chevron-down" />
       </div>
 

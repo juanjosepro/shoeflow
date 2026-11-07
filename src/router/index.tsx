@@ -5,6 +5,7 @@ import { ModelsPage } from "../features/models";
 import { CategoriesPage } from "../features/categories";
 import { RatesPage } from "../features/rates";
 import { WorkersPage } from "../features/workers";
+import { WorkerPortalPage } from "../features/worker-portal";
 import { SpecialtiesPage } from "../features/specialties";
 import { ColorsPage } from "../features/colors";
 import { SizesPage } from "../features/sizes";
@@ -15,14 +16,17 @@ import {
   DozensPage,
   DozensTablePage,
   DozensFormPage,
+  DozensInProgressPage,
 } from "../features/dozens";
 import MainLayout from "@/layouts/MainLayout/MainLayout";
+import { DashboardPage } from "../features/dashboard";
 
 export default function AppRouter() {
   return (
     <Routes>
       {/* RUTAS PÚBLICAS */}
       <Route path="/login" element={<LoginPage />} />
+      <Route path="/portal" element={<WorkerPortalPage />} />
 
       {/* RUTAS PROTEGIDAS CON LAYOUT */}
       <Route
@@ -33,10 +37,13 @@ export default function AppRouter() {
           </AdminRoute>
         }
       >
-        {/* Todas estas páginas se verán DENTRO del layout (en el Outlet) */}
-        <Route path="dashboard" element={<ModelsPage />} />
+        <Route path="dashboard" element={<DashboardPage />} />
         <Route path="/production/dozens" element={<DozensTablePage />} />
         <Route path="/production/dozens/process" element={<DozensPage />} />
+        <Route
+          path="/production/dozens/in-progress"
+          element={<DozensInProgressPage />}
+        />
         <Route path="/production/dozens/new" element={<DozensFormPage />} />
         <Route
           path="/production/dozens/:id/edit"

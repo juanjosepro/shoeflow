@@ -47,6 +47,7 @@ export const MainLayout = () => {
             subtitle="Docenas, equipos y trabajadores"
             onMenuClick={() => setDrawerOpen(true)}
           />
+
           <Outlet />
         </main>
       </div>

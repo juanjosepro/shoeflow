@@ -11,7 +11,7 @@ interface Props {
   onEdit: (rate: Rate) => void;
   onDelete: (rate: Rate) => void;
   totalRecords: number;
-  first: number;
+  first: number;  
   onPageChange: (page: number) => void;
 }
 
@@ -63,16 +63,26 @@ export const RateList = ({
         tooltipOptions={{ position: "top" }}
         onClick={() => onEdit(rate)}
       />
-      <Button
-        icon="pi pi-trash"
-        text
-        severity="secondary"
-        size="small"
-        className="p-0"
-        tooltip="Eliminar"
-        tooltipOptions={{ position: "top" }}
-        onClick={() => onDelete(rate)}
-      />
+      {rate.is_base ? (
+        // La tarifa base no se elimina: es el precio de respaldo de la etapa
+        <span
+          className="flex align-items-center justify-content-center"
+          style={{ width: "3rem", color: "var(--sf-stone)" }}
+          title="La tarifa base no se puede eliminar"
+        >
+          <i className="pi pi-lock" />
+        </span>
+      ) : (
+        <Button
+          icon="pi pi-trash"
+          rounded
+          text
+          severity="danger"
+          tooltip="Eliminar"
+          tooltipOptions={{ position: "top" }}
+          onClick={() => onDelete(rate)}
+        />
+      )}
     </div>
   );
 

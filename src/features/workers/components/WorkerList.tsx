@@ -1,18 +1,20 @@
-import { Avatar } from "primereact/avatar";
+import { useState } from "react";
+import dayjs from "@/shared/lib/dayjs";
+import useMediaQuery from "@/shared/hooks/useMediaQuery";
+import WorkerPayment from "./WorkerPayment";
+import WorkerPinDialog from "./WorkerPinDialog";
+import { PAGE_SIZE } from "../hooks/useWorkers";
 import type { Worker } from "../types/worker";
+import { Avatar } from "primereact/avatar";
 import { Column } from "primereact/column";
 import { DataTable } from "primereact/datatable";
 import { InputText } from "primereact/inputtext";
-import { useState } from "react";
 import { Dialog } from "primereact/dialog";
 import { Button } from "primereact/button";
 import { Menu } from "primereact/menu";
 import { classNames } from "primereact/utils";
-import WorkerHistory from "./WorkerHistory";
-import WorkerPayment from "./WorkerPayment";
-import dayjs from "@/shared/lib/dayjs";
-import useMediaQuery from "@/shared/hooks/useMediaQuery";
-import { PAGE_SIZE } from "../hooks/useWorkers";
+import WorkerHistoryDialog from "./WorkerHistoryDialog";
+import { formatMoney } from "../utils/format";
 
 interface Props {
   workers: Worker[];
@@ -23,6 +25,7 @@ interface Props {
   totalRecords: number;
   first: number;
   onPageChange: (page: number) => void;
+  openCreate: () => void;
 }
 
 export const WorkerList = ({
@@ -34,12 +37,18 @@ export const WorkerList = ({
   totalRecords,
   first,
   onPageChange,
+  openCreate
 }: Props) => {
   const isLaptopUp = useMediaQuery("(min-width: 1024px)");
   const [selectedWorker, setSelectedWorker] = useState<Worker | null>(null);
   const [isMenuDialogOpen, setIsMenuDialogOpen] = useState(false);
   const [isHistoryDialogOpen, setIsHistoryDialogOpen] = useState(false);
   const [isPaymentDialogOpen, setIsPaymentDialogOpen] = useState(false);
+  const [isPinDialogOpen, setIsPinDialogOpen] = useState(false);
+  // Trabajadores a los que se les asignó PIN en esta sesión (la lista aún no se recarga)
+  const [pinnedIds, setPinnedIds] = useState<number[]>([]);
+
+  const hasPin = !!selectedWorker && (selectedWorker.has_pin || pinnedIds.includes(selectedWorker.id));
 
   const specialtiesBodyTemplate = (rowData: Worker) => {
     if (!rowData.specialties?.length) {
@@ -49,7 +58,7 @@ export const WorkerList = ({
     return (
       <div className="flex flex-wrap gap-2">
         {rowData.specialties.map((specialty) => (
-          <span key={specialty.id} className="sf-tag amber">
+          <span key={specialty.id} className="sf-tag slate">
             {specialty.name}
           </span>
         ))}
@@ -68,6 +77,14 @@ export const WorkerList = ({
         {rowData.is_active ? "Activo" : "Inactivo"}
       </span>
     );
+  };
+
+  // Lo que se le debe hoy (trabajo sin pagar +/- ajustes). Negativo = los descuentos superan lo ganado.
+  const pendingBodyTemplate = (rowData: Worker) => {
+    if (rowData.pending_amount == null) return "—";
+    const amount = Number(rowData.pending_amount);
+    if (amount === 0) return <span style={{ color: "var(--sf-stone)" }}>{formatMoney(0)}</span>;
+    return <span className={`sf-tag ${amount < 0 ? "clay" : "amber"}`}>{formatMoney(amount)}</span>;
   };
 
   const createdAtBodyTemplate = (rowData: Worker) => {
@@ -101,7 +118,7 @@ export const WorkerList = ({
   const getWorkerHistory = () => setIsHistoryDialogOpen(true);
 
   const header = (
-    <div className="flex justify-content-start">
+    <>
       <span className="p-input-icon-left">
         <i className="pi pi-search pl-2" />
         <InputText
@@ -112,7 +129,13 @@ export const WorkerList = ({
           style={{ width: "250px" }}
         />
       </span>
-    </div>
+      <Button
+        label="Nuevo"
+        icon="pi pi-plus"
+        severity="success"
+        onClick={() => openCreate()}
+      />
+    </>
   );
 
   const generateItems = () => {
@@ -149,6 +172,30 @@ export const WorkerList = ({
             onClick={() => {
               setIsMenuDialogOpen(false);
               getWorkerHistory();
+            }}
+            className={classNames(
+              options.className,
+              "w-full p-link flex align-items-center p-3 border-noround sf-menu-btn",
+            )}
+          >
+            <a className="flex items-center">
+              <span className={item.icon} />
+              <span
+                className="mx-2"
+                dangerouslySetInnerHTML={{ __html: item.label }}
+              />
+            </a>
+          </button>
+        ),
+      },
+      {
+        label: hasPin ? "Cambiar PIN del portal" : "Asignar PIN del portal",
+        icon: "pi pi-key",
+        template: (item, options) => (
+          <button
+            onClick={() => {
+              setIsMenuDialogOpen(false);
+              setIsPinDialogOpen(true);
             }}
             className={classNames(
               options.className,
@@ -232,6 +279,7 @@ export const WorkerList = ({
           header="N° Documento"
           style={{ minWidth: "12rem" }}
         />
+        <Column header="Pendiente de pago" body={pendingBodyTemplate} style={{ minWidth: "10rem" }} />
         <Column field="phone" header="Teléfono" />
         <Column field="is_active" header="Estado" body={statusBodyTemplate} />
         <Column
@@ -272,7 +320,7 @@ export const WorkerList = ({
         />
       </Dialog>
 
-      <WorkerHistory
+      <WorkerHistoryDialog
         visible={isHistoryDialogOpen}
         onHide={() => setIsHistoryDialogOpen(false)}
         worker={selectedWorker}
@@ -282,6 +330,14 @@ export const WorkerList = ({
         visible={isPaymentDialogOpen}
         onHide={() => setIsPaymentDialogOpen(false)}
         worker={selectedWorker}
+      />
+
+      <WorkerPinDialog
+        visible={isPinDialogOpen}
+        onHide={() => setIsPinDialogOpen(false)}
+        worker={selectedWorker}
+        hasPin={hasPin}
+        onSaved={(id) => setPinnedIds((prev) => (prev.includes(id) ? prev : [...prev, id]))}
       />
     </>
   );

@@ -19,7 +19,7 @@ type FormData = z.infer<typeof schema>;
 
 export default function LoginPage() {
   const { login } = useAuth();
-  const { slug, name } = useTenant();
+  const { name } = useTenant();
   const [theme, toggleTheme] = useTheme();
   const isDark = theme === "dark";
 
@@ -156,7 +156,7 @@ export default function LoginPage() {
               }
               iconPos="right"
               loading={isSubmitting}
-              className="w-full mt-1 sf-btn"
+              severity="success"
               style={{ fontSize: "16px" }}
             />
           </form>

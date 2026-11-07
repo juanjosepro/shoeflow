@@ -47,6 +47,17 @@
   --sf-font-sans: "Archivo", sans-serif;
   --sf-font-mono: "IBM Plex Mono", monospace;
   --sf-radius: 10px;
+
+  --sf-slate: #8BA6C1;
+  --sf-slate-light: #2f3233;
+  --sf-plum: #C196B2;
+  --sf-plum-light: #382f31;
+  --sf-teal: #7DB3A8;
+  --sf-teal-light: #2c342f;
+ 
+  /* Ámbar para botones y texto sobre fondo claro: el --sf-amber del tema claro no llega a contraste
+     legible con letra blanca. En oscuro es el mismo --sf-amber. */
+  --sf-amber-deep: var(--sf-amber);
 }
 
 :root[data-theme="light"] {
@@ -72,4 +83,13 @@
   --sf-red-dark: #7F332B;
 
   --sf-shadow: rgba(43, 38, 32, 0.08);
+
+  --sf-slate: #4A6278;
+  --sf-slate-light: #e7ebed;
+  --sf-plum: #7D4C6D;
+  --sf-plum-light: #eee8ec;
+  --sf-teal: #3D6B64;
+  --sf-teal-light: #e6eceb;
+ 
+  --sf-amber-deep: #855514;
 }

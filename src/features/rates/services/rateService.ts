@@ -1,6 +1,7 @@
 import api from "@/shared/lib/axios";
 import type { PaginatedResponse } from "@/shared/types";
-import type { Rate, RateFormData, RateQueryParams } from "../types/rate";
+// import type { Rate, RateCoverage, RateFormData, RateQueryParams } from "../types/rate";
+import type { MissingBaseSpecialty, Rate, RateFormData, RateQueryParams } from "../types/rate";
 
 // OJO: ajusta este prefijo al que usas en el urls.py raíz para la app payroll
 const ENDPOINT = "payroll/rates";
@@ -23,4 +24,9 @@ export const rateService = {
   create: (data: RateFormData) => api.post<Rate>(`${ENDPOINT}/`, data).then((r) => r.data),
   update: (id: number, data: RateFormData) => api.put<Rate>(`${ENDPOINT}/${id}/`, data).then((r) => r.data),
   delete: (id: number) => api.delete(`${ENDPOINT}/${id}/`),
+  // Combinaciones sin tarifa (o con tarifa solo para algunos materiales/plantas)
+  // getCoverage: () => api.get<RateCoverage>(`${ENDPOINT}/coverage/`).then((r) => r.data),
+  // Etapas activas sin tarifa base (solo etapas antiguas: las nuevas la crean solas)
+  getMissingBase: () =>
+    api.get<MissingBaseSpecialty[]>(`${ENDPOINT}/missing-base/`).then((r) => r.data),
 };
