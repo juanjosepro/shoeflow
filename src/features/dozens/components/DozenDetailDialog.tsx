@@ -1,6 +1,6 @@
 import useMediaQuery from "@/shared/hooks/useMediaQuery";
 import dayjs from "@/shared/lib/dayjs";
-import { capitalizeFirstWord } from "@/shared/lib/helpers";
+import { capitalizeFirstWord, capitalizeWords } from "@/shared/lib/helpers";
 
 import type { Dozen, DozenAssignment, StageOption } from "../types/dozen";
 
@@ -8,7 +8,7 @@ import { Button } from "primereact/button";
 import { Dialog } from "primereact/dialog";
 
 interface Props {
-  dozen: Dozen | null;  
+  dozen: Dozen | null;
   stages: StageOption[]; // etapas activas de la fábrica (especialidades activas)
   visible: boolean;
   onHide: () => void;
@@ -151,7 +151,23 @@ const DozenDetailDialog = ({ dozen, stages, visible, onHide }: Props) => {
 
             <div>
               <p className="sf-detail-label">Tipo de Planta</p>
-              <p className="sf-detail-value">{dozen.plant_type?.name || "—"}</p>
+              <p className="sf-detail-value">
+                {dozen.plant_type
+                  ? capitalizeWords(dozen.plant_type.name)
+                  : "Sin definir"}
+              </p>
+            </div>
+
+            <div>
+              <p className="sf-detail-label">Cliente</p>
+              <p className="sf-detail-value">{dozen.customer?.name || "—"}</p>
+            </div>
+
+            <div>
+              <p className="sf-detail-label">Pedido</p>
+              <p className="sf-detail-value mono">
+                {dozen.customer_order?.code || "—"}
+              </p>
             </div>
 
             <div>
@@ -203,10 +219,13 @@ const DozenDetailDialog = ({ dozen, stages, visible, onHide }: Props) => {
               );
 
               const statusClass = getStatusClass(assignment);
-              const excludes = (stage as { excludes?: number[] }).excludes ?? [];
+              const excludes =
+                (stage as { excludes?: number[] }).excludes ?? [];
               const notApplicable =
                 !assignment &&
-                (dozen.assignments ?? []).some((a) => excludes.includes(a.specialty.id));
+                (dozen.assignments ?? []).some((a) =>
+                  excludes.includes(a.specialty.id),
+                );
               return (
                 <div className="sf-timeline-item" key={stage.id}>
                   <span className={`sf-stage-icon ${statusClass}`}>
@@ -254,6 +273,14 @@ const DozenDetailDialog = ({ dozen, stages, visible, onHide }: Props) => {
                         </span>
                       </div>
                     )}
+
+                    <p
+                      className={`sf-timeline-worker mt-2 font-light ${
+                        !assignment ? "unassigned" : ""
+                      }`}
+                    >
+                      {assignment?.description}
+                    </p>
                   </div>
                 </div>
               );

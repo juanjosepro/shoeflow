@@ -11,6 +11,7 @@ import {
 } from "../schemas/dozenSchema";
 import type { Model } from "@/features/models/types/model";
 import SizeRunEditor from "./SizeRunEditor";
+import CustomerSelect from "@/features/customers/components/CustomerSelect";
 import CheckRadio from "@/shared/components/CheckRadio";
 import { Button } from "primereact/button";
 import { InputNumber } from "primereact/inputnumber";
@@ -113,7 +114,8 @@ const DozenForm = ({
         size_id: dozen.size.id,
         material_type_id: dozen.material_type.id,
         color_id: dozen.color.id,
-        plant_type_id: dozen.plant_type.id,
+        plant_type_id: dozen.plant_type.id ?? null,
+        customer_id: dozen.customer?.id ?? null,
         priority: dozen.priority,
         description: dozen.description || "",
         is_active: dozen.is_active ?? true,
@@ -155,10 +157,39 @@ const DozenForm = ({
           </small>
         )}
 
+        <div className="flex flex-column gap-1">
+          <label className="font-bold">
+            Cliente{" "}
+            <span style={{ fontWeight: 400, color: "var(--ink-2)" }}>
+              (opcional)
+            </span>
+          </label>
+          <Controller
+            name="customer_id"
+            control={control}
+            render={({ field }) => (
+              <CustomerSelect
+                value={field.value}
+                onChange={field.onChange}
+                current={dozen?.customer}
+                showClear
+                disabled={Boolean(dozen?.customer_order)}
+                placeholder="Sin cliente"
+              />
+            )}
+          />
+          {dozen?.customer_order && (
+            <small style={{ color: "var(--ink-2)" }}>
+              Pertenece al pedido {dozen.customer_order.code}: el cliente se
+              cambia desde el pedido.
+            </small>
+          )}
+        </div>
+
         {/* Fecha, cantidad de docenas y pares */}
         <div className="grid">
           <div className="col-12 md:col-4 flex flex-column gap-1">
-            <label className="font-bold">Fecha de Registro</label>
+            <label className="font-bold">Fecha de Registro *</label>
             <Controller
               name="registered_at"
               control={control}
@@ -188,7 +219,7 @@ const DozenForm = ({
           {/* Al crear: cuántas docenas. Al editar no aplica (cada docena es un registro) */}
           {!isEditing && (
             <div className="col-12 md:col-4 flex flex-column gap-1">
-              <label className="font-bold">Cantidad de docenas</label>
+              <label className="font-bold">Cantidad de docenas *</label>
               <Controller
                 name="count"
                 control={control}
@@ -217,7 +248,7 @@ const DozenForm = ({
           )}
 
           <div className="col-12 md:col-4 flex flex-column gap-1">
-            <label className="font-bold">Pares por docena</label>
+            <label className="font-bold">Pares por docena *</label>
             <Controller
               name="pairs"
               control={control}
@@ -266,7 +297,7 @@ const DozenForm = ({
         />
 
         <OptionChips
-          title="Modelo"
+          title="Modelo *"
           name="model_id"
           options={models.map((m) => ({ value: m.id, label: m.name }))}
           selected={watch("model_id")}
@@ -278,7 +309,7 @@ const DozenForm = ({
         />
 
         <OptionChips
-          title="Talla"
+          title="Talla *"
           name="size_id"
           options={options.sizes.map((s) => ({
             value: s.id,
@@ -295,7 +326,7 @@ const DozenForm = ({
         />
 
         <OptionChips
-          title="Material"
+          title="Material *"
           name="material_type_id"
           options={options.materialTypes.map((m) => ({
             value: m.id,
@@ -312,7 +343,7 @@ const DozenForm = ({
         />
 
         <OptionChips
-          title="Color Principal"
+          title="Color Principal *"
           name="color_id"
           options={options.colors.map((c) => ({
             value: c.id,
@@ -340,9 +371,22 @@ const DozenForm = ({
           error={errors.plant_type_id?.message}
           locked={hasAssignments}
         />
+        {watch("plant_type_id") != null && !hasAssignments && (
+          <Button
+            type="button"
+            label="Cancelar selección de tipo de planta"
+            icon="pi pi-times"
+            size="small"
+            text
+            severity="secondary"
+            onClick={() =>
+              setValue("plant_type_id", null, { shouldValidate: true })
+            }
+          />
+        )}
 
         <OptionChips
-          title="Prioridad"
+          title="Prioridad *"
           name="priority"
           options={(metadata?.priorities ?? []).map((p) => ({
             value: p.key,

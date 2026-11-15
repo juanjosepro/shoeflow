@@ -231,7 +231,7 @@ export const RateForm = ({
         </div>
 
         {/* Resumen */}
-        <div className="p-3 border-round surface-100">
+        <div className="p-3 border-round surface-800">
           <small>
             Se aplicará a:{" "}
             <strong>

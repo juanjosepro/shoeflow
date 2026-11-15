@@ -32,6 +32,11 @@ const NAV_SECTIONS = [
         icon: "pi pi-list-check",
         path: "/production/dozens/in-progress",
       },
+      {
+        label: "Pedidos",
+        icon: "pi pi-clipboard",
+        path: "/production/orders",
+      },
     ],
   },
   {
@@ -46,6 +51,16 @@ const NAV_SECTIONS = [
         label: "Trabajadores",
         icon: "pi pi-users",
         path: "/staff/workers",
+      },
+    ],
+  },
+  {
+    label: "Contacto",
+    items: [
+      {
+        label: "Clientes",
+        icon: "pi pi-address-book",
+        path: "/contact/customers",
       },
     ],
   },

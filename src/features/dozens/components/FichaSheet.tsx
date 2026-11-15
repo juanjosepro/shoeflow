@@ -102,7 +102,10 @@ const Ficha = ({ dozen, stages, mode }: FichaProps) => {
           <b>Material</b> {capitalizeWords(dozen.material_type?.name)}
         </span>
         <span>
-          <b>Planta</b> {capitalizeWords(dozen.plant_type?.name)}
+          <b>Planta</b>{" "}
+          {dozen.plant_type
+            ? capitalizeWords(dozen.plant_type.name)
+            : "Sin definir"}
         </span>
         <span>
           <span
@@ -127,6 +130,17 @@ const Ficha = ({ dozen, stages, mode }: FichaProps) => {
         <span>
           <b>Reg.</b> {formatShort(dozen.registered_at)}
         </span>
+
+        {dozen.customer && (
+          <span>
+            <b>Cliente</b> {dozen.customer.name}
+          </span>
+        )}
+        {dozen.customer_order && (
+          <span>
+            <b>Pedido</b> {dozen.customer_order.code}
+          </span>
+        )}
       </div>
 
       <div className="ficha-table">

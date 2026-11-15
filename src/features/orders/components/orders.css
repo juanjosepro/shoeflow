@@ -1,0 +1,146 @@
+/* [PED] ARCHIVO NUEVO ─ features/orders/components/orders.css
+   Solo usa tus tokens --sf-* (con respaldo) y color-mix: sigue solo el tema claro/oscuro. */
+.sfo {
+  --sfo-moss: var(--sf-moss, #5f8f4e);
+  --sfo-amber: var(--sf-amber, #d99a2b);
+  --sfo-clay: var(--sf-clay, #c2704a);
+  --sfo-muted: var(--ink-2, color-mix(in srgb, currentColor 60%, transparent));
+  --sfo-card: color-mix(in srgb, currentColor 5%, transparent);
+  --sfo-line: color-mix(in srgb, currentColor 14%, transparent);
+}
+
+/* Barra de avance (lista y detalle) */
+.sfo-bar {
+  height: 7px;
+  border-radius: 99px;
+  background: color-mix(in srgb, currentColor 12%, transparent);
+  overflow: hidden;
+  min-width: 90px;
+}
+.sfo-bar > span {
+  display: block;
+  height: 100%;
+  border-radius: 99px;
+  background: var(--sfo-amber, #d99a2b);
+  transition: width 0.3s;
+}
+.sfo-bar.done > span {
+  background: var(--sfo-moss, #5f8f4e);
+}
+
+/* ---- Formulario de pedido ---- */
+.sfo-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 1rem;
+  align-items: start;
+}
+@media (min-width: 1100px) {
+  .sfo-layout {
+    grid-template-columns: minmax(0, 1fr) 320px;
+  }
+}
+
+.sfo-section {
+  background: var(--sfo-card);
+  border: 1px solid var(--sfo-line);
+  border-radius: 12px;
+  padding: 1rem;
+}
+.sfo-section-title {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0 0 0.9rem;
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--sfo-muted);
+  font-weight: 700;
+}
+
+/* Tarjeta de una línea del pedido */
+.sfo-line {
+  border: 1px solid var(--sfo-line);
+  border-left: 4px solid var(--sfo-amber, #d99a2b);
+  border-radius: 10px;
+  padding: 0.85rem 1rem 1rem;
+  background: color-mix(in srgb, currentColor 3%, transparent);
+}
+.sfo-line.invalid {
+  border-left-color: var(--sfo-clay, #c2704a);
+}
+.sfo-line-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+.sfo-line-title {
+  font-weight: 700;
+}
+.sfo-line-meta {
+  font-size: 0.82rem;
+  color: var(--sfo-muted);
+}
+.sfo-swatch {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  border: 1px solid var(--sfo-line);
+  margin-right: 0.5rem;
+  vertical-align: middle;
+}
+
+/* Resumen fijo a la derecha (escritorio) */
+.sfo-summary {
+  position: sticky;
+  top: 1rem;
+}
+.sfo-summary-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.45rem 0;
+  border-bottom: 1px dashed var(--sfo-line);
+  font-size: 0.92rem;
+}
+.sfo-summary-row:last-of-type {
+  border-bottom: 0;
+}
+.sfo-summary-row b {
+  text-align: right;
+}
+.sfo-big {
+  font-size: 1.9rem;
+  font-weight: 700;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Barra inferior fija en celular/tablet: totales + Guardar */
+.sfo-mobilebar {
+  position: sticky;
+  bottom: 0;
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  margin: 1rem -1rem -1rem;
+  background: var(--sf-app-bg, #1c1c1c);
+  border-top: 1px solid var(--sfo-line);
+}
+@media (min-width: 1100px) {
+  .sfo-mobilebar {
+    display: none;
+  }
+}
+@media (max-width: 1099px) {
+  .sfo-summary {
+    display: none;
+  }
+}

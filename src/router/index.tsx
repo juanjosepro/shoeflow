@@ -11,6 +11,8 @@ import { ColorsPage } from "../features/colors";
 import { SizesPage } from "../features/sizes";
 import { MaterialTypesPage } from "../features/material-types";
 import { PlantTypesPage } from "../features/plant-types";
+import { CustomersPage } from "../features/customers";
+import { OrderFormPage, OrdersPage } from "@/features/orders";
 
 import {
   DozensPage,
@@ -49,6 +51,9 @@ export default function AppRouter() {
           path="/production/dozens/:id/edit"
           element={<DozensFormPage />}
         />
+        <Route path="/production/orders" element={<OrdersPage />} />
+        <Route path="/production/orders/new" element={<OrderFormPage />} />
+        <Route path="/production/orders/:id/add" element={<OrderFormPage />} />
         <Route path="/catalog/models" element={<ModelsPage />} />
         <Route path="/catalog/categories" element={<CategoriesPage />} />
         <Route path="/catalog/colors" element={<ColorsPage />} />
@@ -58,6 +63,7 @@ export default function AppRouter() {
         <Route path="/staff/workers" element={<WorkersPage />} />
         <Route path="/staff/specialties" element={<SpecialtiesPage />} />
         <Route path="/payroll/rates" element={<RatesPage />} />
+        <Route path="/contact/customers" element={<CustomersPage />} />
       </Route>
 
       {/* Redirección por defecto */}

@@ -125,7 +125,11 @@ const DozenListTable = ({
   );
 
   const plantTypeBodyTemplate = (rowData: Dozen) => (
-    <span>{capitalizeWords(rowData.plant_type.name)}</span>
+    <span>
+      {rowData.plant_type
+        ? capitalizeWords(rowData.plant_type.name)
+        : "Sin asignar"}
+    </span>
   );
 
   const processBodyTemplate = (rowData: Dozen) => (
@@ -207,7 +211,7 @@ const DozenListTable = ({
           ({rowData.size.description})
         </small>
       </span>
-  
+
       {rowData.size_run && (
         <div className="flex flex-wrap gap-1">
           {Object.entries(rowData.size_run).map(([size, quantity]) => (

@@ -532,13 +532,13 @@ const WorkerPayment = ({ visible, onHide, worker, onPaid }: Props) => {
                         {formatMoney(adjustmentsTotal)}
                       </td>
                     </tr>
-                    <tr className="surface-100 text-xl">
+                    <tr className="text-xl">
                       <td className="p-2 font-bold">Total a pagar</td>
                       <td className="text-right p-2 font-bold">
                         {formatMoney(totalToPay)}
                       </td>
                     </tr>
-                    <tr className="surface-100 text-xl">
+                    <tr className="text-xl">
                       <td colSpan={2} className="p-2">
                         <div className="flex flex-column gap-1">
                           <label className="font-bold">Monto entregado</label>
@@ -573,7 +573,7 @@ const WorkerPayment = ({ visible, onHide, worker, onPaid }: Props) => {
                         </div>
                       </td>
                     </tr>
-                    <tr className="surface-100 text-xl">
+                    <tr className="text-xl">
                       <td colSpan={2} className="p-2">
                         <div className="flex flex-column gap-1">
                           <label className="font-bold">Nota (opcional)</label>

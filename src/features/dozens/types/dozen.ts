@@ -1,4 +1,5 @@
 import type { CatalogItem } from "@/shared/catalog/types/catalog";
+import type { CustomerMini } from "@/features/customers/types/customer";
 
 // --- Piezas que vienen anidadas dentro de una docena ------------------------
 
@@ -44,7 +45,7 @@ export interface Dozen {
   size: CatalogItem;
   material_type: NamedOption;
   color: ColorOption;
-  plant_type: NamedOption;
+  plant_type: NamedOption | null;
   pairs: number; // 1 a 12
   size_run?: Record<string, number> | null;
   fraction: string; // pares / 12, ej. "0.5000"
@@ -55,7 +56,9 @@ export interface Dozen {
   registered_at: string;
   registration_group?: string;
   assignments: DozenAssignment[];
-  assigned_stages: number;
+  customer: CustomerMini | null;
+  customer_order: { id: number; code: string } | null;
+  assigned_stages?: number; // (ya lo envía la API; lo usa el detalle del pedido)
   total_stages: number;
 }
 

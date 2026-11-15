@@ -34,7 +34,8 @@ export const dozenSchema = z.object({
   size_id: requiredId("La talla es requerida"),
   material_type_id: requiredId("El material es requerido"),
   color_id: requiredId("El color es requerido"),
-  plant_type_id: requiredId("El tipo de planta es requerido"),
+  plant_type_id: z.number().nullable().optional(),
+  customer_id: z.number().nullable().optional(),
 
   priority: z.string().min(1, "La prioridad es requerida"),
 
@@ -74,6 +75,7 @@ export const getDefaultDozenFormValues = (): DozenFormInput => ({
   material_type_id: null,
   color_id: null,
   plant_type_id: null,
+  customer_id: null,
   priority: "NORMAL",
   description: "",
   is_active: true,
