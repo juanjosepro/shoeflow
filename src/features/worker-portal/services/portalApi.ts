@@ -42,6 +42,9 @@ export const sessionStore = {
 export const portalApi = axios.create({ baseURL: api.defaults.baseURL });
 
 portalApi.interceptors.request.use((config) => {
+  // Identificar el tenant
+  config.headers["X-Tenant"] = window.location.hostname;
+  // Token independiente del trabajador
   const session = sessionStore.get();
   if (session) config.headers.Authorization = `Worker ${session.token}`;
   return config;

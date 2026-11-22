@@ -11,6 +11,8 @@ import { SpecialtyForm } from "../components/SpecialtyForm";
 import type { Specialty, SpecialtyFormData } from "../types/specialty";
 import { Tooltip } from "primereact/tooltip";
 import Loading from "@/shared/components/Loading";
+import { IconField } from "primereact/iconfield";
+import { InputIcon } from "primereact/inputicon";
 
 export const SpecialtiesPage = () => {
   const {
@@ -184,28 +186,21 @@ export const SpecialtiesPage = () => {
 
   const header = (
     <>
-      <div className="flex flex-column gap-1">
-        <span className="p-input-icon-left">
+      <div className="flex align-items-center justify-content-between flex-wrap w-full gap-3">
+        <span className="sf-search-input p-input-icon-left">
           <i className="pi pi-search pl-2" />
           <InputText
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Buscar especialidades..."
             className="pr-2 pl-5"
-            style={{ width: "250px" }}
           />
         </span>
-        <small className="text-gray-200 font-light">
-          {canReorder
-            ? "Arrastra las filas para cambiar el orden del proceso."
-            : "Limpia la búsqueda para reordenar."}
-        </small>
-      </div>
-      <div>
         <Button
           label="Nuevo"
           icon="pi pi-plus"
           severity="success"
+          className="sf-create-btn"
           onClick={() => openCreate()}
         />
       </div>

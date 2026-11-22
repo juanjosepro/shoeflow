@@ -72,27 +72,25 @@ const DozenTableFilters = ({
   const isLaptopUp = useMediaQuery("(min-width: 1024px)");
 
   // Cuenta únicamente los filtros, no el buscador.
-const activeFilterCount = [
-  queryParams.model,
-  queryParams.size,
-  queryParams.material_type,
-  queryParams.color,
-  queryParams.plant_type,
-  queryParams.priority,
-  queryParams.status,
-].filter((value) => value !== undefined && value !== null && value !== "")
-  .length;
+  const activeFilterCount = [
+    queryParams.model,
+    queryParams.size,
+    queryParams.material_type,
+    queryParams.color,
+    queryParams.plant_type,
+    queryParams.priority,
+    queryParams.status,
+  ].filter(
+    (value) => value !== undefined && value !== null && value !== "",
+  ).length;
 
   const [showFilters, setShowFilters] = useState(activeFilterCount > 0);
 
   return (
     <div className="flex flex-column gap-3 w-full">
-  
       {/* TOOLBAR */}
       <div className="flex align-items-center justify-content-between flex-wrap gap-2">
-  
         <div className="flex align-items-center gap-2 flex-wrap">
-  
           {/* SEARCH */}
           <span className="p-input-icon-left block">
             <i className="pi pi-search pl-2" />
@@ -100,10 +98,10 @@ const activeFilterCount = [
               value={queryParams.search}
               onChange={(e) => onSearchChange(e.target.value)}
               placeholder="ej. AIR-0012"
-              className="sf-search-input pl-5 w-full"
+              className="sf-search-input pl-5"
             />
           </span>
-  
+
           {/* TOGGLE FILTERS */}
           <Button
             type="button"
@@ -114,10 +112,10 @@ const activeFilterCount = [
                 : "Filtros"
             }
             iconPos="left"
-            className="p-button-sm sf-btn--ink sf-btn--soft"
+            className="sf-btn--ink sf-btn--soft"
             onClick={() => setShowFilters((prev) => !prev)}
           />
-  
+
           {/* CLEAR */}
           {hasActiveFilters && (
             <Button
@@ -129,25 +127,23 @@ const activeFilterCount = [
               onClick={clearFilters}
             />
           )}
-  
         </div>
-  
+
         {/* NEW */}
         <Link to="/production/dozens/new">
           <Button
             label="Nuevo"
             icon="pi pi-plus"
             severity="success"
+            className="sf-create-btn"
           />
         </Link>
-  
       </div>
-  
+
       {/* FILTER PANEL */}
       {showFilters && (
-        <div className="sf-filters-panel">  
+        <div className="sf-filters-panel">
           <div className="flex align-items-center gap-2 flex-wrap">
-  
             {/* MODEL */}
             <Dropdown
               value={queryParams.model}
@@ -159,7 +155,7 @@ const activeFilterCount = [
               showClear
               className="sf-filter"
             />
-  
+
             {/* SIZE */}
             <Dropdown
               value={queryParams.size}
@@ -171,7 +167,7 @@ const activeFilterCount = [
               showClear
               className="sf-filter"
             />
-  
+
             {/* MATERIAL */}
             <Dropdown
               value={queryParams.material_type}
@@ -183,7 +179,7 @@ const activeFilterCount = [
               showClear
               className="sf-filter"
             />
-  
+
             {/* COLOR */}
             <Dropdown
               value={queryParams.color}
@@ -199,7 +195,7 @@ const activeFilterCount = [
               showClear
               className="sf-filter"
             />
-  
+
             {/* PLANT */}
             <Dropdown
               value={queryParams.plant_type}
@@ -211,7 +207,7 @@ const activeFilterCount = [
               showClear
               className="sf-filter"
             />
-  
+
             {/* PRIORITY */}
             <Dropdown
               value={queryParams.priority}
@@ -223,7 +219,7 @@ const activeFilterCount = [
               showClear
               className="sf-filter"
             />
-  
+
             {/* STATUS */}
             <Dropdown
               value={queryParams.status}
@@ -235,11 +231,9 @@ const activeFilterCount = [
               showClear
               className="sf-filter"
             />
-  
           </div>
         </div>
       )}
-  
     </div>
   );
 };

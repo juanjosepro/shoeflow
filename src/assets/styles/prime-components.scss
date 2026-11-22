@@ -10,7 +10,7 @@
   border-radius: 8px;
   font-family: var(--sf-font-sans);
   font-size: 13.5px;
-  padding: 9px 12px;
+  // padding: 9px 12px;
 }
 .p-inputtext::placeholder {
   color: var(--sf-stone);
@@ -256,7 +256,7 @@
   color: var(--sf-ink);
   // border-radius: 999px;
   font-size: 13px;
-  padding: 9px 14px;
+  // padding: 9px 14px;
 }
 .sf-table .p-datatable-header .p-inputtext::placeholder { color: var(--sf-stone); }
 .sf-table .p-input-icon-left > i { color: var(--sf-stone); }

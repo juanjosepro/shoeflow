@@ -3,7 +3,15 @@ import "@/assets/styles/checkRadio.scss";
 import { Chip } from "primereact/chip";
 import { Badge } from "primereact/badge";
 
-const CheckRadio = ({ label, description, valueCheck, value, name, onChange, hex }) => {
+const CheckRadio = ({
+  label,
+  description,
+  valueCheck,
+  value,
+  name,
+  onChange,
+  hex,
+}) => {
   const isSelected = valueCheck === value;
   const ref = useRef();
 
@@ -37,12 +45,10 @@ const CheckRadio = ({ label, description, valueCheck, value, name, onChange, hex
         template={() => (
           <>
             {isSelected && <i className="pi pi-check mr-1" />}
-            <div className="flex flex-column items-start">
+            <div style={{ whiteSpace: "nowrap" }}>
               {label}
               {description && (
-                <em className="text-xs font-normal text-color-secondary">
-                  ({description})
-                </em>
+                <em className="text-xs block">({description})</em>
               )}
             </div>
             {hex && <Badge value=" " style={{ background: hex }} />}

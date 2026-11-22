@@ -23,13 +23,8 @@ interface Props {
   onFilterChange: (value: CustomerActiveFilter) => void;
   onEdit: (customer: Customer) => void;
   onToggleActive: (customer: Customer) => void;
+  openNew: () => void;
 }
-
-const FILTERS: { label: string; value: CustomerActiveFilter }[] = [
-  { label: "Activos", value: "active" },
-  { label: "Inactivos", value: "inactive" },
-  { label: "Todos", value: "all" },
-];
 
 const CustomerList = ({
   customers,
@@ -43,9 +38,15 @@ const CustomerList = ({
   onFilterChange,
   onEdit,
   onToggleActive,
+  openNew,
 }: Props) => {
   const navigate = useNavigate();
   const isLaptopUp = useMediaQuery("(min-width: 1024px)");
+  const FILTERS: { label: string; value: CustomerActiveFilter }[] = [
+    { label: `Todos (${customers.length})`, value: "all" },
+    { label: "Activos", value: "active" },
+    { label: "Inactivos", value: "inactive" },
+  ];
 
   // Nombre + documento debajo (en celular también muestra el teléfono)
   const nameBody = (c: Customer) => (
@@ -152,23 +153,32 @@ const CustomerList = ({
   );
 
   const header = (
-    <div className="flex flex-wrap align-items-center justify-content-between gap-3">
-      <span className="p-input-icon-left">
+    <div className="flex align-items-center justify-content-between flex-wrap w-full gap-3">
+      <span className="sf-search-input p-input-icon-left">
         <i className="pi pi-search pl-2" />
         <InputText
           value={search}
           onChange={(e) => onSearchChange(e.target.value)}
           placeholder="Buscar por nombre, documento o teléfono..."
           className="pr-2 pl-5"
-          style={{ width: isLaptopUp ? "320px" : "100%" }}
         />
       </span>
-      <SelectButton
-        value={activeFilter}
-        options={FILTERS}
-        allowEmpty={false}
-        onChange={(e) => onFilterChange(e.value)}
-      />
+
+      <div className="flex align-items-center gap-3">
+        <SelectButton
+          value={activeFilter}
+          options={FILTERS}
+          allowEmpty={false}
+          onChange={(e) => onFilterChange(e.value)}
+        />
+        <Button
+          label="Nuevo"
+          icon="pi pi-plus"
+          severity="success"
+          className="sf-create-btn"
+          onClick={openNew}
+        />
+      </div>
     </div>
   );
 

@@ -165,26 +165,26 @@ export const CatalogPage = <T extends CatalogItem>({
 
   const header = (
     <>
-      <span className="p-input-icon-left">
+      <span className="sf-search-input p-input-icon-left">
         <i className="pi pi-search pl-2" />
         <InputText
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           placeholder={`Buscar ${labels.plural}...`}
           className="pr-2 pl-5"
-          style={{ width: "250px" }}
         />
       </span>
       <Button
         label="Nuevo"
         icon="pi pi-plus"
         severity="success"
+        className="sf-create-btn"
         onClick={() => openCreate()}
       />
     </>
   );
 
-  if (loading && !hasLoaded.current) return <Loading />
+  if (loading && !hasLoaded.current) return <Loading />;
 
   return (
     <>

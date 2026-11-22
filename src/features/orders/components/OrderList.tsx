@@ -10,6 +10,7 @@ import { ORDERS_PAGE_SIZE } from "../hooks/useOrders";
 import type { Order, OrderFilter } from "../types/order";
 import { OrderStatusTag, PriorityTag } from "./OrderStatusTag";
 import "./orders.css";
+import { Link } from "react-router-dom";
 
 interface Props {
   orders: Order[];
@@ -28,11 +29,11 @@ interface Props {
 }
 
 const FILTERS: { label: string; value: OrderFilter }[] = [
+  { label: "Todos", value: "all" },
   { label: "Abiertos", value: "open" },
   { label: "En producción", value: "EN_PRODUCCION" },
   { label: "Listos", value: "LISTO" },
   { label: "Cerrados", value: "closed" },
-  { label: "Todos", value: "all" },
 ];
 
 const OrderList = ({
@@ -54,7 +55,9 @@ const OrderList = ({
   const codeBody = (o: Order) => (
     <div className="flex flex-column">
       <span className="font-bold mono">{o.code}</span>
-      <small style={{ color: "var(--ink-2)" }}>{dayjs(o.ordered_at).format("D MMM YYYY")}</small>
+      <small style={{ color: "var(--ink-2)" }}>
+        {dayjs(o.ordered_at).format("D MMM YYYY")}
+      </small>
     </div>
   );
 
@@ -81,34 +84,57 @@ const OrderList = ({
     o.due_date ? (
       <div className="flex flex-column gap-1">
         <span>{dayjs(o.due_date).format("D MMM YYYY")}</span>
-        {o.is_overdue && <span className="sf-tag clay" style={{ width: "fit-content" }}>Atrasado</span>}
+        {o.is_overdue && (
+          <span className="sf-tag clay" style={{ width: "fit-content" }}>
+            Atrasado
+          </span>
+        )}
       </div>
     ) : (
       <span style={{ color: "var(--sf-stone)" }}>Sin fecha</span>
     );
 
   const header = (
-    <div className="flex flex-column gap-3">
-      <div className="flex flex-wrap align-items-center justify-content-between gap-3">
-        <span className="p-input-icon-left">
+    <>
+      <div className="flex flex-wrap align-items-center justify-content-between gap-2 w-full">
+        <span className="sf-search-input p-input-icon-left">
           <i className="pi pi-search pl-2" />
           <InputText
             value={search}
             onChange={(e) => onSearchChange(e.target.value)}
             placeholder="Buscar por código, cliente o nota..."
             className="pr-2 pl-5"
-            style={{ width: isLaptopUp ? "320px" : "100%" }}
           />
         </span>
+
+        {/* Filtros rápidos: se pueden deslizar en celular */}
+        <div className="sf-chip-scroll-2 flex gap-2">
+          <SelectButton
+            value={filter}
+            options={FILTERS}
+            allowEmpty={false}
+            onChange={(e) => onFilterChange(e.value)}
+          />
+          <Link to="/production/orders/new">
+            <Button
+              label="Nuevo"
+              icon="pi pi-plus"
+              severity="success"
+              className="sf-create-btn"
+            />
+          </Link>
+        </div>
+
         {customerFilterActive && (
-          <Button label="Viendo un solo cliente · quitar" icon="pi pi-times" size="small" outlined severity="secondary" onClick={onClearCustomer} />
+          <Button
+            label="Viendo un solo cliente · quitar"
+            icon="pi pi-times"
+            className="sf-btn--clay sf-btn--soft"
+            onClick={onClearCustomer}
+          />
         )}
       </div>
-      {/* Filtros rápidos: se pueden deslizar en celular */}
-      <div style={{ overflowX: "auto" }}>
-        <SelectButton value={filter} options={FILTERS} allowEmpty={false} onChange={(e) => onFilterChange(e.value)} />
-      </div>
-    </div>
+    </>
   );
 
   return (
@@ -131,11 +157,32 @@ const OrderList = ({
       rowHover
     >
       <Column header="Pedido" body={codeBody} style={{ minWidth: "8rem" }} />
-      <Column header="Cliente" body={customerBody} style={{ minWidth: "12rem" }} />
-      <Column header="Avance" body={progressBody} style={{ minWidth: "11rem" }} />
-      {isLaptopUp && <Column header="Entrega" body={dueBody} style={{ minWidth: "9rem" }} />}
-      {isLaptopUp && <Column header="Prioridad" body={(o: Order) => <PriorityTag priority={o.priority} />} />}
-      {isLaptopUp && <Column header="Estado" body={(o: Order) => <OrderStatusTag status={o.status} />} style={{ minWidth: "10rem" }} />}
+      <Column
+        header="Cliente"
+        body={customerBody}
+        style={{ minWidth: "12rem" }}
+      />
+      <Column
+        header="Avance"
+        body={progressBody}
+        style={{ minWidth: "11rem" }}
+      />
+      {isLaptopUp && (
+        <Column header="Entrega" body={dueBody} style={{ minWidth: "9rem" }} />
+      )}
+      {isLaptopUp && (
+        <Column
+          header="Prioridad"
+          body={(o: Order) => <PriorityTag priority={o.priority} />}
+        />
+      )}
+      {isLaptopUp && (
+        <Column
+          header="Estado"
+          body={(o: Order) => <OrderStatusTag status={o.status} />}
+          style={{ minWidth: "10rem" }}
+        />
+      )}
     </DataTable>
   );
 };

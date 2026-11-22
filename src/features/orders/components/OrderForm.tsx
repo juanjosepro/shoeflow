@@ -216,15 +216,17 @@ const OrderForm = ({
                       name="priority"
                       control={control}
                       render={({ field }) => (
-                        <SelectButton
-                          value={field.value}
-                          options={(metadata?.priorities ?? []).map((p) => ({
-                            label: p.label,
-                            value: p.key,
-                          }))}
-                          allowEmpty={false}
-                          onChange={(e) => field.onChange(e.value)}
-                        />
+                        <div className="sf-chip-scroll-2">
+                          <SelectButton
+                            value={field.value}
+                            options={(metadata?.priorities ?? []).map((p) => ({
+                              label: p.label,
+                              value: p.key,
+                            }))}
+                            allowEmpty={false}
+                            onChange={(e) => field.onChange(e.value)}
+                          />
+                        </div>
                       )}
                     />
                   </div>

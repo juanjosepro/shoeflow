@@ -64,7 +64,7 @@
   border: 1px solid var(--sfo-line);
   border-left: 4px solid var(--sfo-amber, #d99a2b);
   border-radius: 10px;
-  padding: 0.85rem 1rem 1rem;
+  padding: 1rem 0.85rem;
   background: color-mix(in srgb, currentColor 3%, transparent);
 }
 .sfo-line.invalid {

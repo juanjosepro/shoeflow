@@ -18,33 +18,6 @@ export const OrdersPage = () => {
 
   return (
     <>
-      <div className="flex flex-wrap align-items-center justify-content-between gap-3 pb-4">
-        <div>
-          <h2 className="m-0">Pedidos</h2>
-          <small style={{ color: "var(--ink-2)" }}>
-            {o.total} {o.total === 1 ? "pedido" : "pedidos"}
-          </small>
-        </div>
-        <div className="flex gap-2">
-          <Link to="/contact/customers">
-            <Button
-              label="Clientes"
-              icon="pi pi-users"
-              outlined
-              severity="secondary"
-              className="p-button-sm"
-            />
-          </Link>
-          <Link to="/production/orders/new">
-            <Button
-              label="Nuevo pedido"
-              icon="pi pi-plus"
-              className="sf-btn--clay text-white p-button-sm"
-            />
-          </Link>
-        </div>
-      </div>
-
       <OrderList
         orders={o.orders}
         loading={o.loading}

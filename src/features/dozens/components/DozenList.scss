@@ -84,42 +84,12 @@
     }
 }
 
-.sf-chip-scroll-2 {
-    display: flex;
-    gap: 8px;
-    overflow-x: auto;
-    overflow-y: hidden;
-    padding: 8px 2px;
-    width: 100%;
-  
-    // Contenedor interno de PrimeReact
-    .p-selectbutton {
-      display: flex;
-      flex-wrap: nowrap;
-      width: max-content;
-      white-space: nowrap;
-    }
-  
-    // Evita que los botones se reduzcan o salten de línea
-    .p-button {
-      flex: 0 0 auto;
-      white-space: nowrap;
-    }
-  
-    // Ocultar scrollbar (opcional)
-    scrollbar-width: none;
-  
-    &::-webkit-scrollbar {
-      display: none;
-    }
+@media screen and (min-width: 768px) {
+  .md-order-2 {
+    order: 2;
   }
 
-  @media screen and (min-width: 768px) {
-    .md-order-2 {
-      order: 2;
-    }
-  
-    .md-order-3 {
-      order: 3;
-    }
+  .md-order-3 {
+    order: 3;
   }
+}

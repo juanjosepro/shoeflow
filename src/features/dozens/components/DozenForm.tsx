@@ -114,7 +114,7 @@ const DozenForm = ({
         size_id: dozen.size.id,
         material_type_id: dozen.material_type.id,
         color_id: dozen.color.id,
-        plant_type_id: dozen.plant_type.id ?? null,
+        plant_type_id: dozen.plant_type?.id ?? null,
         customer_id: dozen.customer?.id ?? null,
         priority: dozen.priority,
         description: dozen.description || "",

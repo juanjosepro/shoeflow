@@ -15,7 +15,7 @@ export const Header = ({
     { label: "Mi perfil", icon: "pi pi-user" },
     { label: "Configuración", icon: "pi pi-cog" },
     { separator: true },
-    { 
+    {
       label: "Cerrar sesión",
       icon: "pi pi-sign-out",
       template: (item, options) => (
@@ -24,16 +24,16 @@ export const Header = ({
           className="w-full p-link flex align-items-center px-3 py-2 border-noround sf-menu-btn"
         >
           <a className="flex items-center">
-              <span className={item.icon} />
-              <span
-                className="mx-2"
-                style={{ fontSize: "0.875rem" }}
-                dangerouslySetInnerHTML={{ __html: item.label }}
-              />
+            <span className={item.icon} />
+            <span
+              className="mx-2"
+              style={{ fontSize: "0.875rem" }}
+              dangerouslySetInnerHTML={{ __html: item.label }}
+            />
           </a>
         </button>
       ),
-     },
+    },
   ];
 
   return (
@@ -46,13 +46,15 @@ export const Header = ({
         >
           <i className="pi pi-bars" />
         </button>
-        <div>
+        <div className="">
           <h2 className="header-title">{title}</h2>
-          {subtitle && <p className="header-subtitle">{subtitle}</p>}
+          {subtitle && (
+            <p className="header-subtitle hide-for-mobile">{subtitle}</p>
+          )}
         </div>
       </div>
 
-      <label className="header-search">
+      <label className="header-search hide-for-mobile">
         <i className="pi pi-search" />
         <input placeholder="Buscar docena, trabajador, código..." />
       </label>
@@ -69,7 +71,10 @@ export const Header = ({
           className="header-user"
           onClick={(e) => userMenuRef.current?.toggle(e)}
         >
-          <span className="header-avatar">{user?.first_name?.substring(0, 1)}{user?.last_name?.substring(0, 1)}</span>
+          <span className="header-avatar">
+            {user?.first_name?.substring(0, 1)}
+            {user?.last_name?.substring(0, 1)}
+          </span>
           <span className="header-user-text">
             <span className="name">{user?.first_name}</span>
             <span className="role">{user?.username}</span>

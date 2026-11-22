@@ -129,7 +129,9 @@ export const Sidebar = ({ drawerOpen, setDrawerOpen, toggleTheme, isDark }) => {
         <span className="brand-mark">
           {user?.tenant?.business_name.slice(0, 1)}
         </span>
-        <strong>{user?.tenant?.business_name}</strong>
+        <strong style={{ color: "var(--sf-ink)" }}>
+          {user?.tenant?.business_name}
+        </strong>
         <i className="pi pi-chevron-down" />
       </div>
 

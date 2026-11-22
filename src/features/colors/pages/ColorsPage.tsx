@@ -15,12 +15,6 @@ import Loading from "@/shared/components/Loading";
 
 type StatusFilter = "all" | "active" | "inactive";
 
-const STATUS_OPTIONS = [
-  { label: "Todos", value: "all" },
-  { label: "Activos", value: "active" },
-  { label: "Inactivos", value: "inactive" },
-];
-
 const PAGE_SIZE = 12;
 
 export const ColorsPage = () => {
@@ -32,6 +26,12 @@ export const ColorsPage = () => {
     toggleActive,
     deleteItem,
   } = useCatalog<Color, ColorFormData>(colorService);
+
+  const STATUS_OPTIONS = [
+    { label: `Todos (${colors.length})`, value: "all" },
+    { label: "Activos", value: "active" },
+    { label: "Inactivos", value: "inactive" },
+  ];
 
   // Búsqueda, filtro y paginación en el navegador (son pocos colores)
   const [search, setSearch] = useState("");
@@ -118,13 +118,13 @@ export const ColorsPage = () => {
     }
   };
 
-  if (loading && !hasLoaded.current) return <Loading />
+  if (loading && !hasLoaded.current) return <Loading />;
 
   return (
     <>
       {/* Barra superior: búsqueda y filtro de estado */}
       <div className="flex align-items-center justify-content-between flex-wrap gap-3 mb-4">
-        <span className="p-input-icon-left">
+        <span className="sf-search-input p-input-icon-left">
           <i className="pi pi-search pl-2" />
           <InputText
             value={search}
@@ -134,14 +134,10 @@ export const ColorsPage = () => {
             }}
             placeholder="Buscar por nombre o código..."
             className="pr-2 pl-5"
-            style={{ width: "260px" }}
           />
         </span>
 
         <div className="flex align-items-center gap-3">
-          <small className="text-color-secondary">
-            {filtered.length} {filtered.length === 1 ? "color" : "colores"}
-          </small>
           <SelectButton
             value={status}
             options={STATUS_OPTIONS}
@@ -155,6 +151,7 @@ export const ColorsPage = () => {
             label="Nuevo"
             icon="pi pi-plus"
             severity="success"
+            className="sf-create-btn"
             onClick={() => openCreate()}
           />
         </div>

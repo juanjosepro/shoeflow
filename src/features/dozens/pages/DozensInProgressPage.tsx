@@ -25,7 +25,12 @@ const WARN_DAYS = 3; // ámbar
 const STALE_DAYS = 5; // rojo: probablemente la ficha está perdida o sin registrar
 
 const STATUS = { PENDING: "PENDIENTE", IN_PROGRESS: "EN_PROCESO" } as const;
-const PRIORITY_RANK: Record<string, number> = { URGENTE: 4, ALTA: 3, NORMAL: 2, BAJA: 1 };
+const PRIORITY_RANK: Record<string, number> = {
+  URGENTE: 4,
+  ALTA: 3,
+  NORMAL: 2,
+  BAJA: 1,
+};
 
 type QuickFilter = "all" | "stale" | "empty";
 
@@ -41,9 +46,11 @@ interface BoardRow {
 
 // Compara códigos ignorando guiones y mayúsculas: un lector con otro teclado
 // a veces cambia el "-" por otro símbolo.
-const normalizeCode = (value: string) => value.toLowerCase().replace(/[^a-z0-9]/g, "");
+const normalizeCode = (value: string) =>
+  value.toLowerCase().replace(/[^a-z0-9]/g, "");
 
-const idleLabel = (days: number) => (days === 0 ? "Hoy" : days === 1 ? "Ayer" : `Hace ${days} días`);
+const idleLabel = (days: number) =>
+  days === 0 ? "Hoy" : days === 1 ? "Ayer" : `Hace ${days} días`;
 
 export const DozensInProgressPage = () => {
   const { dozens, loading, assignStages } = useDozens({
@@ -57,7 +64,10 @@ export const DozensInProgressPage = () => {
   const [search, setSearch] = useState("");
   const [scan, setScan] = useState("");
   const [quick, setQuick] = useState<QuickFilter>("all");
-  const [sort, setSort] = useState<{ field: string; order: 1 | -1 | 0 | null | undefined }>({
+  const [sort, setSort] = useState<{
+    field: string;
+    order: 1 | -1 | 0 | null | undefined;
+  }>({
     field: "idleDays",
     order: -1,
   });
@@ -72,12 +82,17 @@ export const DozensInProgressPage = () => {
   const rows = useMemo<BoardRow[]>(() => {
     const today = dayjs().startOf("day");
     return dozens
-      .filter((d) => d.is_active && (d.status === STATUS.PENDING || d.status === STATUS.IN_PROGRESS))
+      .filter(
+        (d) =>
+          d.is_active &&
+          (d.status === STATUS.PENDING || d.status === STATUS.IN_PROGRESS),
+      )
       .map((dozen) => {
         const assignments = dozen.assignments ?? [];
         // Último movimiento real: la fecha de la última etapa; sin etapas, el día del registro
         const last = assignments.reduce<string | null>(
-          (max, a) => (max === null || a.completed_at > max ? a.completed_at : max),
+          (max, a) =>
+            max === null || a.completed_at > max ? a.completed_at : max,
           null,
         );
         const lastDay = dayjs(last ?? dozen.registered_at).startOf("day");
@@ -87,8 +102,15 @@ export const DozensInProgressPage = () => {
           idleDays: Math.max(0, today.diff(lastDay, "day")),
           // Etapas excluyentes (armado completo vs armador + pegador): solo falta lo que aplica
           ...(() => {
-            const progress = getStageProgress(stages, assignments.map((a) => a.specialty.id));
-            return { assigned: progress.assigned, total: progress.total, missing: progress.missing };
+            const progress = getStageProgress(
+              stages,
+              assignments.map((a) => a.specialty.id),
+            );
+            return {
+              assigned: progress.assigned,
+              total: progress.total,
+              missing: progress.missing,
+            };
           })(),
           priorityRank: PRIORITY_RANK[dozen.priority?.toUpperCase()] ?? 0,
         };
@@ -104,7 +126,10 @@ export const DozensInProgressPage = () => {
       if (quick === "stale" && r.idleDays < STALE_DAYS) return false;
       if (quick === "empty" && r.assigned !== 0) return false;
       if (!q) return true;
-      return r.code.toLowerCase().includes(q) || (r.dozen.model?.name ?? "").toLowerCase().includes(q);
+      return (
+        r.code.toLowerCase().includes(q) ||
+        (r.dozen.model?.name ?? "").toLowerCase().includes(q)
+      );
     });
   }, [rows, quick, search]);
 
@@ -140,7 +165,9 @@ export const DozensInProgressPage = () => {
     const typed = scan.trim();
     if (!typed) return;
     setScan("");
-    const row = rows.find((r) => normalizeCode(r.code) === normalizeCode(typed));
+    const row = rows.find(
+      (r) => normalizeCode(r.code) === normalizeCode(typed),
+    );
     if (!row) {
       toast.error(`La docena ${typed} no está en proceso o no existe.`);
       return;
@@ -152,12 +179,20 @@ export const DozensInProgressPage = () => {
     {
       label: "4 por hoja A4 (recortar)",
       icon: "pi pi-th-large",
-      command: () => printFichas(visibleRows.map((r) => r.dozen), "sheet4"),
+      command: () =>
+        printFichas(
+          visibleRows.map((r) => r.dozen),
+          "sheet4",
+        ),
     },
     {
       label: "Una por hoja (A6)",
       icon: "pi pi-file",
-      command: () => printFichas(visibleRows.map((r) => r.dozen), "single"),
+      command: () =>
+        printFichas(
+          visibleRows.map((r) => r.dozen),
+          "single",
+        ),
     },
   ];
 
@@ -176,12 +211,16 @@ export const DozensInProgressPage = () => {
       <div>
         <div style={{ fontWeight: 500 }}>
           {capitalizeWords(r.dozen.model?.name)}{" "}
-          <span className="mono" style={{ fontSize: 12, color: "var(--sf-stone)", fontWeight: 400 }}>
+          <span
+            className="mono"
+            style={{ fontSize: 12, color: "var(--sf-stone)", fontWeight: 400 }}
+          >
             {r.dozen.code}
           </span>
         </div>
         <div style={{ fontSize: 12, color: "var(--sf-stone)" }}>
-          Talla {r.dozen.size?.name} — {capitalizeWords(r.dozen.material_type?.name)}
+          Talla {r.dozen.size?.name} —{" "}
+          {capitalizeWords(r.dozen.material_type?.name)}
           {r.dozen.pairs < 12 && ` — ${r.dozen.pairs} pares`}
         </div>
       </div>
@@ -192,7 +231,11 @@ export const DozensInProgressPage = () => {
     const p = r.dozen.priority?.toUpperCase();
     if (p === "URGENTE") return <span className="sf-tag clay">Urgente</span>;
     if (p === "ALTA") return <span className="sf-tag amber">Alta</span>;
-    return <span style={{ fontSize: 12.5, color: "var(--sf-stone)" }}>{capitalizeWords(r.dozen.priority)}</span>;
+    return (
+      <span style={{ fontSize: 12.5, color: "var(--sf-stone)" }}>
+        {capitalizeWords(r.dozen.priority)}
+      </span>
+    );
   };
 
   const progressCell = (r: BoardRow) => {
@@ -202,25 +245,38 @@ export const DozensInProgressPage = () => {
         <span className="mono" style={{ fontSize: 12 }}>
           {r.assigned}/{total}
         </span>
-        <ProgressBar value={(r.assigned / total) * 100} showValue={false} style={{ height: 6, marginTop: 4 }} />
+        <ProgressBar
+          value={(r.assigned / total) * 100}
+          showValue={false}
+          style={{ height: 6, marginTop: 4 }}
+        />
       </div>
     );
   };
 
   const missingCell = (r: BoardRow) => {
-    if (r.missing.length === 0) return <span style={{ color: "var(--sf-stone)" }}>Todo asignado</span>;
+    if (r.missing.length === 0)
+      return <span style={{ color: "var(--sf-stone)" }}>Todo asignado</span>;
     return (
       <span>
         <strong>{r.missing[0].name}</strong>
         {r.missing.length > 1 && (
-          <span style={{ color: "var(--sf-stone)" }}> y {r.missing.length - 1} más</span>
+          <span style={{ color: "var(--sf-stone)" }}>
+            {" "}
+            y {r.missing.length - 1} más
+          </span>
         )}
       </span>
     );
   };
 
   const idleCell = (r: BoardRow) => {
-    const tone = r.idleDays >= STALE_DAYS ? "clay" : r.idleDays >= WARN_DAYS ? "amber" : null;
+    const tone =
+      r.idleDays >= STALE_DAYS
+        ? "clay"
+        : r.idleDays >= WARN_DAYS
+          ? "amber"
+          : null;
     return tone ? (
       <span className={`sf-tag ${tone}`}>{idleLabel(r.idleDays)}</span>
     ) : (
@@ -230,7 +286,12 @@ export const DozensInProgressPage = () => {
 
   const actionsCell = (r: BoardRow) => (
     <div className="flex align-items-center gap-1 justify-content-end">
-      <Button label="Asignar" icon="pi pi-users" className="p-button-sm sf-btn--moss" onClick={() => openAssign(r.dozen)} />
+      <Button
+        label="Asignar"
+        icon="pi pi-users"
+        className="p-button-sm sf-btn--moss"
+        onClick={() => openAssign(r.dozen)}
+      />
       <Button
         icon="pi pi-print"
         className="p-button-sm sf-btn--slate"
@@ -245,17 +306,22 @@ export const DozensInProgressPage = () => {
 
   return (
     <>
-      <div className="flex flex-wrap align-items-center justify-content-between gap-3 pb-3">
+      <div className="flex align-items-center justify-content-between gap-3 pb-3">
         <div>
-          <h2 style={{ fontSize: 19, fontWeight: 600, margin: 0 }}>Docenas en proceso</h2>
-          <p style={{ fontSize: 13, color: "var(--sf-ink-2)", margin: "2px 0 0" }}>
+          <h2 style={{ fontSize: 19, fontWeight: 600, margin: 0 }}>
+            Docenas en proceso
+          </h2>
+          <p
+            style={{
+              fontSize: 13,
+              color: "var(--sf-ink-2)",
+              margin: "2px 0 0",
+            }}
+          >
             Las que siguen en el taller, de más a menos tiempo sin movimiento.
           </p>
         </div>
         <div className="flex align-items-center gap-2">
-          <Link to="/production/dozens">
-            <Button label="Todas las docenas" icon="pi pi-external-link" className="p-button-sm sf-btn--ink sf-btn--soft" />
-          </Link>
           <Button
             label="Imprimir fichas"
             icon="pi pi-print"
@@ -270,15 +336,17 @@ export const DozensInProgressPage = () => {
 
       <div className="p-3 sf-border-line border-round-lg">
         <div className="flex flex-wrap align-items-center justify-content-between gap-3 mb-3">
-          <SelectButton
-            value={quick}
-            options={quickOptions}
-            onChange={(e) => e.value && setQuick(e.value)}
-            allowEmpty={false}
-          />
+          <div className="sf-chip-scroll-2">
+            <SelectButton
+              value={quick}
+              options={quickOptions}
+              onChange={(e) => e.value && setQuick(e.value)}
+              allowEmpty={false}
+            />
+          </div>
           <div className="flex flex-wrap align-items-center gap-2">
             {/* Campo para el lector de QR: escanea la ficha y se abre la docena */}
-            <span className="p-input-icon-left">
+            <span className="sf-search-input p-input-icon-left">
               <i className="pi pi-qrcode pl-2" />
               <InputText
                 ref={scanRef}
@@ -288,17 +356,15 @@ export const DozensInProgressPage = () => {
                 placeholder="Escanear ficha…"
                 className="pl-5"
                 autoFocus
-                style={{ minWidth: 190 }}
               />
             </span>
-            <span className="p-input-icon-left">
+            <span className="sf-search-input p-input-icon-left">
               <i className="pi pi-search pl-2" />
               <InputText
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 placeholder="Buscar por código o modelo..."
                 className="pl-5"
-                style={{ minWidth: 220 }}
               />
             </span>
           </div>
@@ -317,10 +383,25 @@ export const DozensInProgressPage = () => {
           emptyMessage="No hay docenas que coincidan."
         >
           <Column header="Docena" body={dozenCell} field="code" sortable />
-          <Column header="Prioridad" body={priorityCell} field="priorityRank" sortable />
-          <Column header="Avance" body={progressCell} field="assigned" sortable />
+          <Column
+            header="Prioridad"
+            body={priorityCell}
+            field="priorityRank"
+            sortable
+          />
+          <Column
+            header="Avance"
+            body={progressCell}
+            field="assigned"
+            sortable
+          />
           <Column header="Falta" body={missingCell} />
-          <Column header="Último movimiento" body={idleCell} field="idleDays" sortable />
+          <Column
+            header="Último movimiento"
+            body={idleCell}
+            field="idleDays"
+            sortable
+          />
           <Column body={actionsCell} style={{ width: "1%" }} />
         </DataTable>
       </div>

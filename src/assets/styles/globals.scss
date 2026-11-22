@@ -172,14 +172,122 @@
     outline-offset: 2px;
   }
 
-.hide-for-mobile {
-  @media (max-width: 599.99px) {
-    display: none!important
+.sf-create-btn {
+  // Escritorio
+  @media (min-width: 768px) {
+    // Mantiene el estilo normal de PrimeReact
+  }
+
+  // Mobile
+  @media (max-width: 767px) {
+    position: fixed;
+    right: 24px;
+    bottom: 24px;
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    .p-button-label {
+      display: none;
+    }
+
+    .p-button-icon {
+      margin: 0;
+      font-size: 1.3rem;
+    }
+
+    z-index: 1000;
   }
 }
 
-.hide-for-tablet {
-  @media (min-width: 600px) {
-    display: none!important
+.sf-search-input {
+  // Mobile
+  @media (width < 576px) {
+    width: 100%;
+  }
+
+  .p-inputtext {
+    width: 100%;
+
+    // Desktop (lg)
+    @media (width >= 992px) {
+      width: 250px;
+    }
+  }
+  // Mobile: estilos base (0px en adelante)
+
+
+  // Small
+  // @media (width >= 576px) {
+    // Móviles grandes
+  // }
+
+  // Tablet (md)
+  // @media (width >= 768px) {
+    // Estilos tablet
+  // }
+
+  // Desktop (lg)
+  // @media (width >= 992px) {
+    // Estilos desktop
+  // }
+
+  // Large Desktop (xl)
+  // @media (width >= 1200px) {
+    // Estilos para pantallas grandes
+  // }
+}
+
+.sf-chip-scroll-2 {
+  @media (width < 576px) {
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding: 8px 2px;
+    width: 100%;
+  
+    // Contenedor interno de PrimeReact
+    .p-selectbutton {
+      display: flex;
+      flex-wrap: nowrap;
+      width: max-content;
+      white-space: nowrap;
+    }
+  
+    // Evita que los botones se reduzcan o salten de línea
+    .p-button {
+      flex: 0 0 auto;
+      white-space: nowrap;
+    }
+  
+    // Ocultar scrollbar (opcional)
+    scrollbar-width: none;
+  
+    &::-webkit-scrollbar {
+      display: none;
+    }
+  }
+}
+
+.hide-for-mobile {
+  @media (width < 576px) {
+    display: none !important;
+  }
+}
+
+.sf-hide-tablet {
+  @media (576px <= width < 768px) {
+    display: none !important;
+  }
+}
+
+.sf-hide-desktop {
+  @media (width >= 768px) {
+    display: none !important;
   }
 }

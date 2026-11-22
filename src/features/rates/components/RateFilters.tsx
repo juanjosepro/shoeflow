@@ -22,7 +22,7 @@ const RateFilters = ({
   onFilterChange,
   clearFilters,
   hasActiveFilters,
-  openCreate
+  openCreate,
 }: Props) => {
   // Un solo molde para los cinco filtros.
   const filters: {
@@ -43,7 +43,8 @@ const RateFilters = ({
 
   // Cuenta los filtros activos.
   const activeFilterCount = filters.filter(
-    ({ field }) => queryParams[field] !== null && queryParams[field] !== undefined,
+    ({ field }) =>
+      queryParams[field] !== null && queryParams[field] !== undefined,
   ).length;
 
   // Abre automáticamente si hay filtros activos al montar.
@@ -51,7 +52,6 @@ const RateFilters = ({
 
   return (
     <div className="flex flex-column gap-3 w-full">
-
       {/* TOOLBAR */}
       <div className="flex align-items-center justify-content-between flex-wrap gap-2">
         <div className="flex align-items-center gap-2 flex-wrap">
@@ -81,7 +81,7 @@ const RateFilters = ({
                 : "Filtros"
             }
             outlined
-            className="p-button-sm sf-btn--ink sf-btn--soft"
+            className="sf-btn--ink sf-btn--soft"
             onClick={() => setShowFilters((prev) => !prev)}
           />
 
@@ -101,6 +101,7 @@ const RateFilters = ({
           label="Nuevo"
           icon="pi pi-plus"
           severity="success"
+          className="sf-create-btn"
           onClick={openCreate}
         />
       </div>
@@ -125,7 +126,6 @@ const RateFilters = ({
               />
             ))}
           </div>
-
         </div>
       )}
     </div>

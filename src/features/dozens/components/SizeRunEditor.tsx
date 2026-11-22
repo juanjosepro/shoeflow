@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Button } from "primereact/button";
 import { InputNumber } from "primereact/inputnumber";
+import "./SizeRunEditor.scss";
 
 interface Row {
   size: number | null;
@@ -47,7 +48,11 @@ const SizeRunEditor = ({ value, totalPairs, onChange, error }: Props) => {
         {rows.length > 0 && (
           <span
             className="mono text-sm"
-            style={{ color: matches ? "var(--sf-moss, inherit)" : "var(--sf-amber, inherit)" }}
+            style={{
+              color: matches
+                ? "var(--sf-moss, inherit)"
+                : "var(--sf-amber, inherit)",
+            }}
           >
             {sum} / {totalPairs} pares
           </span>
@@ -56,12 +61,14 @@ const SizeRunEditor = ({ value, totalPairs, onChange, error }: Props) => {
 
       {rows.length === 0 && (
         <small style={{ color: "var(--ink-2)" }}>
-          Si la docena mezcla tallas (ej. 2 pares de 38, 3 de 39…), agrégalas aquí.<br /> Si no, déjalo vacío.
+          Si la docena mezcla tallas (ej. 2 pares de 38, 3 de 39…), agrégalas
+          aquí.
+          <br /> Si no, déjalo vacío.
         </small>
       )}
 
       {rows.map((row, index) => (
-        <div key={index} className="flex align-items-center gap-2">
+        <div key={index} className="sf-size-run-row grid">
           <InputNumber
             value={row.pairs}
             onValueChange={(e) => update(index, { pairs: e.value ?? null })}
@@ -69,9 +76,11 @@ const SizeRunEditor = ({ value, totalPairs, onChange, error }: Props) => {
             min={1}
             max={12}
             useGrouping={false}
-            className="flex-1"
+            className="col-5"
           />
-          <span>×</span>
+          <span className="col-1 flex align-items-center justify-content-center">
+            ×
+          </span>
           <InputNumber
             value={row.size}
             onValueChange={(e) => update(index, { size: e.value ?? null })}
@@ -79,7 +88,7 @@ const SizeRunEditor = ({ value, totalPairs, onChange, error }: Props) => {
             min={1}
             max={99}
             useGrouping={false}
-            className="flex-1"
+            className="col-5"
           />
           <Button
             type="button"
@@ -88,6 +97,7 @@ const SizeRunEditor = ({ value, totalPairs, onChange, error }: Props) => {
             rounded
             severity="danger"
             onClick={() => emit(rows.filter((_, i) => i !== index))}
+            className="col-1"
           />
         </div>
       ))}
@@ -104,9 +114,13 @@ const SizeRunEditor = ({ value, totalPairs, onChange, error }: Props) => {
         />
       </div>
 
-      {hasDuplicates && <small className="p-error">Hay tallas repetidas.</small>}
+      {hasDuplicates && (
+        <small className="p-error">Hay tallas repetidas.</small>
+      )}
       {rows.length > 0 && !matches && !error && (
-        <small className="p-error">La serie debe sumar {totalPairs} pares.</small>
+        <small className="p-error">
+          La serie debe sumar {totalPairs} pares.
+        </small>
       )}
       {error && <small className="p-error">{error}</small>}
     </div>

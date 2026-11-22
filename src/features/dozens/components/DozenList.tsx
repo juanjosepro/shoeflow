@@ -77,7 +77,11 @@ interface DozenListProps {
     payload: AssignStagesPayload,
   ) => Promise<Dozen>;
   // Completar, rechazar o reabrir una docena
-  changeDozenStatus: (id: number, action: DozenStatusAction, reason?: string) => Promise<void>;
+  changeDozenStatus: (
+    id: number,
+    action: DozenStatusAction,
+    reason?: string,
+  ) => Promise<void>;
 }
 
 const DozenList = ({
@@ -156,7 +160,8 @@ const DozenList = ({
 
     const sorted = [...filteredDozens].sort(
       (a, b) =>
-        new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
+        new Date(b.registered_at).getTime() -
+        new Date(a.registered_at).getTime(),
     );
 
     const currentDate = dayjs();
@@ -166,7 +171,7 @@ const DozenList = ({
     >();
 
     sorted.forEach((item) => {
-      const date = dayjs(item.created_at);
+      const date = dayjs(item.registered_at);
       const startOfWeek = date.startOf("isoWeek");
       const endOfWeek = date.endOf("isoWeek");
       const dateKey = startOfWeek.toISOString();
@@ -246,8 +251,14 @@ const DozenList = ({
     setIsChangingStatus(true);
     try {
       const reason =
-        statusChange.action === "reject" ? rejectReason.trim() || undefined : undefined;
-      await changeDozenStatus(statusChange.dozen.id, statusChange.action , reason);
+        statusChange.action === "reject"
+          ? rejectReason.trim() || undefined
+          : undefined;
+      await changeDozenStatus(
+        statusChange.dozen.id,
+        statusChange.action,
+        reason,
+      );
       toast.success(STATUS_ACTION_TEXT[statusChange.action].success);
       setStatusChange(null);
       setRejectReason("");
@@ -295,7 +306,7 @@ const DozenList = ({
         {/* Filtro por estación */}
         <div
           className="hide-for-mobile dozens-stations p-3 sf-border-line border-round-lg"
-          style={{ width: 220, flexShrink: 0}}
+          style={{ width: 220, flexShrink: 0 }}
         >
           <p
             style={{
@@ -360,7 +371,7 @@ const DozenList = ({
           style={{ flex: 1, minWidth: 0 }}
           className="p-3 sf-border-line border-round-lg"
         >
-          <div className="grid align-items-center mb-3">
+          <div className="grid align-items-center mb-2">
             {/* Título */}
             <div className="col-6 md:col-4 order-1">
               <h2 style={{ fontSize: 19, fontWeight: 600, margin: 0 }}>
@@ -376,7 +387,8 @@ const DozenList = ({
                   margin: "2px 0 0",
                 }}
               >
-                {stations.find((s) => s.key === activeStation)?.count ?? 0} docenas
+                {stations.find((s) => s.key === activeStation)?.count ?? 0}{" "}
+                docenas
               </p>
             </div>
 
@@ -397,7 +409,7 @@ const DozenList = ({
 
             {/* Buscador */}
             <div className="col-12 md:col-6 order-3 md-order-2">
-              <span className="p-input-icon-left taller-search w-full">
+              <span className="p-input-icon-left w-full">
                 <i className="pi pi-search pl-2" />
                 <InputText
                   value={search}
@@ -492,7 +504,8 @@ const DozenList = ({
                         key={item.id}
                         className="dozen-row"
                         style={{
-                          borderTop: j > 0 ? "1px solid var(--sf-line)" : "none",
+                          borderTop:
+                            j > 0 ? "1px solid var(--sf-line)" : "none",
                         }}
                       >
                         {/* NÚMERO Y COLOR */}
@@ -504,7 +517,8 @@ const DozenList = ({
                           <span
                             className="dozen-row-color"
                             style={{
-                              background: item.color?.hex_code ?? "var(--sf-stone)",
+                              background:
+                                item.color?.hex_code ?? "var(--sf-stone)",
                             }}
                           />
                         </div>
@@ -513,7 +527,9 @@ const DozenList = ({
                         <div className="dozen-row-main">
                           <div
                             className="dozen-row-title"
-                            onClick={() => navigate(`/production/dozens/${item.id}/edit`)}
+                            onClick={() =>
+                              navigate(`/production/dozens/${item.id}/edit`)
+                            }
                           >
                             {capitalizeWords(item.model?.name)}{" "}
                             <span className="mono dozen-row-code">
@@ -523,8 +539,10 @@ const DozenList = ({
 
                           <div className="dozen-row-details">
                             Talla {item.size?.name}
-                            {item.size?.description && ` (${item.size.description})`}
-                            {" — "}{capitalizeWords(item.material_type?.name)}
+                            {item.size?.description &&
+                              ` (${item.size.description})`}
+                            {" — "}
+                            {capitalizeWords(item.material_type?.name)}
                             {item.pairs < 12 && ` — ${item.pairs} pares`}
                             {` — ${item.assigned_stages}/${item.total_stages} etapas`}
                           </div>
@@ -536,7 +554,9 @@ const DozenList = ({
 
                         {/* ESTADO Y ACCIONES */}
                         <div className="dozen-row-actions">
-                        <span className={`sf-tag ${statusTagClass(item.status)}`}>
+                          <span
+                            className={`sf-tag ${statusTagClass(item.status)}`}
+                          >
                             {getStatusLabel(item.status)}
                           </span>
                           <div>
@@ -617,9 +637,14 @@ const DozenList = ({
         }
       >
         <p style={{ margin: "0 0 12px", fontSize: 14 }}>
-          {statusChange ? STATUS_ACTION_TEXT.reject.description(statusChange.dozen.code) : ""}
+          {statusChange
+            ? STATUS_ACTION_TEXT.reject.description(statusChange.dozen.code)
+            : ""}
         </p>
-        <label htmlFor="reject-reason" style={{ fontSize: 13, fontWeight: 500 }}>
+        <label
+          htmlFor="reject-reason"
+          style={{ fontSize: 13, fontWeight: 500 }}
+        >
           Motivo (opcional)
         </label>
         <InputTextarea

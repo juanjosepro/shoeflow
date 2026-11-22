@@ -82,6 +82,7 @@ export const ModelsPage = () => {
           label="Nuevo"
           icon="pi pi-plus"
           severity="success"
+          className="sf-create-btn"
           onClick={() => openCreate()}
         />
       </div>

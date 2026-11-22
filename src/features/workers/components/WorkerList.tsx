@@ -37,7 +37,7 @@ export const WorkerList = ({
   totalRecords,
   first,
   onPageChange,
-  openCreate
+  openCreate,
 }: Props) => {
   const isLaptopUp = useMediaQuery("(min-width: 1024px)");
   const [selectedWorker, setSelectedWorker] = useState<Worker | null>(null);
@@ -48,7 +48,9 @@ export const WorkerList = ({
   // Trabajadores a los que se les asignó PIN en esta sesión (la lista aún no se recarga)
   const [pinnedIds, setPinnedIds] = useState<number[]>([]);
 
-  const hasPin = !!selectedWorker && (selectedWorker.has_pin || pinnedIds.includes(selectedWorker.id));
+  const hasPin =
+    !!selectedWorker &&
+    (selectedWorker.has_pin || pinnedIds.includes(selectedWorker.id));
 
   const specialtiesBodyTemplate = (rowData: Worker) => {
     if (!rowData.specialties?.length) {
@@ -83,8 +85,13 @@ export const WorkerList = ({
   const pendingBodyTemplate = (rowData: Worker) => {
     if (rowData.pending_amount == null) return "—";
     const amount = Number(rowData.pending_amount);
-    if (amount === 0) return <span style={{ color: "var(--sf-stone)" }}>{formatMoney(0)}</span>;
-    return <span className={`sf-tag ${amount < 0 ? "clay" : "amber"}`}>{formatMoney(amount)}</span>;
+    if (amount === 0)
+      return <span style={{ color: "var(--sf-stone)" }}>{formatMoney(0)}</span>;
+    return (
+      <span className={`sf-tag ${amount < 0 ? "clay" : "amber"}`}>
+        {formatMoney(amount)}
+      </span>
+    );
   };
 
   const createdAtBodyTemplate = (rowData: Worker) => {
@@ -119,20 +126,20 @@ export const WorkerList = ({
 
   const header = (
     <>
-      <span className="p-input-icon-left">
+      <span className="sf-search-input p-input-icon-left">
         <i className="pi pi-search pl-2" />
         <InputText
           value={search}
           onChange={(e) => onSearchChange(e.target.value)}
           placeholder="Buscar por nombre o DNI..."
           className="pr-2 pl-5"
-          style={{ width: "250px" }}
         />
       </span>
       <Button
         label="Nuevo"
         icon="pi pi-plus"
         severity="success"
+        className="sf-create-btn"
         onClick={() => openCreate()}
       />
     </>
@@ -279,7 +286,11 @@ export const WorkerList = ({
           header="N° Documento"
           style={{ minWidth: "12rem" }}
         />
-        <Column header="Pendiente de pago" body={pendingBodyTemplate} style={{ minWidth: "10rem" }} />
+        <Column
+          header="Pendiente de pago"
+          body={pendingBodyTemplate}
+          style={{ minWidth: "10rem" }}
+        />
         <Column field="phone" header="Teléfono" />
         <Column field="is_active" header="Estado" body={statusBodyTemplate} />
         <Column
@@ -337,7 +348,9 @@ export const WorkerList = ({
         onHide={() => setIsPinDialogOpen(false)}
         worker={selectedWorker}
         hasPin={hasPin}
-        onSaved={(id) => setPinnedIds((prev) => (prev.includes(id) ? prev : [...prev, id]))}
+        onSaved={(id) =>
+          setPinnedIds((prev) => (prev.includes(id) ? prev : [...prev, id]))
+        }
       />
     </>
   );
