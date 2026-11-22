@@ -9,7 +9,7 @@ export default defineConfig({
     VitePWA({
       registerType: 'autoUpdate',
       manifest: false, // el manifiesto lo sirve el servidor según el Host
-      includeAssets: ['favicon.ico', '/icons/pwa-192x192.png'],
+      includeAssets: ['favicon.ico', '/icons/pwa-512x512.png'],
       workbox: {
         globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}'], // solo el app shell estático
         navigateFallback: '/index.html',
