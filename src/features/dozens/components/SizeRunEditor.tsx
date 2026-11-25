@@ -47,7 +47,7 @@ const SizeRunEditor = ({ value, totalPairs, onChange, error }: Props) => {
         <label className="font-bold">Serie de tallas (opcional)</label>
         {rows.length > 0 && (
           <span
-            className="mono text-sm"
+            className="sf-mono text-sm"
             style={{
               color: matches
                 ? "var(--sf-moss, inherit)"

@@ -11,7 +11,7 @@ import { useTenant } from "@/shared/hooks/useTenant";
 import "./LoginPage.scss"; // ajusta la ruta según dónde centralices el theme en tu proyecto
 
 const schema = z.object({
-  username: z.string().min(3, "Requerido"),
+  username: z.string().min(3, "Requerido").toLowerCase(),
   password: z.string().min(3, "Requerido"),
 });
 
@@ -115,6 +115,10 @@ export default function LoginPage() {
               <label>Usuario</label>
               <InputText
                 {...register("username")}
+                onInput={(e) => {
+                  const input = e.target as HTMLInputElement;
+                  input.value = input.value.toLowerCase();
+                }}
                 placeholder="Ingresa tu usuario"
                 invalid={!!errors.username}
                 className="w-full"

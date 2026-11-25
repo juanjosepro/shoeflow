@@ -113,7 +113,7 @@ const DozenListTable = ({
   };
 
   const modelBodyTemplate = (rowData: Dozen) => (
-    <span>{capitalizeWords(rowData.model.name)}</span>
+    <span>{rowData.model.name.toUpperCase()}</span>
   );
 
   const colorBodyTemplate = (rowData: Dozen) => (
@@ -127,7 +127,7 @@ const DozenListTable = ({
   const plantTypeBodyTemplate = (rowData: Dozen) => (
     <span>
       {rowData.plant_type
-        ? capitalizeWords(rowData.plant_type.name)
+        ? rowData.plant_type.name.toUpperCase()
         : "Sin asignar"}
     </span>
   );
@@ -185,23 +185,28 @@ const DozenListTable = ({
     return date.isValid() ? date.format("D [de] MMMM [de] YYYY") : "—";
   };
 
-  const codeBodyTemplate = (rowData: Dozen) => (
-    <div className="flex flex-column gap-1">
-      <span className="mono">{rowData.code}</span>
+  const codeBodyTemplate = (rowData: Dozen) => {
+    const isOrden = rowData.customer_order !== null;
 
-      {rowData.registration_group && (
-        <small
-          className="mono"
-          style={{
-            color: "var(--sf-stone)",
-            fontSize: "0.7rem",
-          }}
-        >
-          {rowData.registration_group}
-        </small>
-      )}
-    </div>
-  );
+    return (
+      <div className="flex flex-column gap-1">
+        <span className="sf-mono">{rowData.code}</span>
+
+        {rowData.registration_group && (
+          <small
+            className="sf-mono"
+            style={{
+              color: isOrden ? "var(--sf-moss)" : "var(--sf-stone)",
+              fontWeight: isOrden ? "bold" : "normal",
+              fontSize: "0.7rem",
+            }}
+          >
+            {rowData.registration_group}
+          </small>
+        )}
+      </div>
+    );
+  };
 
   const sizeTemplate = (rowData: Dozen) => (
     <div className="flex flex-column gap-2">

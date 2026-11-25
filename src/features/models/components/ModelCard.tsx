@@ -25,7 +25,7 @@ export const ModelCard = ({ model, onEdit, onToggle }: Props) => {
       >
         <div className="flex flex-column">
           <span
-            className="font-bold text-lg mb-1 mono"
+            className="font-bold text-lg mb-1 sf-mono"
             style={{ color: "var(--sf-ink)" }}
           >
             {model.name}
@@ -58,7 +58,7 @@ export const ModelCard = ({ model, onEdit, onToggle }: Props) => {
         <span className="text-sm" style={{ color: "var(--sf-ink-2)" }}>
           Prefijo
         </span>
-        <span className="mono" style={{ color: "var(--sf-ink-2)" }}>
+        <span className="sf-mono" style={{ color: "var(--sf-ink-2)" }}>
           {model.code_prefix}
         </span>
       </div>
@@ -66,7 +66,7 @@ export const ModelCard = ({ model, onEdit, onToggle }: Props) => {
         <span className="text-sm" style={{ color: "var(--sf-ink-2)" }}>
           Creado
         </span>
-        <span className="mono text-sm" style={{ color: "var(--sf-ink-2)" }}>
+        <span className="sf-mono text-sm" style={{ color: "var(--sf-ink-2)" }}>
           {new Date(model.created_at).toLocaleDateString("es-PE", {
             year: "numeric",
             month: "2-digit",

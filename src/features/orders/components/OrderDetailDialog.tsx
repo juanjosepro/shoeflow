@@ -122,7 +122,7 @@ const OrderDetailDialog = ({ orderId, metadata, onHide, onChanged }: Props) => {
 
   const dozenBody = (d: OrderDozen) => (
     <div className="flex flex-column">
-      <span className="font-bold mono">{d.code}</span>
+      <span className="font-bold sf-mono">{d.code}</span>
       <small style={{ color: "var(--ink-2)" }}>
         {d.model.name} · talla {d.size.name} · {d.pairs} pares
       </small>

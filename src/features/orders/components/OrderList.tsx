@@ -54,7 +54,7 @@ const OrderList = ({
 
   const codeBody = (o: Order) => (
     <div className="flex flex-column">
-      <span className="font-bold mono">{o.code}</span>
+      <span className="font-bold sf-mono">{o.code}</span>
       <small style={{ color: "var(--ink-2)" }}>
         {dayjs(o.ordered_at).format("D MMM YYYY")}
       </small>

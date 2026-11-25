@@ -90,7 +90,7 @@ const CustomerList = ({
   // Pedidos: total y cuántos siguen abiertos
   const ordersBody = (c: Customer) => (
     <div className="flex align-items-center gap-2">
-      <span className="mono">{c.orders_count}</span>
+      <span className="sf-mono">{c.orders_count}</span>
       {c.open_orders_count > 0 && (
         <span className="sf-tag amber">{c.open_orders_count} abiertos</span>
       )}

@@ -39,6 +39,7 @@ export default function AppRouter() {
           </AdminRoute>
         }
       >
+        <Route index element={<Navigate to="/dashboard" replace />} />
         <Route path="dashboard" element={<DashboardPage />} />
         <Route path="/production/dozens" element={<DozensTablePage />} />
         <Route path="/production/dozens/process" element={<DozensPage />} />

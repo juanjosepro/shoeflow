@@ -212,7 +212,7 @@ export const DozensInProgressPage = () => {
         <div style={{ fontWeight: 500 }}>
           {capitalizeWords(r.dozen.model?.name)}{" "}
           <span
-            className="mono"
+            className="sf-mono"
             style={{ fontSize: 12, color: "var(--sf-stone)", fontWeight: 400 }}
           >
             {r.dozen.code}
@@ -242,7 +242,7 @@ export const DozensInProgressPage = () => {
     const total = stages.length || r.dozen.total_stages || 1;
     return (
       <div style={{ minWidth: 90 }}>
-        <span className="mono" style={{ fontSize: 12 }}>
+        <span className="sf-mono" style={{ fontSize: 12 }}>
           {r.assigned}/{total}
         </span>
         <ProgressBar

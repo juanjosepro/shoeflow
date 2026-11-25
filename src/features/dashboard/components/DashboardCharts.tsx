@@ -23,7 +23,11 @@ export const WeeklyBars = ({ data, series, format, unit }: WeeklyProps) => {
 
   return (
     <>
-      <div className="sfd-bars" role="img" aria-label="Gráfico de barras por semana">
+      <div
+        className="sfd-bars"
+        role="img"
+        aria-label="Gráfico de barras por semana"
+      >
         {data.map((week) => (
           <div className="sfd-bar-group" key={week.week_start}>
             {series.map((s) => (
@@ -39,13 +43,22 @@ export const WeeklyBars = ({ data, series, format, unit }: WeeklyProps) => {
       </div>
       <div className="sfd-xlabels">
         {data.map((week, i) => (
-          <span key={week.week_start}>{i % step === (data.length - 1) % step ? dayjs(week.week_start).format("D MMM") : ""}</span>
+          <span key={week.week_start}>
+            {i % step === (data.length - 1) % step
+              ? dayjs(week.week_start).format("D MMM")
+              : ""}
+          </span>
         ))}
       </div>
       <div className="sfd-legend">
         {series.map((s) => (
           <span key={s.key}>
-            <span className="sfd-dot" style={{ background: `var(--sfd-${s.className === "a" ? "clay" : s.className === "b" ? "moss" : "amber"})` }} />
+            <span
+              className="sfd-dot"
+              style={{
+                background: `var(--sfd-${s.className === "a" ? "clay" : s.className === "b" ? "moss" : "amber"})`,
+              }}
+            />
             {s.label}
           </span>
         ))}
@@ -69,7 +82,11 @@ interface HListProps {
   empty?: string;
 }
 
-export const HBarList = ({ rows, color = "clay", empty = "Sin datos todavía." }: HListProps) => {
+export const HBarList = ({
+  rows,
+  color = "clay",
+  empty = "Sin datos todavía.",
+}: HListProps) => {
   if (rows.length === 0) return <div className="sfd-empty">{empty}</div>;
   const max = Math.max(...rows.map((r) => r.value), 0.0001);
   return (
@@ -81,7 +98,10 @@ export const HBarList = ({ rows, color = "clay", empty = "Sin datos todavía." }
             <b>{row.valueLabel}</b>
           </div>
           <div className="sfd-track">
-            <div className={`sfd-fill ${color}`} style={{ width: `${(row.value / max) * 100}%` }} />
+            <div
+              className={`sfd-fill ${color}`}
+              style={{ width: `${(row.value / max) * 100}%` }}
+            />
           </div>
           {row.sub && <div className="sfd-hrow-sub">{row.sub}</div>}
         </div>
@@ -100,21 +120,29 @@ interface StackItem {
 
 export const StackBar = ({ items }: { items: StackItem[] }) => {
   const total = items.reduce((sum, i) => sum + i.value, 0);
-  if (total === 0) return <div className="sfd-empty">No hay docenas abiertas.</div>;
+  if (total === 0)
+    return <div className="sfd-empty">No hay docenas abiertas.</div>;
   return (
     <>
       <div className="sfd-stack">
         {items
           .filter((i) => i.value > 0)
           .map((i) => (
-            <span key={i.key} style={{ width: `${(i.value / total) * 100}%`, background: i.color }} title={`${i.label}: ${fmtDozens(i.value)}`} />
+            <span
+              key={i.key}
+              style={{
+                width: `${(i.value / total) * 100}%`,
+                background: i.color,
+              }}
+              title={`${i.label}: ${fmtDozens(i.value)}`}
+            />
           ))}
       </div>
       <div className="sfd-legend">
         {items.map((i) => (
           <span key={i.key}>
             <span className="sfd-dot" style={{ background: i.color }} />
-            {i.label} <b className="mono">{fmtDozens(i.value)}</b>
+            {i.label} <b className="sf-mono">{fmtDozens(i.value)}</b>
           </span>
         ))}
       </div>

@@ -85,7 +85,7 @@ const DozenDetailDialog = ({ dozen, stages, visible, onHide }: Props) => {
 
           <span className="mx-2">—</span>
 
-          <span className="mono">{dozen?.code}</span>
+          <span className="sf-mono">{dozen?.code}</span>
         </>
       }
       position={isLaptopUp ? "center" : "bottom"}
@@ -165,7 +165,7 @@ const DozenDetailDialog = ({ dozen, stages, visible, onHide }: Props) => {
 
             <div>
               <p className="sf-detail-label">Pedido</p>
-              <p className="sf-detail-value mono">
+              <p className="sf-detail-value sf-mono">
                 {dozen.customer_order?.code || "—"}
               </p>
             </div>
@@ -185,7 +185,7 @@ const DozenDetailDialog = ({ dozen, stages, visible, onHide }: Props) => {
             {dozen.size_run && Object.keys(dozen.size_run).length > 0 && (
               <div className="full">
                 <p className="sf-detail-label">Serie de tallas</p>
-                <p className="sf-detail-value mono">
+                <p className="sf-detail-value sf-mono">
                   {Object.entries(dozen.size_run)
                     .sort(([a], [b]) => Number(a) - Number(b))
                     .map(([size, pairs]) => `${pairs}×${size}`)

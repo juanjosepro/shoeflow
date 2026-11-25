@@ -116,6 +116,7 @@ const DozenList = ({
 
   // Color del tag según el estado (moss=éxito, amber=en curso, clay=atención)
   const statusTagClass = (status: string) => {
+    if (status === STATUS.PENDING) return "teal";
     if (status === STATUS.COMPLETED) return "moss";
     if (status === STATUS.REJECTED) return "clay";
     return "amber";
@@ -349,7 +350,7 @@ const DozenList = ({
                   {s.name}
                 </span>
                 <span
-                  className="mono"
+                  className="sf-mono"
                   style={{
                     fontSize: 12,
                     color:
@@ -471,7 +472,7 @@ const DozenList = ({
                           </span>
                         </span>
                         <span
-                          className="mono"
+                          className="sf-mono"
                           style={{
                             fontSize: 12,
                             border: "1px solid var(--sf-line)",
@@ -510,7 +511,7 @@ const DozenList = ({
                       >
                         {/* NÚMERO Y COLOR */}
                         <div className="dozen-row-leading">
-                          <span className="mono dozen-row-number">
+                          <span className="sf-mono dozen-row-number">
                             {j + 1}.
                           </span>
 
@@ -531,8 +532,8 @@ const DozenList = ({
                               navigate(`/production/dozens/${item.id}/edit`)
                             }
                           >
-                            {capitalizeWords(item.model?.name)}{" "}
-                            <span className="mono dozen-row-code">
+                            <span>{item.model?.name.toUpperCase()} </span>
+                            <span className="sf-mono dozen-row-code">
                               {item.code}
                             </span>
                           </div>
